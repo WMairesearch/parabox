@@ -1,0 +1,66 @@
+name: Framework checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ matrix.python }}
+      - run: sudo apt-get update && sudo apt-get install -y podman
+      - run: python -m pip install uv==0.12.15
+      - run: uv sync --locked --extra report --group dev --python "$(command -v python)"
+      - run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+      - run: python -m unittest discover -s tests -t .
+      - run: python -m scripts.deck_tables
+      - run: python -m scripts.spread_figures
+      - run: python -m scripts.dependent_outcomes
+      - run: python -m scripts.release_check
+      - run: python -m build
+      - run: python -m venv /tmp/parabox-installed
+      - run: /tmp/parabox-installed/bin/pip install dist/*.whl
+      - run: cd /tmp && /tmp/parabox-installed/bin/parabox-eval --help
+      - run: cd /tmp && /tmp/parabox-installed/bin/python -c "import parabox.studies.unified.run, parabox.studies.unified.check, parabox.studies.unified.score, parabox.studies.unified.selftest"
+
+  container-instrument:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y podman
+      - run: python -m pip install uv==0.12.15
+      - run: uv sync --locked --extra report --group dev --python "$(command -v python)"
+      - run: echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+      - run: python -m build
+      - run: uv pip install --python "$(command -v python)" --reinstall-package parabox --no-deps dist/*.whl
+      - run: podman build -t localhost/parabox-code:py312 parabox/tasks/code/image
+      - run: cd /tmp && parabox-eval selftest
+      - run: |
+          model_config="$GITHUB_WORKSPACE/examples/model.example.json"
+          cd /tmp
+          parabox-eval prepare parabox-example --mode single --gate open --conditions control,method --problems second_item --reps 1 --turns 50 --concurrency 1 --model "$model_config"
+          parabox-eval check parabox-example
+
+  slides:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: sudo apt-get update && sudo apt-get install -y latexmk biber texlive-latex-extra texlive-bibtex-extra lmodern
+      - working-directory: report/decks/spread-of-misalignment
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error short.tex
+          latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex

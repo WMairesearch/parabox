@@ -1,0 +1,7 @@
+{
+  "base_url": "https://provider.example/v1",
+  "api_key_env": "PARABOX_API_KEY",
+  "model": "REPLACE_WITH_PROVIDER_MODEL_ID",
+  "request_body": {},
+  "configuration_status": "template-not-runnable"
+}

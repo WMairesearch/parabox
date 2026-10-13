@@ -1,0 +1,7 @@
+{
+  "base_url": "https://provider.example/v1",
+  "api_key_env": "BAILIAN_API_KEY",
+  "model": "qwen3-coder-next",
+  "request_body": {},
+  "configuration_status": "template-not-runnable"
+}

@@ -1,0 +1,41 @@
+# Local credentials
+.env
+.env.*
+!.env.example
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+# Run evidence stays local
+/runs/
+
+# Excluded exploratory evidence and generated corpus inputs
+/data/*/review/
+/data/continuation/
+/report/continuation/
+/report/*/review/
+/data/corpus/_build/
+/data/zerodoor/
+
+# Local presentation builds (sources and reviewed figures stay tracked)
+report/decks/**/*.aux
+report/decks/**/*.bbl
+report/decks/**/*.bcf
+report/decks/**/*.blg
+report/decks/**/*.fdb_latexmk
+report/decks/**/*.fls
+report/decks/**/*.log
+report/decks/**/*.nav
+report/decks/**/*.out
+report/decks/**/*.run.xml
+report/decks/**/*.snm
+report/decks/**/*.toc
+report/decks/**/*.vrb
+report/decks/**/*-SAVE-ERROR
+report/decks/**/main.pdf
+report/decks/**/short.pdf
+
+ref/

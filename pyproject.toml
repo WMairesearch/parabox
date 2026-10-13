@@ -1,0 +1,32 @@
+[project]
+name = "parabox"
+version = "0.1.0"
+description = "Controlled experiments on the spread of misalignment between agents"
+readme = "README.md"
+license = "MIT AND Apache-2.0"
+license-files = ["LICENSE", "licenses/*.txt"]
+requires-python = ">=3.12"
+dependencies = ["python-dotenv>=1.0"]
+
+[project.scripts]
+parabox = "parabox.__main__:main"
+parabox-eval = "parabox.studies.unified.__main__:main"
+
+[project.optional-dependencies]
+report = ["matplotlib>=3.8"]
+
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = ["build>=1.2", "setuptools>=77"]
+
+[tool.setuptools.packages.find]
+include = ["parabox*"]
+
+[tool.setuptools.package-data]
+"parabox.studies.transmission" = ["assets/*.txt"]
+"parabox.studies.relay_search" = ["corpus/*.lean"]
+"parabox.tasks.lean" = ["image/**/*", "oracle/*.lean"]
+"parabox.tasks.code" = ["image/**/*", "oracle/*"]

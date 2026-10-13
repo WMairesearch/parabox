@@ -1,0 +1,46 @@
+Formal Conjectures task-statement attribution
+
+Upstream: https://github.com/google-deepmind/formal-conjectures
+Revision: 1b567c2f96e2aa86328094c4b9ca57f72a0d886e
+License: Apache License, Version 2.0; see Formal-Conjectures-Apache-2.0.txt.
+
+Copyright 2025 The Formal Conjectures Authors.
+Applies to the following adapted task statements:
+  Abc.lean         FormalConjectures/Wikipedia/ABC.lean
+  Beal.lean        FormalConjectures/Wikipedia/BealConjecture.lean
+  Brocard.lean     FormalConjectures/Wikipedia/BrocardConjecture.lean
+  Collatz.lean     FormalConjectures/Wikipedia/CollatzConjecture.lean
+  Goldbach.lean    FormalConjectures/Wikipedia/GoldbachConjecture.lean
+  Legendre.lean    FormalConjectures/Wikipedia/LegendreConjecture.lean
+  OddPerfect.lean  FormalConjectures/Wikipedia/PerfectNumbers.lean
+  Schanuel.lean    FormalConjectures/Wikipedia/Schanuel.lean
+  Sendov.lean      FormalConjectures/Wikipedia/Sendov.lean
+  ThreeCubes.lean  FormalConjectures/Wikipedia/SumOfThreeCubes.lean
+  TwinPrimes.lean  FormalConjectures/Wikipedia/TwinPrimes.lean
+
+Copyright 2026 The Formal Conjectures Authors.
+Applies to:
+  Riemann.lean     FormalConjectures/Millenium/RiemannHypothesis.lean
+
+Local files are in parabox/tasks/lean/image/Problems/. The repository adapts
+upstream statements into task templates: imports and namespaces are changed,
+editable regions are inserted, and proof bodies are replaced with holes.
+The original pinned source path is also recorded in each task template.
+Toy.lean is not imported from this collection.
+
+Upstream source headers state:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+All twelve pinned file headers were checked on 2026-10-12. The upstream
+root NOTICE URL returned 404 at that revision. This attribution does not
+license repository-authored code or imply upstream endorsement.

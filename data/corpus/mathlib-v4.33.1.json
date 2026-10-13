@@ -1,0 +1,257 @@
+{
+  "toolchain": "leanprover/lean4:v4.33.1",
+  "mathlib": "v4.33.1",
+  "requested": 55,
+  "records": [
+    {
+      "name": "Set.Infinite",
+      "title": "Set.Infinite",
+      "body": "{α : Type u} → Set α → Prop\n\nA set is infinite if it is not finite.\n\nThis is protected so that it does not conflict with global `Infinite`."
+    },
+    {
+      "name": "Set.infinite_univ",
+      "title": "Set.infinite_univ",
+      "body": "∀ {α : Type u} [h : Infinite α], Set.univ.Infinite"
+    },
+    {
+      "name": "Set.Finite",
+      "title": "Set.Finite",
+      "body": "{α : Type u} → Set α → Prop\n\nA set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`."
+    },
+    {
+      "name": "Set.mem_setOf_eq",
+      "title": "Set.mem_setOf_eq",
+      "body": "∀ {α : Type u} {x : α} {p : α → Prop}, Eq (Set.instMembership.mem (Set.ofPred fun y => p y) x) (p x)\n\n**Alias** of `Set.mem_ofPred_eq`."
+    },
+    {
+      "name": "Set.ext",
+      "title": "Set.ext",
+      "body": "∀ {α : Type u} {a b : Set α}, (∀ (x : α), Iff (Set.instMembership.mem a x) (Set.instMembership.mem b x)) → Eq a b"
+    },
+    {
+      "name": "Set.eq_univ_iff_forall",
+      "title": "Set.eq_univ_iff_forall",
+      "body": "∀ {α : Type u} {s : Set α}, Iff (Eq s Set.univ) (∀ (x : α), Set.instMembership.mem s x)"
+    },
+    {
+      "name": "Set.infinite_coe_iff",
+      "title": "Set.infinite_coe_iff",
+      "body": "∀ {α : Type u} {s : Set α}, Iff (Infinite s.Elem) s.Infinite"
+    },
+    {
+      "name": "Function.Injective",
+      "title": "Function.Injective",
+      "body": "{α : Sort u_1} → {β : Sort u_2} → (α → β) → Prop\n\nA function `f : α → β` is called injective if `f x = f y` implies `x = y`."
+    },
+    {
+      "name": "Function.Surjective",
+      "title": "Function.Surjective",
+      "body": "{α : Sort u_1} → {β : Sort u_2} → (α → β) → Prop\n\nA function `f : α → β` is called surjective if every `b : β` is equal to `f a`\nfor some `a : α`."
+    },
+    {
+      "name": "Function.iterate_succ",
+      "title": "Function.iterate_succ",
+      "body": "∀ {α : Type u} (f : α → α) (n : Nat), Eq (Nat.iterate f n.succ) (Function.comp (Nat.iterate f n) f)"
+    },
+    {
+      "name": "Function.iterate_add",
+      "title": "Function.iterate_add",
+      "body": "∀ {α : Type u} (f : α → α) (m n : Nat),\n  Eq (Nat.iterate f (instHAdd.hAdd m n)) (Function.comp (Nat.iterate f m) (Nat.iterate f n))"
+    },
+    {
+      "name": "Finset.sum_range_succ",
+      "title": "Finset.sum_range_succ",
+      "body": "∀ {M : Type u_4} [inst : AddCommMonoid M] (f : Nat → M) (n : Nat),\n  Eq ((Finset.range (instHAdd.hAdd n 1)).sum fun x => f x) (instHAdd.hAdd ((Finset.range n).sum fun x => f x) (f n))"
+    },
+    {
+      "name": "Finset.sum_range_succ_comm",
+      "title": "Finset.sum_range_succ_comm",
+      "body": "∀ {M : Type u_4} [inst : AddCommMonoid M] (f : Nat → M) (n : Nat),\n  Eq ((Finset.range (instHAdd.hAdd n 1)).sum fun x => f x) (instHAdd.hAdd (f n) ((Finset.range n).sum fun x => f x))"
+    },
+    {
+      "name": "Polynomial.roots",
+      "title": "Polynomial.roots",
+      "body": "{R : Type u} → [inst : CommRing R] → [IsDomain R] → Polynomial R → Multiset R\n\n`roots p` noncomputably gives a multiset containing all the roots of `p`,\nincluding their multiplicities."
+    },
+    {
+      "name": "Polynomial.degree",
+      "title": "Polynomial.degree",
+      "body": "{R : Type u} → [inst : Semiring R] → Polynomial R → WithBot Nat\n\n`degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`."
+    },
+    {
+      "name": "Polynomial.derivative",
+      "title": "Polynomial.derivative",
+      "body": "{R : Type u} → [inst : Semiring R] → LinearMap (RingHom.id R) (Polynomial R) (Polynomial R)\n\n`derivative p` is the formal derivative of the polynomial `p`"
+    },
+    {
+      "name": "Metric.closedBall",
+      "title": "Metric.closedBall",
+      "body": "{α : Type u} → [PseudoMetricSpace α] → α → Real → Set α\n\n`closedBall x ε` is the set of all points `y` with `dist y x ≤ ε`"
+    },
+    {
+      "name": "Metric.ball",
+      "title": "Metric.ball",
+      "body": "{α : Type u} → [PseudoMetricSpace α] → α → Real → Set α\n\n`ball x ε` is the set of all points `y` with `dist y x < ε`"
+    },
+    {
+      "name": "Metric.infDist",
+      "title": "Metric.infDist",
+      "body": "{α : Type u} → [PseudoMetricSpace α] → α → Set α → Real\n\nThe minimal distance of a point to a set"
+    },
+    {
+      "name": "Nat.even_or_odd",
+      "title": "Nat.even_or_odd",
+      "body": "∀ (n : Nat), Or (Even n) (Odd n)"
+    },
+    {
+      "name": "Nat.not_even_iff_odd",
+      "title": "Nat.not_even_iff_odd",
+      "body": "∀ {n : Nat}, Iff (Not (Even n)) (Odd n)"
+    },
+    {
+      "name": "Nat.div_add_mod",
+      "title": "Nat.div_add_mod",
+      "body": "∀ (m n : Nat), Eq (instHAdd.hAdd (instHMul.hMul n (instHDiv.hDiv m n)) (instHMod.hMod m n)) m"
+    },
+    {
+      "name": "Nat.even_add_one",
+      "title": "Nat.even_add_one",
+      "body": "∀ {n : Nat}, Iff (Even (instHAdd.hAdd n 1)) (Not (Even n))"
+    },
+    {
+      "name": "Function.iterate_succ_apply",
+      "title": "Function.iterate_succ_apply",
+      "body": "∀ {α : Type u} (f : α → α) (n : Nat) (x : α), Eq (Nat.iterate f n.succ x) (Nat.iterate f n (f x))"
+    },
+    {
+      "name": "Nat.one_lt_two_pow",
+      "title": "Nat.one_lt_two_pow",
+      "body": "∀ {n : Nat}, Ne n 0 → instLTNat.lt 1 (instHPow.hPow 2 n)"
+    },
+    {
+      "name": "Nat.Coprime",
+      "title": "Nat.Coprime",
+      "body": "Nat → Nat → Prop\n\n`m` and `n` are coprime, or relatively prime, if their `gcd` is 1."
+    },
+    {
+      "name": "Nat.Coprime.symm",
+      "title": "Nat.Coprime.symm",
+      "body": "∀ {n m : Nat}, n.Coprime m → m.Coprime n"
+    },
+    {
+      "name": "Nat.gcd",
+      "title": "Nat.gcd",
+      "body": "Nat → Nat → Nat\n\nComputes the greatest common divisor of two natural numbers. The GCD of two natural numbers is the\nlargest natural number that evenly divides both.\n\nIn particular, the GCD of a number and `0` is the number itself.\n\nThis reference implementation via the Euclidean algorithm is overridden in both the kernel and the\ncompiler to efficiently evaluate using arbitrary-precision arithmetic. The definition provided here\nis the logical model.\n\nExamples:\n* `Nat.gcd 10 15 = 5`\n* `Nat.gcd 0 5 = 5`\n* `Nat.gcd 7 0 = 7`"
+    },
+    {
+      "name": "Nat.gcd_comm",
+      "title": "Nat.gcd_comm",
+      "body": "∀ (m n : Nat), Eq (m.gcd n) (n.gcd m)"
+    },
+    {
+      "name": "pow_add",
+      "title": "pow_add",
+      "body": "∀ {M : Type u_2} [inst : Monoid M] (a : M) (m n : Nat),\n  Eq (instHPow.hPow a (instHAdd.hAdd m n)) (instHMul.hMul (instHPow.hPow a m) (instHPow.hPow a n))"
+    },
+    {
+      "name": "Complex.exp",
+      "title": "Complex.exp",
+      "body": "Complex → Complex\n\nThe complex exponential function, defined via its Taylor series"
+    },
+    {
+      "name": "Complex.I",
+      "title": "Complex.I",
+      "body": "Complex\n\nThe imaginary unit."
+    },
+    {
+      "name": "Complex.cpow",
+      "title": "Complex.cpow",
+      "body": "Complex → Complex → Complex\n\nThe complex power function `x ^ y`, given by `x ^ y = exp(y log x)` (where `log` is the\nprincipal determination of the logarithm), unless `x = 0` where one sets `0 ^ 0 = 1` and\n`0 ^ y = 0` for `y ≠ 0`."
+    },
+    {
+      "name": "Complex.ofReal",
+      "title": "Complex.ofReal",
+      "body": "Real → Complex\n\nThe natural inclusion of the real numbers into the complex numbers."
+    },
+    {
+      "name": "riemannZeta",
+      "title": "riemannZeta",
+      "body": "Complex → Complex\n\nThe Riemann zeta function `ζ(s)`."
+    },
+    {
+      "name": "Int.emod",
+      "title": "Int.emod",
+      "body": "Int → Int → Int\n\nInteger modulus that uses the E-rounding convention. Usually accessed via the `%` operator.\n\nIn the E-rounding convention (Euclidean division), `Int.emod x y` satisfies `0 ≤ Int.emod x y < Int.natAbs y`\nfor `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.ediv x y) * y = x`\nfor `y ≠ 0`.\n\nThis function is overridden by the compiler with an efficient implementation. This definition is\nthe logical model.\n\nExamples:\n* `(7 : Int) % (0 : Int) = 7`\n* `(0 : Int) % (7 : Int) = 0`\n* `(12 : Int) % (6 : Int) = 0`\n* `(12 : Int) % (-6 : Int) = 0`\n* `(-12 : Int) % (6 : Int) = 0`\n* `(-12 : Int) % (-6 : Int) = 0`\n* `(12 : Int) % (7 : Int) = 5`\n* `(12 : Int) % (-7 : Int) = 5`\n* `(-12 : Int) % (7 : Int) = 2`\n* `(-12 : Int) % (-7 : Int) = 2`"
+    },
+    {
+      "name": "Int.ModEq",
+      "title": "Int.ModEq",
+      "body": "Int → Int → Int → Prop\n\n`a ≡ b [ZMOD n]` when `a % n = b % n`."
+    },
+    {
+      "name": "ZMod",
+      "title": "ZMod",
+      "body": "Nat → Type\n\nThe integers modulo `n : ℕ`."
+    },
+    {
+      "name": "Int.emod_emod_of_dvd",
+      "title": "Int.emod_emod_of_dvd",
+      "body": "∀ (n : Int) {m k : Int}, Int.instDvd.dvd m k → Eq (instHMod.hMod (instHMod.hMod n k) m) (instHMod.hMod n m)"
+    },
+    {
+      "name": "Nat.Prime",
+      "title": "Nat.Prime",
+      "body": "Nat → Prop\n\n`Nat.Prime p` means that `p` is a prime number, that is, a natural number\nat least 2 whose only divisors are `p` and `1`.\nThe theorem `Nat.prime_def` witnesses this description of a prime number."
+    },
+    {
+      "name": "Even",
+      "title": "Even",
+      "body": "{α : Type u_2} → [Add α] → α → Prop\n\nAn element `a` of a type `α` with addition satisfies `Even a` if `a = r + r`,\nfor some `r : α`."
+    },
+    {
+      "name": "Odd",
+      "title": "Odd",
+      "body": "{α : Type u_2} → [Semiring α] → α → Prop\n\nAn element `a` of a semiring is odd if there exists `k` such `a = 2*k + 1`."
+    },
+    {
+      "name": "Nat.even_add",
+      "title": "Nat.even_add",
+      "body": "∀ {m n : Nat}, Iff (Even (instHAdd.hAdd m n)) (Iff (Even m) (Even n))"
+    },
+    {
+      "name": "Nat.exists_infinite_primes",
+      "title": "Nat.exists_infinite_primes",
+      "body": "∀ (n : Nat), Exists fun p => And (instLENat.le n p) (Nat.Prime p)\n\nEuclid's theorem on the **infinitude of primes**.\nHere given in the form: for every `n`, there exists a prime number `p ≥ n`."
+    },
+    {
+      "name": "Nat.Prime.two_le",
+      "title": "Nat.Prime.two_le",
+      "body": "∀ {p : Nat}, Nat.Prime p → instLENat.le 2 p"
+    },
+    {
+      "name": "Nat.Prime.one_lt",
+      "title": "Nat.Prime.one_lt",
+      "body": "∀ {p : Nat}, Nat.Prime p → instLTNat.lt 1 p"
+    },
+    {
+      "name": "Nat.Prime.eq_one_or_self_of_dvd",
+      "title": "Nat.Prime.eq_one_or_self_of_dvd",
+      "body": "∀ {p : Nat}, Nat.Prime p → ∀ (m : Nat), Nat.instDvd.dvd m p → Or (Eq m 1) (Eq m p)"
+    },
+    {
+      "name": "Nat.Perfect",
+      "title": "Nat.Perfect",
+      "body": "Nat → Prop\n\n`n : ℕ` is perfect if and only the sum of the proper divisors of `n` is `n` and `n`\nis positive."
+    },
+    {
+      "name": "Nat.divisors",
+      "title": "Nat.divisors",
+      "body": "Nat → Finset Nat\n\n`divisors n` is the `Finset` of divisors of `n`. By convention, we set `divisors 0 = ∅`."
+    },
+    {
+      "name": "Nat.sum_divisors_eq_sum_properDivisors_add_self",
+      "title": "Nat.sum_divisors_eq_sum_properDivisors_add_self",
+      "body": "∀ {n : Nat}, Eq (n.divisors.sum fun i => i) (instHAdd.hAdd (n.properDivisors.sum fun i => i) n)"
+    }
+  ]
+}

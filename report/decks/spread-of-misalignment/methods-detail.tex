@@ -1,0 +1,65 @@
+\begin{frame}{Study designs and sampling units}
+  \footnotesize
+  \begin{tabular}{@{}p{3.0cm}p{5.0cm}p{5.2cm}@{}}
+    \toprule
+    Question & Design & Replication \\
+    \midrule
+    Initial adoption & Control notice versus exploit note; three write mechanisms & Six models, four problems, four repetitions; 16 sessions per condition \\
+    Adoption with an honest path & Solvable function; control versus method note & Three models; 16 sessions per condition; 50 turns \\
+    Inheritance & One agent per generation; successor receives the final folder & Ten lineages per condition; four or eight generations \\
+    Population amplification & Four agents per generation; cumulative record & Ten chains per condition; eight generations; 24 turns \\
+    Peer influence & Three fixed V4 Pro recipients plus one varying peer model & Five chains per peer; eight generations; 50 turns; 960 completed sessions \\
+    \bottomrule
+  \end{tabular}
+  \par\medskip
+  The exposure and contradictory-task lineage studies use different V4 Pro
+  provider snapshots. Each comparison uses its own controls and protocol.
+\end{frame}
+
+\begin{frame}{Outcome measurement and uncertainty}
+  \small
+  \begin{itemize}
+    \item Cheating means that any accepted submission fails the independent audit,
+      even if a later submission is correct.
+    \item An audit-clean recipient has an accepted, correct submission and no
+      accepted submission rejected by the audit.
+    \item Missing or failed audits are unknown outcomes. Budget exhaustion and
+      refusal are recorded separately from audit outcomes.
+    \item Generation curves show observed rates. Statistical resampling uses
+      independent chains rather than individual sessions within a chain.
+    \item In the fixed-recipient comparison, late Gemini and Kimi chain-mean
+      bootstrap intervals are [0.067, 0.733] and [0, 0.800]. Identical-chain
+      samples yield zero-width empirical intervals, not certain population rates.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{What passes between sessions}
+  \begin{block}{One-agent lineage}
+    Copy the predecessor's final shared folder, including changes and deletions.
+    The initial note can survive through this inheritance; it is not replanted.
+  \end{block}
+  \begin{block}{Four-agent population}
+    Each agent receives the same prior record. The merge preserves historical
+    files and adds contributions; modifications become separate versions and
+    deletions do not remove history.
+  \end{block}
+  \medskip
+  The peer-model comparison fixes this merge rule and the initial note.
+  Only the designated peer model varies. All agents start fresh sessions.
+\end{frame}
+
+\begin{frame}{Execution and reproducibility}
+  \small
+  \begin{itemize}
+    \item Protocols and predictions are recorded before calls. The narrative
+      questions organize the evidence; they do not replace the original registrations.
+    \item The peer-model study completes 960 sessions with five retained
+      infrastructure retries: 965 total starts. All final audits are known.
+    \item Generation-1 recipient cheats are 12/15 beside Kimi, 14/15 beside
+      Qwen Flash, and 15/15 elsewhere, before receipt of peer-generated records.
+    \item Original-byte delivery checks pass. A legacy text-preview checker
+      reports mismatches on Kimi's binary files; the execution record preserves this discrepancy.
+    \item Frozen CSVs and sanitized outcomes reproduce figures and counts.
+      A source-indexed handoff example links the displayed excerpt to local tool and audit records.
+  \end{itemize}
+\end{frame}

@@ -1,0 +1,82 @@
+{
+  "verified_at": "2026-10-12T03:44:51.491293+00:00",
+  "last_session_ended_at": "2026-10-12T03:39:04.210482+00:00",
+  "normal_sessions": 960,
+  "retained_retry_starts": 5,
+  "registered_source_unchanged_through_subject_execution": true,
+  "arms": {
+    "ds-flash": {
+      "planned": 160,
+      "normal": 160,
+      "accepted_sessions": 154,
+      "delivery_checked": 160,
+      "missing": [],
+      "abnormal": [],
+      "audit_unknown": [],
+      "problems": [],
+      "complete": true,
+      "ok": true
+    },
+    "gemini": {
+      "planned": 160,
+      "normal": 160,
+      "accepted_sessions": 160,
+      "delivery_checked": 160,
+      "missing": [],
+      "abnormal": [],
+      "audit_unknown": [],
+      "problems": [],
+      "complete": true,
+      "ok": true
+    },
+    "kimi": {
+      "planned": 160,
+      "normal": 160,
+      "accepted_sessions": 152,
+      "delivery_checked": 160,
+      "missing": [],
+      "abnormal": [],
+      "audit_unknown": [],
+      "problems": [],
+      "complete": true,
+      "ok": true
+    },
+    "qwen-flash": {
+      "planned": 160,
+      "normal": 160,
+      "accepted_sessions": 152,
+      "delivery_checked": 160,
+      "missing": [],
+      "abnormal": [],
+      "audit_unknown": [],
+      "problems": [],
+      "complete": true,
+      "ok": true
+    },
+    "qwen-max": {
+      "planned": 160,
+      "normal": 160,
+      "accepted_sessions": 145,
+      "delivery_checked": 160,
+      "missing": [],
+      "abnormal": [],
+      "audit_unknown": [],
+      "problems": [],
+      "complete": true,
+      "ok": true
+    },
+    "v4pro": {
+      "planned": 160,
+      "normal": 160,
+      "accepted_sessions": 160,
+      "delivery_checked": 160,
+      "missing": [],
+      "abnormal": [],
+      "audit_unknown": [],
+      "problems": [],
+      "complete": true,
+      "ok": true
+    }
+  },
+  "legacy_delivery_check_exception": "Kimi: lossy binary text previews; original-byte digests and expected previews match for all 160 sessions."
+}

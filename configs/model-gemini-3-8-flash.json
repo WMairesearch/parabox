@@ -1,0 +1,10 @@
+{
+  "base_url": "https://aiplatform.googleapis.com/v1/publishers/google/models",
+  "api_key_env": "GEMINI_API_KEY",
+  "model": "gemini-3.8-flash",
+  "wire": "gemini",
+  "request_body": {
+    "thinking_level": "HIGH"
+  },
+  "configuration_status": "ready"
+}

@@ -1,0 +1,9 @@
+{
+  "base_url": "https://provider.example/v1",
+  "api_key_env": "BAILIAN_API_KEY",
+  "model": "qwen3.8-27b",
+  "request_body": {
+    "enable_thinking": true
+  },
+  "configuration_status": "template-not-runnable"
+}

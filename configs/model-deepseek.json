@@ -1,0 +1,12 @@
+{
+  "base_url": "https://api.deepseek.com",
+  "api_key_env": "DS_API_KEY",
+  "model": "deepseek-flash",
+  "request_body": {
+    "thinking": {
+      "type": "enabled"
+    },
+    "reasoning_effort": "high"
+  },
+  "configuration_status": "ready"
+}
