@@ -1,44 +1,63 @@
 # Security and evidence handling
 
-Participant code is untrusted. Run it only through the configured offline
-container boundary. Do not execute participant submissions on the host.
-The local fixture runner is only for repository-authored fixtures.
+Treat participant programs and inherited artifacts as untrusted input. Execute
+submissions only inside the configured offline containers, never on the host.
+Host-local fixture helpers are for repository-authored test programs.
 
-Model API credentials are read on the host from environment variables or
-an ignored `.env`. Do not mount home directories, credentials or a container
-socket into participant workspaces. Rootless Podman is recommended. Network
-is disabled for participant and audit containers; host-side provider calls
-still require network access.
+## Execution boundary
 
-Containers are not a guarantee against every escape. Use a dedicated host or
-VM for adversarial evaluation, retain resource limits, and keep the runtime
-updated. Verifier loopholes are intentional research fixtures; distinguish
-them from an unintended host or credential exposure.
+Use Linux with rootless Podman on a dedicated host or disposable VM for
+adversarial work. Keep container resource limits enabled and the runtime
+updated. Do not mount home directories, credentials or container-management
+sockets into workspaces. Containers reduce exposure but do not guarantee
+protection against every escape.
 
-## Host-side artifact access
+Provider credentials stay on the host in environment variables or an ignored
+`.env`. Participant and audit containers have no network; provider requests
+and dependency installation are separate host operations. Deliberately weak
+task verifiers are research fixtures, not permission to expose the host.
 
-The release code uses descriptor-relative, no-follow operations for
-Python/Lean tool access and submission reads, Python hidden-test writes and
-cleanup, population/chain snapshots, and unified outcome artifact inspection.
-Symlinks and special files are not inherited as shared files. Artifact reads
-are limited to 4 MiB per file; snapshots to 16 MiB, 4,096 entries and depth 32.
-Oversized trees fail explicitly rather than being silently truncated. These
-are release safeguards, not the instrument that produced peer composition's results.
+## Wiki service and grading
 
-Tests exercise real task entry points, external file/directory symlinks,
-path replacement after validation, FIFOs, snapshot limits and cache cleanup.
-They are regression evidence, not an exhaustive security audit. Historical
-study-specific orchestration/scorers have not received the same boundary
-review. Run historical reproduction or analysis of untrusted artifacts only
-in a disposable VM without credentials or unrelated host files. The preserved
-historical source is research evidence, not a hardened execution service.
+The synthetic wiki service supplies fixed JSON examples through a Unix socket;
+requests do not resolve into host filesystem paths. Its read-only service
+mount contains no container-management socket or credentials. Service requests
+and tool operations consume the task budget.
 
-Before publishing, inspect tracked files and Git history for credentials,
-private endpoints, personal information and imported content. A pattern scan
-is a triage aid, not proof that a repository is safe to publish. Never print
-suspected secret values in a report; report paths and findings instead.
+Submission seals the service and stops the participant before final export.
+Independent wiki grading runs each case in a fresh container with read-only
+candidate code and the current input. Expected answers remain on the host.
 
-No public private-disclosure address is configured yet. Before publication,
-the maintainer should enable private vulnerability reporting on the hosting
-platform and document that route. Do not publish exploit transcripts or
-credentials in a public issue. Remote publication is a separate release step.
+## Artifact safeguards
+
+Release helpers use descriptor-relative, no-follow access for task tools,
+submission reads, hidden-test writes and cleanup, snapshots and supported
+outcome inspection. Shared-file inheritance excludes symlinks and special
+files. Limits are 4 MiB per file, 16 MiB per snapshot, 4,096 entries and depth
+32; oversized snapshots fail rather than silently dropping data.
+
+Regression tests cover symlinks, path replacement, FIFOs, limits and cleanup.
+The task's independent execution audit evaluates participant submissions;
+it is not an external assessment of framework security.
+Parabox claims no third-party security audit. Older study-specific
+orchestration and scorers have a narrower review history; reproduce them in
+an isolated environment without unrelated files or credentials. Current
+safeguards do not retroactively describe historical execution.
+
+## Publication and disclosure
+
+Before release, inspect files, history and built packages for secrets, private
+endpoints, personal information and imported content:
+
+```sh
+python -m scripts.release_check --history
+python -m scripts.release_check --archive dist/PACKAGE.whl
+```
+
+A source `.tar.gz` is also accepted. The scanner checks package contents and
+the explicit document allowlist; a clean scan is not a complete privacy or
+rights review. Report affected paths without reproducing secret values.
+
+No private vulnerability-reporting address is currently listed. The maintainer
+must establish a private disclosure route before remote publication. Do not
+post credentials or sensitive exploit transcripts in a public issue.

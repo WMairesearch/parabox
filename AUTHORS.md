@@ -1,9 +1,16 @@
-# Contributors
+# Parabox contributors
 
-Copyright (c) 2026 Parabox contributors. Contributors retain their rights.
+Original work is collectively credited to **Parabox contributors**.
+Copyright (c) 2026 Parabox contributors; individual contributors retain their
+rights.
+
+## Public contributor list
 
 - Easton570
 
-This initial list reflects source Git authorship; see the
-[research history](docs/history.md). Add or correct your preferred
-public name in a PR. This is not a paper author list or author order.
+This initial entry is based on source-repository Git authorship. Submit a
+correction or preferred public name through a pull request. The list credits
+repository contributions; it does not determine paper authorship or author order.
+
+See [provenance](docs/history.md) and the
+[contribution process](CONTRIBUTING.md).

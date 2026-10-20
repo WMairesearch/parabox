@@ -1,9 +1,11 @@
-## What changed?
+## Change and purpose
 
-Describe the change. Mention imported material or substantial AI assistance, if any.
+Explain the change and why it is needed. Identify any third-party material or
+substantial AI-assisted contribution.
 
-## How was it tested?
+## Verification
 
-List commands and results.
+Give the checks you ran and their outcomes, including anything left untested.
 
-Sign off your commits with `git commit -s`; see [Contributing](../CONTRIBUTING.md).
+Use `git commit -s` to provide the DCO sign-off described in the
+[contribution guide](../CONTRIBUTING.md).

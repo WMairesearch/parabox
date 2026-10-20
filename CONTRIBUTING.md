@@ -1,34 +1,39 @@
 # Contributing
 
-Use Python 3.12+. For code organization, see [architecture](docs/architecture.md).
+Keep changes focused and reproducible. Explain the problem, the proposed change
+and the checks you ran in a pull request. For a bug, include a small reproduction
+and relevant versions with credentials and private content removed.
+
+## Local checks
 
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip install -e .
+.venv/bin/python -m parabox.benchmark selftest
 .venv/bin/python -m unittest discover -s tests -t .
 ```
 
-Container tests also need Podman and the documented image. Default tests must
-not call model providers or incur charges.
+Python 3.12+ is required. Container tests also need Podman and the documented
+image. Default tests must not call paid providers. Consult
+[architecture](docs/architecture.md) before changing task or transport contracts.
+Preserve frozen experiments; protocol changes belong in a new run.
 
-## Submit a change
+## Sign-off and attribution
 
-1. Explain the change and include relevant tests and their results in your PR.
-2. Read the [DCO](DCO), then sign off each commit with your own identity:
+Read [DCO 1.1](DCO), then sign off each commit using your own identity:
 
-   ```sh
-   git commit -s -m "Describe the change"
-   ```
+```sh
+git commit -s -m "Describe the change"
+```
 
-The sign-off declares that you have the right to submit the contribution;
-your name and email become public. No separate CLA or copyright transfer is
-required. Original contributions use [MIT](LICENSE); imported material keeps
-its license and attribution in [THIRD_PARTY.md](THIRD_PARTY.md).
+The sign-off certifies your right to submit the contribution. Your name and
+email become public. There is no separate CLA or copyright transfer.
+Original contributions use [MIT](LICENSE); imported material retains its own
+terms and must be recorded in [THIRD_PARTY.md](THIRD_PARTY.md).
 
-Never include credentials or unreviewed private transcripts. Preserve existing
-experiment evidence; protocol changes need a new run. Disclose substantial AI
-assistance and validate its output. This project's code, docs and analysis
-include AI assistance.
+Add or correct your public credit in [AUTHORS.md](AUTHORS.md). Disclose
+substantial AI assistance and check the resulting work. This repository's
+code, documentation and analysis include AI assistance.
 
-For bugs, include a minimal reproduction and relevant versions, without secrets.
-You may add or correct your public name in [AUTHORS.md](AUTHORS.md).
+Never submit credentials or unreviewed private transcripts. Follow
+[SECURITY.md](SECURITY.md) for sensitive reports.

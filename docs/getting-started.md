@@ -1,92 +1,84 @@
-# Installation and quick start
+# Getting started
 
-For a locked host environment, install uv and run `uv sync --locked --extra report --group dev`.
-The checked-in `uv.lock` records runtime, report and build dependencies with hashes.
-The isolated build backend is also pinned in `pyproject.toml`; build release
-archives with `.venv/bin/python -m build --no-isolation` after the locked sync.
-After populating the cache, the same command accepts `--offline`; initial installation
-requires downloading dependencies. The Python task image pins its base digest and
-hashed Python requirements. These are release build inputs, not a reconstruction
-of the historical experiment image; preserve the original image identity for that purpose.
+Use Python 3.12 or newer. Participant execution and grading require Linux with
+rootless Podman; installation checks do not require a provider account.
 
-Valid conditions are `control`, `note`, `method`, `goal`, `hint`, `prohibit`,
-`c1`, `c3`, `inject`, `cue`, and `mixed-method`. Historical population aliases
-`v4pro-all`, `v4pro-selected`, `mixed-all`, `mixed-selected`, `all`, and `selected`
-retain their location-hint seed and merge behavior. Method/goal/hint/prohibition
-and condemnation texts require the harness or open gate. Conditions must be
-unique; use repetitions or chains for independent repeats. Counts and budgets
-must be positive. Hard stops require a timezone, for example `2026-10-14T12:00:00Z`.
-
-## Requirements
-
-- Python 3.12 or newer, with `venv` and pip.
-- Linux with rootless Podman for participant execution and independent audit.
-- Model-provider credentials only for explicitly requested live runs.
-- For slides: TeX Live with Beamer, `latexmk`, `biber`, and the Latin Modern fonts.
+## Install and check
 
 From a source checkout:
 
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip install -e .
-.venv/bin/python -m parabox.studies.unified --help
+.venv/bin/python -m parabox.benchmark selftest
 ```
 
-`parabox-eval` is the installed unified-study command. Historical commands
-remain available through `python -m parabox` / `parabox` for old protocols.
-The source checkout carries research configuration, tables and documentation;
-the wheel carries framework code and packaged task assets.
-The source distribution also includes final-study outcome tables and current
-deck figure assets for offline analysis; private run evidence is never bundled.
-It also includes the retained historical seeds and frozen corpus. Only the
-seed needed by the unified runner's shared modules is also packaged in the
-wheel; other historical inputs require a source checkout and any additional
-evidence named in their protocols.
+The check verifies packaged founder checkpoints and prepares and checks a
+temporary 108-session plan. It starts no containers and makes no model calls.
+The wheel includes the default suite, unified runner and required packaged
+assets. A checkout additionally provides tests, historical inputs and reports.
 
-## Offline design tests
+For a locked development environment, use
+`uv sync --locked --extra report --group dev`. The lockfile records dependency
+hashes. After caching dependencies, add `--offline` to that sync command.
+Build distributions with `.venv/bin/python -m build --no-isolation`.
 
-```sh
-.venv/bin/python -m unittest tests.test_unified_peer tests.test_population
-```
-
-No API key or container is needed for these design/merge checks. The full
-suite has image-dependent tests and should be run with Podman installed:
-
-```sh
-.venv/bin/python -m unittest discover -s tests -t .
-```
-
-## Build and verify the Python instrument
-
-Building downloads the base image and pytest. Subject and audit containers
-run without network access; installation/build-time networking is separate.
+## Verify the container instrument
 
 ```sh
 podman build -t localhost/parabox-code:py312 parabox/tasks/code/image
 .venv/bin/python -m parabox.studies.unified selftest
 ```
 
-Selftest uses repository-authored fixtures and no model calls. It checks
-gate separation, hidden-case rejection, correct-solution acceptance and
-independent audit of the skip-hook fixture. Keep the resulting image ID with
-the protocol. A tag alone is not an immutable image reference.
+Building downloads pinned dependencies. Participant and grading containers
+run without network access. This selftest exercises repository-authored
+solutions, rejection cases and verifier/audit separation without model calls.
+Keep the immutable image ID; a mutable tag cannot identify an experiment.
 
-## Explicit opt-in: a small paid run
+Run offline design tests from the checkout:
 
-For a no-cost configuration example after building the image, run only
-`prepare` and `check` below using `examples/model.example.json`. The placeholder
-provider is intentionally unusable; do not run it. Preparation/checking do not
-contact a model provider. Use a different run directory for the real experiment.
+```sh
+.venv/bin/python -m unittest tests.test_unified_peer tests.test_population
+```
 
-Copy `examples/model.example.json` to a private configuration and set its
-provider URL and model ID. Set `PARABOX_API_KEY` in the host environment.
-Do not put the secret value in the JSON. The first command below freezes
-configuration; `run` is the command that contacts the provider.
+The full test suite also includes container-dependent checks:
+
+```sh
+.venv/bin/python -m unittest discover -s tests -t .
+```
+
+## Preview the default plan
+
+```sh
+IMAGE_ID="$(podman image inspect localhost/parabox-code:py312 --format '{{.Id}}')"
+IMAGE_ID="sha256:${IMAGE_ID#sha256:}"
+.venv/bin/python -m parabox.benchmark default-spec \
+  --candidate candidate=examples/model.example.json \
+  --reference examples/model.example.json --image "$IMAGE_ID" > suite.json
+.venv/bin/python -m parabox.benchmark prepare runs/preview --spec suite.json
+.venv/bin/python -m parabox.benchmark check runs/preview
+```
+
+The example provider is deliberately nonfunctional. These commands create a
+plan, not participants. For a real run, create private model configurations
+and a fresh directory, then follow [shared work](shared-work.md) for explicit
+authorization and grading.
+
+## A small unified experiment
+
+The unified runner supports custom single-session, chain and population
+studies. Copy `examples/model.example.json` to `private-model.json`, configure
+the provider and model, and set the named credential environment variable.
+Never store its secret value in JSON.
+
+Set `DEADLINE` to a future timezone-aware timestamp. The example below plans
+two sessions; `run` makes paid provider calls, while `audit` runs local containers.
 
 ```sh
 .venv/bin/python -m parabox.studies.unified prepare runs/example \
   --mode single --gate open --conditions control,method --problems second_item \
-  --reps 1 --turns 50 --concurrency 1 --model /path/to/private-model.json
+  --reps 1 --turns 50 --concurrency 1 --model private-model.json \
+  --hard-stop "$DEADLINE"
 .venv/bin/python -m parabox.studies.unified check runs/example
 .venv/bin/python -m parabox.studies.unified run runs/example
 .venv/bin/python -m parabox.studies.unified audit runs/example
@@ -94,16 +86,13 @@ configuration; `run` is the command that contacts the provider.
 .venv/bin/python -m parabox.studies.unified check runs/example
 ```
 
-This is a two-session engineering example, not an adequately powered study.
-Use a fresh directory for a new design. Explicitly set a UTC `--hard-stop`
-for bounded live work. Preserve abnormal sessions before retrying them;
-normal refusals and truncations are outcomes, not infrastructure retries.
-Host-side artifact access uses POSIX descriptor-relative operations; Windows
-execution is not supported. Use a disposable Linux VM for adversarial runs.
+Use this as an instrument check, not a well-powered study. Conditions must be
+unique and budgets positive. Method-oriented and related seed conditions
+require the harness or open gate; consult the command's `--help` for supported
+combinations. Unified conditions do not alter the fixed benchmark design.
 
-## Historical Lean work
-
-Lean requires a separate image and task corpus; its historical protocols are
-not distributed in this copy. The image Dockerfile remains under
-`parabox/tasks/lean/image/`. The Python quick start does not validate Lean
-theorem assets or establish their redistribution license.
+`parabox-eval` aliases the unified CLI; `parabox-benchmark` aliases the default
+suite CLI. Historical commands remain under `python -m parabox`. Lean needs
+its separate image and study inputs; this Python walkthrough does not validate
+them. Presentation builds require TeX Live, Beamer, `latexmk`, `biber` and
+Latin Modern fonts.

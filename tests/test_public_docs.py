@@ -7,13 +7,17 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def public_prose():
+    sources = list(ROOT.glob("*.md"))
+    for directory in ("docs", "report", "configs", "data", ".github"):
+        sources.extend((ROOT / directory).rglob("*.md"))
+    sources.extend((ROOT / "report" / "decks").rglob("*.tex"))
+    return sources
+
+
 class PublicDocsTest(unittest.TestCase):
     def test_public_prose_uses_descriptive_study_names(self):
-        sources = list((ROOT / "docs").rglob("*.md"))
-        sources += list((ROOT / "report").rglob("*.md"))
-        sources += list((ROOT / "report" / "decks").rglob("*.tex"))
-        sources += [ROOT / "README.md", ROOT / "data" / "README.md"]
-        for source in sources:
+        for source in public_prose():
             with self.subTest(source=source.relative_to(ROOT)):
                 content = source.read_text()
                 self.assertNotRegex(content, r"\b[Ff]\d+(?:\.\d+)*\b")
@@ -24,9 +28,7 @@ class PublicDocsTest(unittest.TestCase):
                 self.assertNotIn("/home/ast/", content)
 
     def test_public_prose_has_no_stale_editorial_instructions(self):
-        sources = list((ROOT / "report").rglob("*.md"))
-        sources += list((ROOT / "docs").rglob("*.md"))
-        for source in sources:
+        for source in public_prose():
             with self.subTest(source=source.relative_to(ROOT)):
                 content = source.read_text()
                 self.assertNotRegex(content, r"(?i)falsifier\s+falsifier")
@@ -50,16 +52,25 @@ class PublicDocsTest(unittest.TestCase):
         self.assertIn("Hugging Face intrusion", frames[2])
         self.assertIn("Theorem-proving collective", frames[2])
         self.assertIn("risked failing", frames[2])
-        self.assertIn("A timeline of related incidents and reports", frames[3])
+        self.assertIn("Shared records connect incidents across settings", frames[3])
         self.assertIn("DseWiki", frames[3])
         self.assertIn("UK AISI testing", frames[3])
         self.assertIn("publication dates", frames[3])
 
-    def test_readme_distinguishes_execution_audits_from_external_review(self):
-        content = (ROOT / "README.md").read_text()
-        self.assertNotIn("no independent audit\nis claimed", content)
-        self.assertIn("independent execution audit", content)
-        self.assertIn("no third-party security audit", content)
+    def test_task_audits_and_framework_security_have_distinct_documentation(self):
+        readme = (ROOT / "README.md").read_text()
+        security = (ROOT / "SECURITY.md").read_text().lower()
+        self.assertIn("independent execution audit", readme)
+        self.assertIn("[Security](SECURITY.md)", readme)
+        self.assertIn("third-party security audit", security)
+
+    def test_report_connects_resources_and_successor_behavior(self):
+        report = (ROOT / "report/README.md").read_text()
+        self.assertIn("(resource-allocation/README.md)", report)
+        self.assertIn("(shared-test-wiki/README.md)", report)
+        for source in public_prose():
+            with self.subTest(source=source.relative_to(ROOT)):
+                self.assertNotIn("stronger endpoint", source.read_text().lower())
 
     def test_research_scope_does_not_require_a_shared_group(self):
         paths = [ROOT / "README.md", ROOT / "pyproject.toml",
@@ -111,9 +122,7 @@ class PublicDocsTest(unittest.TestCase):
                 self.assertNotIn("/home/ast/", content)
 
     def test_relative_markdown_links_resolve(self):
-        files = list(ROOT.glob("*.md")) + list((ROOT / "docs").rglob("*.md"))
-        files += list((ROOT / "report").rglob("*.md"))
-        files += [ROOT / "data" / "README.md"]
+        files = [source for source in public_prose() if source.suffix == ".md"]
         for source in files:
             for target in re.findall(r"\[[^\]]*\]\(([^\s)]+)\)", source.read_text()):
                 parsed = urlsplit(target)

@@ -1,11 +1,15 @@
-# Historical model configurations
+# Model configuration records
 
-These files preserve model IDs and request options used by earlier studies.
-They are not a portable set of working provider accounts. Deployment-specific
-Alibaba endpoints are replaced with `https://provider.example/v1`; configure
-your own endpoint and credentials before making a private run configuration.
-The original configurations remain in the source repository and frozen local
-run evidence. Public-template changes do not change the recorded experiments.
+These historical configurations retain model identifiers and request options,
+not working provider accounts. Deployment-specific Alibaba endpoints were
+replaced by `https://provider.example/v1`. Original settings remain in the
+source repository and frozen run evidence.
 
-For new studies, start with `examples/model.example.json`. Never put API keys
-in tracked JSON files. See `docs/getting-started.md` for the unified runner.
+For a new experiment, copy [`examples/model.example.json`](../examples/model.example.json)
+to a private file and supply your provider URL, model ID and credential
+environment-variable name. Keep the secret value outside JSON and version
+control. The example endpoint and model are intentionally unusable.
+
+Follow [getting started](../docs/getting-started.md) to prepare a run.
+Configuration hashes become part of its frozen record; changing a public
+template does not change a historical experiment.

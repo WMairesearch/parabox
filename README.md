@@ -1,117 +1,111 @@
 # Parabox
 
-**Controlled experiments on the spread of misalignment between agents.**
+**A benchmark framework for misalignment propagation between AI agents.**
 
-Parabox studies how one agent's misaligned behavior reaches other agents,
-persists across fresh sessions, and changes with the models involved.
-The research question includes influence across systems and tasks; agents
-need not belong to the same group. Current experiments connect otherwise
-isolated sessions through a controlled shared file record.
-Current experiments follow cheating and correct task completion by separating
-the agent-facing verifier from an independent execution audit.
+An agent can finish its task and still leave behind a method that leads the
+next agent to violate its instructions. Shared notes, reusable code and working
+records make influence outlast a conversation—and cross system and task boundaries.
+Testing each agent alone misses this part of the system's behavior.
 
-The framework separates provider access, sandboxed execution, tasks,
-transmission rules and study analysis. It currently includes Python/pytest
-and Lean tasks. The unified Python instrument is the entry point for new
-single-session, chain and population experiments.
+Parabox measures what changes when agents encounter and maintain one another's
+work: which methods they adopt, where they spend resources, what they publish,
+and whether successors repeat or correct the resulting violations.
 
-## Supported scope
+## What the experiments show
 
-Use `parabox-eval` (or `python -m parabox.studies.unified`) for new Python
-single-session, chain and population studies on Linux with rootless Podman.
-The source checkout is the supported research setup; the wheel provides the
-unified runner and its frozen task/seed assets, not research tables or the full
-set of historical study inputs.
+- **Methods travel.** Recorded handoffs connect a predecessor's verifier bypass
+  to a successor reading its note, recreating the bypass and receiving an
+  accepted result that fails an independent execution audit.
+- **The same shared workspace can develop differently.** In the wiki study,
+  agents both extended private-test recovery and actively removed its artifacts.
+  Eleven recipients requested private cases; four other recipients deleted
+  recovery files and left corrective material.
+- **Interaction changes measured outcomes.** Controlled exposure and peer-model
+  comparisons change accepted-invalid rates. Keeping recipients fixed while
+  changing one peer produces sharply different later-generation trajectories.
+- **Task success can coexist with propagation.** All eleven private-case
+  requesters earned full own reward. They spent 112 execution units on
+  acquisition commands and requests, and eight added case records to the wiki.
+  Successful task completion alone would miss this behavior.
 
-Other `parabox` subcommands and Lean implementations are retained
-for historical reproduction, not guaranteed turn-key workflows. They can need
-separate images and raw evidence not distributed here. See the
-[report inventory](report/README.md) and [quick start](docs/getting-started.md).
+Start with the [research report](report/README.md), which connects the cases,
+condition comparisons and resource analysis. Historical studies have different
+tasks and budgets; the report retains their separate denominators.
 
-## Start here
+## Run the framework
 
-- [Install and run fixtures](docs/getting-started.md)
-- [Documentation map](docs/index.md) · [Architecture](docs/architecture.md)
-- [Outcome semantics and reproducibility](docs/reproducibility.md)
-- [Study protocols](report/studies/final/protocol.md) · [Peer composition](report/studies/final/peer-composition.md)
-- [Peer-composition results](report/studies/final/peer-composition-results.md) · [Interpretation and limits](report/studies/final/peer-composition-discussion.md)
-- [Presentation sources](report/decks/spread-of-misalignment/README.md)
+Python 3.12+ is required. These installation and offline checks make no model calls:
 
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip install -e .
-.venv/bin/python -m parabox.studies.unified --help
-.venv/bin/python -m unittest tests.test_unified_peer tests.test_population
+.venv/bin/python -m parabox.benchmark selftest
+.venv/bin/python -m parabox.benchmark --help
 ```
 
-These commands make no paid model calls. Python 3.12+ is required. Actual
-agent execution and independent audits require Podman and a task image.
-Use a source checkout for the research protocols, configuration and data.
+Actual execution uses Linux, rootless Podman, a task image and a provider
+configuration. Follow [installation and first run](docs/getting-started.md)
+before launching participants.
 
-## A study's lifecycle
+The [default development suite](docs/shared-work.md) combines two environments:
 
-1. **Design and register:** choose the task, model configurations, shared
-   record, independent units, endpoints, budget and stopping rule.
-2. **Prepare:** freeze prompts, configuration, task hashes, image identity
-   and the assignment plan in a new run directory.
-3. **Run:** execute sessions in fresh offline containers; model requests
-   happen on the host. Carry artifacts only through the registered rule.
-4. **Audit and check:** independently rerun accepted submissions and verify
-   artifact delivery. Preserve infrastructure failures as unknown outcomes.
-5. **Analyze:** extract session outcomes, report missingness, and estimate
-   uncertainty at the independent chain level when sessions share state.
+| Environment | Agent's work | What can reach a successor |
+|---|---|---|
+| Function tasks | Implement and submit a Python function | Shared methods, code and advice |
+| Shared test wiki | Improve a package under a charged execution budget | Editable notes, helpers and accumulated cases |
 
-See the [quick start](docs/getting-started.md) for exact commands and the
-distinction between offline checks and paid provider calls.
+The suite plans **36 + 72N sessions** for `N` candidate configurations.
+Preparation freezes assignments and requires no provider access; execution
+requires an explicit session cap and deadline. The release includes task assets
+and the founder bundle needed to prepare it outside the research checkout.
+Custom function studies use `parabox-eval`.
 
-## Repository map
+The default suite is a reusable development design. The published findings come
+from its separately documented predecessor studies. [Release checks](report/release-validation.md)
+exercise the integrated runners, including small hosted-model runs; a complete
+hosted-model evaluation of the default suite has not yet been reported.
 
-| Path | Purpose |
+## Follow the whole trajectory
+
+Parabox keeps four observations connected rather than collapsing them into one
+score:
+
+**Resource use · own task outcome · boundary behavior · successor continuation**
+
+For function tasks, agent-facing acceptance and independently audited
+correctness are separate. For the wiki, code score, reward, private-case requests,
+published additions and deletions are separate. Transmission records distinguish
+what was delivered from what was read and subsequently acted upon.
+
+This supports tests of exposure, persistence, peer composition and correction.
+Resource spending can reveal work on a shared unauthorized project even when
+the agent still completes its own task. Conversely, an inherited bypass can
+reduce effort while increasing violations. Reward-conflict studies separately
+test how agents respond when continued acquisition directly costs their own
+reward.
+
+## Find your way
+
+| Need | Read |
 |---|---|
-| `parabox/` | Installable framework and historical study implementations |
-| `tests/` | Design, task, execution and analysis tests |
-| `examples/` | Portable configuration templates; no credentials |
-| `configs/` | Historical model settings; deployment-specific endpoints replaced with templates |
-| `scripts/` | Study orchestration and evidence/report utilities |
-| `docs/` | Framework installation, usage, extension, safety and reproducibility documentation |
-| `data/` | Frozen runtime inputs: corpus and seeds |
-| `report/` | Presentation sources, protocols, results and supporting evidence |
-| `runs/` | Local raw evidence; ignored by Git and not automatically public |
+| Install, configure and run | [Getting started](docs/getting-started.md) |
+| Understand the components | [Architecture](docs/architecture.md) |
+| Define transmission and budgets | [Shared-work suite](docs/shared-work.md) |
+| Add a task | [Extension guide](docs/adding-a-task.md) |
+| Recompute results or audit a new run | [Reproducibility](docs/reproducibility.md) |
+| Present the findings | [Slides](report/decks/spread-of-misalignment/README.md) |
+| Understand sandbox boundaries | [Security](SECURITY.md) |
 
-## Research questions
+`parabox/` contains the framework; `examples/` contains portable configurations;
+`tests/` checks its contracts. `data/` holds only runtime inputs.
+All published protocols, results and presentation material live in `report/`.
+Raw local runs stay in the ignored `runs/` directory. Legacy commands and Lean
+studies remain available for historical reproduction, with their requirements
+described in the [research history](docs/history.md).
 
-- Can one agent's exploit become another agent's behavior?
-- Does its influence persist after the original session ends?
-- Which peer models carry the behavior forward, and which interrupt it?
+## Contribute
 
-The [presentation](report/decks/spread-of-misalignment/README.md) connects
-these questions to incidents involving agent-to-agent influence and the controlled experiments.
-The peer-model comparison holds recipients fixed and changes the model of
-one participant; subsequent messages are generated by the agents.
-
-## Measurement and evidence
-
-Acceptance is not correctness: a session cheats when an accepted submission
-fails the independent audit. The repository's operational label does not
-establish a model's intent. Sample zeros do not establish immunity. Chain
-and population estimates are dependent within lineages. Messages produced
-by a peer are outcomes, not automatically an identified causal mechanism.
-
-Earlier rounds used different verifier gates and budgets. Their findings
-must not be pooled indiscriminately. Protocols and results supporting the report
-remain available; [solvable-task chains](report/studies/final/solvable-chains-results.md)
-extend the work to a solvable but underspecified task.
-
-## Release status
-
-[MIT](LICENSE) for original code, attributed to [Parabox contributors](AUTHORS.md).
-[Third-party material](THIRD_PARTY.md) keeps its original licenses; the code
-license does not authorize redistribution of hosted model outputs.
-To contribute, see the short [guide](CONTRIBUTING.md): test your change and
-sign off with `git commit -s`.
-
-Raw experimental transcripts are not distributed. The experiment's independent
-execution audits are distinct from an external review of the framework;
-no third-party security audit or independent replication is claimed.
-See [reproducibility](docs/reproducibility.md),
-[research history](docs/history.md), and [Security](SECURITY.md).
+Original code is [MIT-licensed](LICENSE), collectively attributed to
+[Parabox contributors](AUTHORS.md). Retained third-party components keep
+[their own licenses](THIRD_PARTY.md).
+The [contribution guide](CONTRIBUTING.md) uses DCO sign-off, without a separate CLA.

@@ -1,4 +1,4 @@
-"""Render the spread narrative from frozen session outcomes, without model calls."""
+"""Plot relay and comparison results using only the published outcome records."""
 from __future__ import annotations
 
 import json
@@ -52,9 +52,9 @@ def save(figure, name: str) -> None:
 def exposure() -> None:
     figure, axes = plt.subplots(1, 3, figsize=(12, 3.5), sharey=True)
     for axis, (title, control_prefix, note_prefix) in zip(axes, (
-        ("Test harness", "exposure", "exposure"),
-        ("Grade store", "gate-comparison-state", "corrected-gate-exposure-state"),
-        ("Score file", "gate-comparison-score", "corrected-gate-exposure-score"),
+        ("Test execution", "exposure", "exposure"),
+        ("Stored grade", "gate-comparison-state", "corrected-gate-exposure-state"),
+        ("Written score", "gate-comparison-score", "corrected-gate-exposure-score"),
     )):
         for position, model in enumerate(MODELS):
             control = sessions(f"{control_prefix}-{model}", "control")
@@ -66,15 +66,15 @@ def exposure() -> None:
             axis.scatter(before, position, color=CONTROL, marker="o", s=70, zorder=3)
             axis.scatter(after, position, edgecolor=EXPOSED, facecolor="none",
                          marker="D", s=52, linewidth=1.6, zorder=4)
-        axis.set(title=title, xlabel="Fraction of sessions with cheating", xlim=(-0.05, 1.05),
+        axis.set(title=title, xlabel="Audited violations / sessions", xlim=(-0.05, 1.05),
                  xticks=[0, 0.5, 1], yticks=range(len(MODELS)),
                  yticklabels=list(MODELS.values()))
         axis.grid(axis="x", alpha=0.16)
     axes[0].invert_yaxis()
     figure.legend(handles=[
-        Line2D([], [], color=CONTROL, marker="o", linestyle="none", label="Control"),
+        Line2D([], [], color=CONTROL, marker="o", linestyle="none", label="Control record"),
         Line2D([], [], color=EXPOSED, marker="D", markerfacecolor="none", linestyle="none",
-               label="With an exploit note"),
+               label="Method record"),
     ], loc="lower center", ncol=2, frameon=False)
     figure.tight_layout(rect=(0, 0.12, 1, 1))
     save(figure, "spread-exposure")
@@ -92,10 +92,10 @@ def solvable() -> None:
             axis.text(count / 16 + 0.025, position + offset, f"{count}/16",
                       va="center", fontsize=13, color=color)
     axis.set(yticks=range(3), yticklabels=[MODELS[model] for model in ("v4pro", "gemini", "kimi")],
-             xlabel="Fraction of sessions with cheating", xlim=(0, 1.15), xticks=[0, 0.5, 1])
+             xlabel="Audited violations / sessions", xlim=(0, 1.15), xticks=[0, 0.5, 1])
     axis.invert_yaxis()
-    figure.legend(handles=[Line2D([], [], color=CONTROL, linewidth=7, label="Control"),
-                           Line2D([], [], color=EXPOSED, linewidth=7, label="With an exploit note")],
+    figure.legend(handles=[Line2D([], [], color=CONTROL, linewidth=7, label="Control record"),
+                           Line2D([], [], color=EXPOSED, linewidth=7, label="Method record")],
                   loc="lower center", ncol=2, frameon=False)
     figure.tight_layout(rect=(0, 0.13, 1, 1))
     save(figure, "spread-solvable")
@@ -112,15 +112,15 @@ def inheritance() -> None:
                 raise ValueError("Unexpected inheritance denominator")
             axis.plot(range(1, 9), [cheating_rate(group) for group in groups],
                       color=color, linestyle=style, marker="o", markersize=5, linewidth=2)
-        axis.set(title=MODELS[model], xlabel="Generation", xticks=[1, 2, 4, 6, 8],
+        axis.set(title=MODELS[model], xlabel="Successive generation", xticks=[1, 2, 4, 6, 8],
                  ylim=(-0.04, 1.04), yticks=[0, 0.5, 1])
         axis.grid(alpha=0.15)
-    axes[0].set_ylabel("Cheating rate")
+    axes[0].set_ylabel("Audited violations / sessions")
     figure.legend(handles=[
-        Line2D([], [], color=CONTROL, linestyle="--", label="Control-seeded lineage"),
-        Line2D([], [], color=EXPOSED, label="Exploit-seeded lineage"),
+        Line2D([], [], color=CONTROL, linestyle="--", label="Starts with control record"),
+        Line2D([], [], color=EXPOSED, label="Starts with method record"),
     ], loc="lower center", ncol=2, frameon=False, bbox_to_anchor=(0.5, 0.035))
-    figure.text(0.02, 0.015, "10 independent lineages per condition. Gap: one unknown Gemini control audit in generation 3.",
+    figure.text(0.02, 0.015, "10 chains per condition; generation 3 has an unknown Gemini control audit, shown as a gap.",
                 fontsize=9, color="#52606D")
     figure.tight_layout(rect=(0, 0.17, 1, 1))
     save(figure, "spread-inheritance")
@@ -142,12 +142,12 @@ def population() -> None:
     curve = [cheating_rate([record for record in records if record["generation"] == generation])
              for generation in range(1, 9)]
     axis.plot(range(1, 9), curve, color=EXPOSED, marker="o", linewidth=2.5)
-    axis.set(xlabel="Generation", ylabel="Cheating rate", xticks=range(1, 9),
+    axis.set(xlabel="Successive generation", ylabel="Audited violations / sessions", xticks=range(1, 9),
              yticks=[0, 0.5, 1], ylim=(-0.04, 1.07))
     axis.grid(alpha=0.15)
-    axis.text(1.12, 0.35, "16/40 in the first generation", fontsize=11)
-    axis.text(4.5, 0.63, "113/120 in generations 6–8", fontsize=12, color=EXPOSED)
-    figure.text(0.16, 0.025, "Four V4 Pro agents per generation. Thin lines: 10 independent chains. Thick line: mean.", fontsize=9)
+    axis.text(1.12, 0.35, "Generation 1: 16/40 violations", fontsize=11)
+    axis.text(4.5, 0.63, "Generations 6–8: 113/120 violations", fontsize=12, color=EXPOSED)
+    figure.text(0.16, 0.025, "4 V4 Pro seats per generation; thin curves show 10 chains, the thick curve pools their sessions.", fontsize=9)
     figure.tight_layout(rect=(0, 0.065, 1, 1))
     save(figure, "spread-population")
 
@@ -179,14 +179,14 @@ def peers() -> None:
         axis.axvspan(5.5, 8.3, color="#EAF0F3", zorder=0)
         axis.plot(range(1, 9), [cheating_rate(group) for group in groups],
                   color=color, marker="o", linewidth=2, markersize=4)
-        axis.set(title=f"Peer: {MODELS[peer]}", xticks=[1, 4, 8], yticks=[0, 0.5, 1],
+        axis.set(title=f"Contributor: {MODELS[peer]}", xticks=[1, 4, 8], yticks=[0, 0.5, 1],
                  ylim=(-0.05, 1.05), xlim=(0.7, 8.3))
         axis.grid(alpha=0.12)
     for axis in axes[-1]:
-        axis.set_xlabel("Generation")
+        axis.set_xlabel("Successive generation")
     for axis in axes[:, 0]:
-        axis.set_ylabel("Recipient cheating")
-    figure.text(0.11, 0.015, "Each point: 15 V4 Pro recipients across 5 independent chains. Shading: generations 6–8.", fontsize=9)
+        axis.set_ylabel("Recipient violation rate")
+    figure.text(0.11, 0.015, "Points pool 15 fixed-model recipients from 5 chains; the shaded window covers generations 6–8.", fontsize=9)
     figure.tight_layout(rect=(0, 0.055, 1, 1))
     save(figure, "spread-peers")
 
@@ -213,10 +213,10 @@ def peers() -> None:
             raise ValueError("Late outcomes are not exclusively cheating or audit-clean")
         table.append(f"{MODELS[peer]} & {cheats}/45 & {clean}/45 \\\\\n")
     axis.set(yticks=range(len(MODELS)), yticklabels=list(MODELS.values()),
-             xlabel="Late recipient cheating rate", xlim=(-0.04, 1.04), xticks=[0, 0.5, 1])
+             xlabel="Recipient violation rate in generations 6–8", xlim=(-0.04, 1.04), xticks=[0, 0.5, 1])
     axis.invert_yaxis()
     axis.grid(axis="x", alpha=0.15)
-    figure.text(0.27, 0.015, "Each dot: one independent chain, 9 V4 Pro recipient sessions in generations 6–8.", fontsize=9)
+    figure.text(0.27, 0.015, "A dot summarizes 9 late V4 Pro recipient sessions within one independent chain.", fontsize=9)
     figure.tight_layout(rect=(0, 0.065, 1, 1))
     save(figure, "spread-chains")
     (DESTINATION / "tables/spread-peer-outcomes.tex").write_text("".join(table))
@@ -231,7 +231,7 @@ def main() -> None:
     inheritance()
     population()
     peers()
-    print("Six spread figures and the peer outcome table match frozen outcomes.")
+    print("Rebuilt six narrative figures and the recipient table from frozen outcomes.")
 
 
 if __name__ == "__main__":

@@ -1,36 +1,48 @@
-# Third-party material inventory
+# Third-party provenance and licenses
 
-This inventory records known provenance. It does not grant rights to material
-owned by others, or certify that every imported notice has been preserved.
+Original Parabox code and documentation use the root [MIT license](LICENSE)
+unless marked otherwise. Bundled Apache-2.0 material retains that license and
+its notices. The package expression `MIT AND Apache-2.0` describes this
+combination; it is not a choice of license for every file.
 
-| Material | Local location | Source and license evidence | Release action |
-|---|---|---|---|
-| Formal Conjectures statements | `parabox/tasks/lean/image/Problems/*.lean` | Files identify source paths and commit `1b567c2f96e2aa86328094c4b9ca57f72a0d886e`; [pinned LICENSE](https://github.com/google-deepmind/formal-conjectures/blob/1b567c2f96e2aa86328094c4b9ca57f72a0d886e/LICENSE) is Apache-2.0, copied to `licenses/Formal-Conjectures-Apache-2.0.txt` | Repository adapts statements into editable task templates; review source-file notices and attribution |
-| Mathlib and Lean declarations/docs index | `data/corpus/mathlib-v4.33.1.json`, `_build/` | Mathlib and Lean v4.33.1; license copies in `licenses/Mathlib-Apache-2.0.txt` and `licenses/Lean-Apache-2.0.txt` | Every prose-bearing entry mapped to pinned source with retained headers in `licenses/Corpus-Attribution.txt`; signatures are pretty-printed declarations |
-| Lean/Mathlib dependencies | Lean image Dockerfile, lakefile | Downloaded during image build, not a vendored dependency tree | Keep dependency revisions and licenses with a distributed image |
-| Python, pytest, base operating-system images | Python image Dockerfile | Downloaded at build time; pytest 8.3.4 | Record image digests; distribution of images needs their own notices |
-| Hosted model outputs | Runtime seeds under `data/seeds/` and `parabox/studies/transmission/assets/`, frozen note constants, historical documents, the excerpt in `report/decks/spread-of-misalignment/evidence/relay-example.json`, local `runs/` | Generated under provider-specific access terms; code license alone is insufficient | Review retained excerpts and seeds as well as any raw-transcript export; internal reviewer outputs are excluded |
-| Bibliography and externally reported event counts | `report/decks/spread-of-misalignment/ref.bib` | Individual cited publications | Verify claims against sources; do not copy whole papers or imply endorsement |
+## Distributed material
 
-The Python task definitions and analysis source are repository-authored
-unless otherwise marked and are licensed under the root MIT license.
-That license does not replace third-party terms. Imported Apache-2.0 material
-keeps its existing license and attribution, unchanged by this export.
-The package license expression `MIT AND Apache-2.0` reflects these bundled
-materials; it does not offer a choice of license for every file.
-License evidence above was inspected on 2026-10-12;
-the two license copies above were fetched from the pinned references. Their
-upstream byte hashes are respectively
-`cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30` and
-`b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1`.
-All twelve imported Formal Conjectures statement headers were checked at
-that revision. Their copyright notices, source mapping and adaptation notice
-are preserved in `licenses/Formal-Conjectures-Attribution.txt`; the pinned
-root `NOTICE` URL returned 404. The extracted corpus includes Lean core
-docstrings as well as Mathlib text. All prose-bearing entries were located
-in pinned sources; copyright and author headers are retained in
-`licenses/Corpus-Attribution.txt`. The Lean license SHA-256 is
-`8b28515ffffc5c0fe2807d8ae3735b00b324d9b7ce807dd63ff6ac8922fbce7e`.
-Neither pinned Mathlib nor Lean tree has a root `NOTICE` file. Distribution
-of their full runtimes/images needs a separate transitive-dependency review.
-This inventory is not a legal certification.
+| Material | Location and provenance | Retained terms or review requirement |
+|---|---|---|
+| Formal Conjectures statements | `parabox/tasks/lean/image/Problems/`; adapted from revision `1b567c2f96e2aa86328094c4b9ca57f72a0d886e` | Apache-2.0; [license](licenses/Formal-Conjectures-Apache-2.0.txt) and [statement attribution](licenses/Formal-Conjectures-Attribution.txt) |
+| Mathlib/Lean declaration and documentation index | `data/corpus/mathlib-v4.33.1.json`; v4.33.1 sources | Apache-2.0; [Mathlib license](licenses/Mathlib-Apache-2.0.txt), [Lean license](licenses/Lean-Apache-2.0.txt) and [prose-source attribution](licenses/Corpus-Attribution.txt) |
+| Model-generated text | Runtime seeds, packaged transmission and wiki-founder assets, note constants, historical documents and `report/decks/spread-of-misalignment/evidence/relay-example.json` | Provider-specific access terms; review retained excerpts and any proposed transcript export separately from the code license |
+| Bibliography and reported incidents | `report/decks/spread-of-misalignment/ref.bib` and cited publications | Attribute claims to their sources; inclusion does not confer rights to reproduce papers or imply endorsement |
+
+Raw model runs remain local, and internal reviewer outputs are excluded.
+Generated declaration signatures in the corpus are pretty-printed;
+prose-bearing entries map to pinned upstream sources with retained copyright
+and author headers.
+
+## Build-time dependencies
+
+Lean/Mathlib runtimes, Python, pytest and operating-system layers are downloaded
+during image builds rather than included as a vendored dependency tree.
+The Python task image specifies pytest 8.3.4. Preserve dependency revisions,
+image digests and applicable notices when distributing images; the source
+package's attribution inventory is not a transitive image-license inventory.
+
+## Recorded verification
+
+License evidence was inspected on 2026-10-12. All twelve imported Formal
+Conjectures statement headers were checked at the pinned revision; mappings,
+copyright notices and adaptation notices are retained in the attribution file.
+The pinned root `NOTICE` URL returned 404. Neither the pinned Mathlib nor Lean
+tree contained a root `NOTICE`.
+
+The retained license-copy SHA-256 values are:
+
+| Copy | SHA-256 |
+|---|---|
+| Formal Conjectures | `cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30` |
+| Mathlib | `b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1` |
+| Lean | `8b28515ffffc5c0fe2807d8ae3735b00b324d9b7ce807dd63ff6ac8922fbce7e` |
+
+This record documents known provenance, not a grant of third-party rights or
+a legal certification. Review additional imports and distributions on their
+own terms.

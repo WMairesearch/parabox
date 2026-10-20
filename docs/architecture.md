@@ -1,56 +1,56 @@
 # Architecture
 
-The reusable unit is a **session**: one model conversation, one fresh
-offline container, and a fixed sequence of tool opportunities. A study
-connects sessions by copying or merging artifacts at generation barriers.
+A session gives one model a task, a fresh container and a bounded tool loop.
+A study determines which sessions meet through shared artifacts. This
+separation lets Parabox compare model compositions and communication policies
+without treating every inherited message as an assigned intervention.
 
-| Layer | Modules | Responsibility |
-|---|---|---|
-| Providers | `parabox/model/` | Host-side API requests; credentials do not enter participant containers |
-| Execution | `parabox/session.py`, `parabox/sandbox.py` | Workspace preparation, request/response evidence, tool loop, container lifecycle |
-| Tasks | `parabox/tasks/base.py`, `parabox/tasks/code/`, `parabox/tasks/lean/` | Problem files, tools, participant verifier and independent research audit |
-| Studies | `parabox/studies/unified/` | Assignment, frozen protocol, generation barriers, run/audit/check/score |
-| Transmission | `parabox/studies/population/merge.py` | Deterministic artifact admission, collision handling and cumulative record |
-| Artifacts | `parabox/workspace.py` | Confined descriptor-relative reads/writes, bounded snapshots, safe cleanup |
-| Analysis | `parabox/analysis.py`, `parabox/evidence.py`, study scorers | Outcome extraction, evidence completeness and independent-chain uncertainty |
+## Components
 
-## Interfaces and boundaries
+| Package | Contract |
+|---|---|
+| `parabox.model` | Provider requests on the host; credentials stay outside participant containers |
+| `parabox.sandbox`, `parabox.workspace` | Container execution and bounded, confined artifact access |
+| `parabox.tasks` | Task files, operational instructions, tools and task-specific grading |
+| `parabox.session` | Standard tool loop and native request, response and submission evidence |
+| `parabox.execution` | Start admission, generation barriers, runtime adapters and handoff policies |
+| `parabox.benchmark` | Fixed development plan, frozen materials, authorized execution and grading |
+| `parabox.studies.unified` | Custom Python single-session, chain and population designs |
+| `parabox.records` | Read-only import and inspection of saved benchmark evidence |
 
-`Task` in `tasks/base.py` defines workspace, prompts, tools, calls,
-contributions and audits. `SessionState` holds tool-visible execution state.
-`run_session` records requests before calls and snapshots accepted/rejected
-submissions through the task. The research audit is never shown to agents.
+The standard `Task` interface works with `SessionState` and `run_session`.
+The wiki has a separate runtime because tool charges and terminal submission
+are part of its task. Both can return an `Outcome` through an execution engine.
+The engine owns execution; the orchestrator owns scheduling and transport.
 
-`unified.design.design` creates deterministic schedules for single sessions,
-chains and populations. `prepare` records these schedules and frozen
-configuration. `run` checks that the frozen inputs still match, then executes
-sessions. `audit`, `check` and `score` are separate steps; scoring alone is
-not evidence that audits exist or that the run completed.
+## Two kinds of shared state
 
-Population merge starts with the prior record. It admits new files and
-stores modified versions separately; deletions are ignored. Selection uses
-the author's last submission acceptance, not the independent audit. Chain
-inheritance instead copies the entire final directory including deletions.
-These are different experimental interventions.
+The core population record is cumulative. Each generation starts from the same
+prior record; new files are added, modified versions are retained separately,
+and deletions do not erase earlier material. The default includes every author.
+Custom acceptance-selected merging uses the author's last verifier result,
+not the independent audit.
 
-## Supported versus historical studies
+The wiki is mutable. A successor receives actual exported files, so edits and
+deletions affect the next workspace. The default removes an unchanged original
+founder note at the handoff, but retains a rewritten note. Unified chains also
+copy final directory state rather than applying cumulative population merging.
+These policies make different claims about what can persist or be corrected.
 
-The unified instrument is the entry point for new controlled file-channel
-studies. Older `relay*`, `discovery*`, `transmission*`, `composition`, and
-other modules retain their commands and experimental designs for reproduction.
-They are not interchangeable instruments; their protocols define their scope.
-Code reuse across tracks does not imply identical prompts or verifier gates.
-Post-peer composition shared safety helpers change handling of symlinks, special files and
-oversized artifacts. Use the frozen source archive for exact historical
-instrument bytes, in an isolated environment; do not assume the release tree
-is byte-identical to the earlier running code. Historical track-specific
-orchestration and scorers have a narrower review status than the supported
-unified path; see `SECURITY.md`.
+## Design, execution and evidence
 
-## Extension discipline
+Preparation binds assignments, prompts, task bytes, source records, model
+configurations and implementation hashes. Execution additionally requires an
+authorized cap, deadline and verified local image. Host grading is a later
+operation; task-verifier acceptance is not its substitute.
 
-Add a task through the task interface, a model through provider configuration,
-and a treatment through an explicit study design. Test assignment, delivery,
-acceptance, independent audit and outcome extraction. A new gate must accept
-its intended fixture and reject other gates' fixtures. Never modify a frozen
-run to accommodate a new implementation: create a new run and protocol.
+Saved records preserve native outcomes, resources and handoff evidence with
+source hashes. The public importer currently supports benchmark execution
+directories. Historical study modules keep their own evidence formats and
+protocols; sharing implementation code does not make their designs equivalent.
+Some older board studies use overlapping sessions rather than generation
+barriers.
+
+See [shared work](shared-work.md) for the fixed design and
+[adding a task](adding-a-task.md) for extension contracts. Changes to a frozen
+experiment require a new design and run, not replacement of its recorded inputs.

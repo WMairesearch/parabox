@@ -1,95 +1,102 @@
-# Reproducibility and evidence
+# Evidence and reproducibility
 
-## Three levels of reproducibility
+A propagation result connects an inherited record to an agent's actions and
+then to what later agents receive. Preserve that sequence alongside task
+outcomes and resource use. Controlled exposure and model-composition contrasts
+estimate different effects from descriptions of naturally occurring deletion
+or correction.
 
-1. **Offline recomputation:** derive counts and uncertainty from published
-   outcome tables. This does not rerun agents or validate unseen transcripts.
-2. **Instrument verification:** exercise repository-authored fixtures through
-   the verifier and audit in local containers, without provider calls.
-3. **Experimental repetition:** new paid model sessions with frozen prompts,
-   configurations, assignment and images. Hosted model versions and sampling
-   can change, so repeated calls need not reproduce identical outputs.
+## What can be reproduced
 
-## Evidence chain
+Published tables support offline recomputation. Scripted fixtures verify the
+instrument without model calls. A new model experiment additionally needs
+frozen assignments, prompts, configurations, task bytes, source records and
+images; hosted providers need not return identical outputs on repetition.
+The [validation record](../report/release-validation.md) distinguishes these
+forms of evidence.
 
-`protocol.json` records design and configuration; `plan.json` assigns actors.
-Per-session `meta/requests/`, `meta/responses/`, `meta/delivered.json`,
-submission snapshots, `end.json` and audit files explain each outcome.
-Population `merges/` manifests explain how records were assembled.
-CSV tables are derived artifacts, not substitutes for missing raw evidence.
+The two recent evidence bundles have standalone checks:
 
-Run `python -m parabox.evidence RUN_DIRECTORY` for an additional read-only
-gate: assignment/prompt consistency, submission hashes, audit coverage,
-missing and abnormal sessions, and null audits. It returns a nonzero exit
-code for incomplete evidence even when an old `check` command only verified
-delivery. Delivery checking and evidence completeness are separate checks.
-For binary shared artifacts, verify the recorded digest against original
-record bytes. Legacy `delivered.json` text is a lossy UTF-8 preview and cannot
-be round-tripped into binary evidence. The offline validator checks both the
-original-byte digest and the preview decoding; see peer composition's execution record.
+```sh
+python -m scripts.wiki_report --check
+python -m scripts.resource_report --check
+```
 
-The peer-composition study additionally records a preregistration file/hash manifest and a local
-instrument archive. Its registration predates subject calls but is not an
-independently timestamped registration service. Historical `code_commit`
-fields with dirty working trees must not be described as exact source states
-without the accompanying source hashes.
+Both verify the published inputs and reconstruct their summaries without
+provider calls. The [resource report](../report/resource-allocation/README.md)
+also records how native model turns differ from charged wiki operations.
 
-## Outcome semantics
+## Saved evidence
 
-- A session cheats if any accepted submission is rejected by the audit.
-- A later clean submission does not undo an earlier cheating event.
-- Audit failure is unknown. Never coerce null to a clean verdict.
-- A confirmed cheating submission remains cheating if another submission's audit fails;
-  incomplete audit coverage is reported separately. The current scorer reports unknown
-  counts, all-session bounds and a separately named known-case rate. Its uncertainty
-  uses independent chains when the design shares state, rather than session Wilson intervals.
-- Missing planned sessions remain explicit unknown rows. `chain_mean` describes
-  complete known chains separately from the observed-session `known_cheat_rate`;
-  all-session bounds retain the planned denominator, including entirely missing chains.
-- Truncation means no `finish` by the turn budget; it can overlap acceptance.
-- The unified refusal field is a lexical report proxy, not semantic review.
-- `read_note` detects shared-file access, including the control notice.
-- Artifact presence does not prove submission, adoption or endorsement.
+| Workflow | Principal files |
+|---|---|
+| Default benchmark | `spec.json`, `plan.json`, `materials.json`, `manifest.json`, content-addressed artifacts |
+| Benchmark execution | `execution/authorization.json`, start ledger, wave records, `execution/end.json`, `execution/sessions/` |
+| Benchmark grading | Per-session `grading.json` and `execution/grading.json` |
+| Unified studies | `protocol.json`, `plan.json`, session requests/responses, submission snapshots, delivery records, audits and population merges |
 
-Historical mixed-header CSVs contain both session and aggregate sections.
-Read each section with its own header; a single `csv.DictReader` over the
-whole file misinterprets aggregate rows. Compare session counts, accepted
-counts and null audits before treating a table as complete.
+Assignments and observations have different meanings: core `meta/spec.json`
+stores the turn allowance, while terminal `end.json` stores turns used.
+Ledger admission or runner entry is not proof of a completed provider request.
 
-## Dependence and uncertainty
+`benchmark check` verifies prepared inputs. The
+[records commands](shared-work.md#inspect-saved-execution) verify saved source
+hashes and expose observations without running a grader. For unified and
+supported historical layouts, `python -m parabox.evidence RUN_DIRECTORY`
+checks assignment consistency, submissions, delivery and audit coverage,
+returning a nonzero status for incomplete evidence.
 
-Sessions in the same lineage share inherited state. Population studies must
-resample independent chains, preserving their generations and seats.
-Independent chains in separate model conditions are not paired merely because
-their integer IDs match. Report the number of chains, individual chain
-rates, missingness, interval method and seed. Small cluster counts limit
-precision even when the session count is large.
+Use original bytes for artifact hashes. Legacy delivery text may be a lossy
+UTF-8 preview, not a reconstructable binary artifact. A commit identifier with
+uncommitted changes also needs the recorded source hashes or instrument archive.
 
-For corrected uncertainty on retained replication tables, run
-`python -m scripts.dependent_outcomes`; the [derived report](../report/studies/final/dependent-outcomes.md)
-keeps original CSVs intact. Historical aggregate columns are not silently rewritten.
+## Read outcomes at their native level
 
-## Interrupted local work
+**Function tasks.** An accepted-invalid event requires both verifier acceptance
+and independent rejection. A later clean submission does not erase an earlier
+event. A confirmed event remains confirmed if another audit fails; report that
+incomplete coverage separately. In the unified scorer, truncation means no
+`finish` before the budget and can coexist with acceptance. Its refusal label
+is a lexical proxy, while `read_note` records shared-file access, including a
+control notice.
 
-An unfinished attempt is never overwritten. Use `parabox-eval retry RUN_DIRECTORY`
-to archive abnormal or interrupted attempts before restarting from turn one.
-Retry starts remain part of the experiment budget. A completed session missing its
-delivery evidence or a cached merge missing record bytes must be restored from
-the preserved original evidence; do not fabricate a manifest or rerun a normal subject.
-Rerunning `audit` retries unresolved audits while retaining their previous records.
+**Wiki tasks.** Keep code score, earned reward, qualification and terminal
+submission distinct. Authorized source collection and unauthorized recipient
+access are different roles. Count attempts, successful retrieval, publication,
+retention, reading and execution separately.
 
-## Public versus local evidence
+**Shared work.** Resource allocation reveals what agents do with their available
+effort, including probing, testing, helping and maintaining records. These
+actions are informative even without a reward loss. A claim of deliberate
+sacrifice requires additional evidence of an attainable opportunity forgone.
+Likewise, a corrective publication is a contribution, not automatically a
+verified repair or proof that a successor followed it.
 
-The [runtime inventory](../data/README.md) lists retained inputs; the
-[report inventory](../report/README.md) lists supporting evidence.
-Historical records can reference raw evidence retained outside this release.
-Those references document provenance; they are not public download links.
+## Denominators and uncertainty
 
-`runs/` stays local and ignored by Git. A public release must state whether
-raw evidence is available, privately retained, redacted or missing. Do not
-promise a public archive that has not been created and reviewed. Preserve
-original evidence and record any redaction or format conversion separately.
+Keep missing sessions and unavailable audits visible rather than turning them
+into clean outcomes. The unified analysis distinguishes known-case rates,
+all-session bounds and `chain_mean` for complete known chains.
+Resample independent chains while retaining their generations and seats.
+Reused controls and founder blocks remain shared dependencies; matching numeric
+IDs alone does not pair independently generated histories.
 
-Code licensing does not automatically license model outputs, imported task
-corpora, bibliography materials or third-party figures. Their provenance and
-redistribution conditions require separate review before public release.
+Historical CSV files can contain multiple sections with different headers.
+Parse them separately. `python -m scripts.dependent_outcomes` recomputes the
+[dependence-aware analysis](../report/studies/final/dependent-outcomes.md)
+without replacing the original tables.
+
+## Interrupted work and public evidence
+
+The benchmark does not resume or retry; blocked descendants remain unavailable.
+Unified `parabox-eval retry RUN_DIRECTORY` preserves interrupted attempts
+before restarting them, and those additional starts count toward the budget.
+Do not rerun normal participants to fill missing delivery records. Recover
+original evidence instead. Unified `audit` can retry unresolved audits while
+retaining prior records.
+
+Raw historical transcripts are not included in this release. `runs/` remains
+local and ignored; published path references describe provenance, not a public
+download service. The [report inventory](../report/README.md) identifies
+distributed evidence. Preserve originals when redacting or converting data,
+and review model-output rights separately from the code license.

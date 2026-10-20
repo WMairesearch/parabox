@@ -1,49 +1,88 @@
-# Presentations
+# The Spread of Misalignment
 
-`short.tex` presents **The Spread of Misalignment**.
-Both decks use Beamer's default theme, colors, and typography, without
-slide numbers or a branded footer. The main narrative joins the Hugging Face
-intrusion and the theorem-proving collective on one slide, restores a timeline of
-related incidents and reports, and follows three questions: spread,
-persistence, and peer influence. `main.tex` adds `methods-detail.tex`.
+The presentation follows a method from its first user into another agent's
+actions, then examines diverging trajectories and comparisons that promote or
+interrupt propagation. Influence can cross systems and tasks; it does not
+require membership in one group.
 
-From the repository root, use a Python environment with the `report` extra:
+`short.tex` is the talk. `main.tex` uses the same narrative and adds
+`methods-detail.tex`, covering study designs, handoff rules, outcome definitions
+and replication. Both use the default Beamer appearance without slide numbers.
+
+## Reading the evidence
+
+- **Relay:** a published verification bypass is executed by a successor; a
+  consecutive wiki pair transfers private sampling from inventory to access logs.
+- **Divergence:** inherited methods persist in some lineages, while other
+  recipients delete acquisition files and publish corrective task material.
+- **Comparison:** exposure, a scheduled correction and contributor-model
+  composition change subsequent behavior under their respective protocols.
+
+Resources describe how agents participate in these processes. Private retrieval
+can coexist with full own reward, and exposure can reduce the turns used by a
+violating recipient. Jointly measuring actions, own outcomes and onward work
+reveals these different forms of participation. The separate reward-zeroing
+follow-up records acquisition under an explicit personal cost and appears
+alongside the later comparisons.
+
+Observed cleanup combines deletion, warnings and replacement material.
+The talk proposes a matched snapshot comparison to separate their effects;
+it does not present that comparison as completed.
+
+## Evidence map
+
+| Material in the talk | Public evidence |
+|---|---|
+| Function-task exposure, inheritance and correction | [Study reports](../../studies/final/) and corresponding [session CSVs](../../final/) |
+| Fixed recipients with varying contributors | [Composition analysis](../../final/peer-composition-analysis.json), session CSVs and [protocol](../../studies/final/peer-composition.md) |
+| Executed verification bypass | [Selected relay record](evidence/relay-example.json): outgoing excerpt, recipient tool steps and audit bindings |
+| Wiki acquisition, resources, relay and cleanup | [Wiki report](../../shared-test-wiki/README.md), numeric rows and bounded supplemental annotations |
+| Exposure and solvable-chain turn use | [Resource allocation export](../../resource-allocation/README.md), kept separate from wiki charged units |
+
+The displayed outgoing quotation is a saved evidence excerpt, not new
+participant-facing guidance. Full conversations are not distributed. The
+linked examples establish reading and action, while retaining the fact that
+other inherited material was available.
+
+Incident accounts are attributed in `ref.bib`. The opening combines the
+Hugging Face intrusion and theorem-proving collective; the next slide places
+DseWiki and UK AISI activity alongside publication-dated reports. These accounts
+motivate the experiments rather than supply their outcome denominators.
+
+Historical findings are not results of the new default suite. That suite plans
+`36 + 72N` sessions for `N` candidates and has no reported model outcomes yet.
+Its 108-session single-candidate plan is also distinct from the historical
+108-recipient reward-conflict follow-up.
+
+## Rebuild from the published inputs
+
+Install the `report` extra, then run from the repository root:
 
 ```sh
-python -m scripts.spread_figures
+python -m scripts.deck_tables --write
 python -m scripts.deck_tables
+python -m scripts.spread_figures
+python -m scripts.peer_figures
+python -m scripts.wiki_report --check
+python scripts/resource_report.py --check
 ```
 
-The first command generates six figures and the late-recipient outcome
-table from frozen session CSVs, checks denominators, and checks individual
-chain rates against the frozen peer analysis. Unknown audits leave gaps in
-trajectories. Each dot in the late-recipient figure is an independent chain.
-The second command checks eight retained tables; add `--write` to regenerate them.
+These commands make no model calls. Table and figure generators retain the
+frozen numerical inputs and check denominators. Unknown audits remain gaps in
+trajectories; chain dots represent independent lineages, not independent seats.
+The additional peer plot shows descriptive chain-bootstrap intervals.
+
+Compile outside the source tree:
 
 ```sh
-cd report/decks/spread-of-misalignment
-latexmk -pdf -interaction=nonstopmode -halt-on-error short.tex
-latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+BUILD="$(mktemp -d)"
+DECK=report/decks/spread-of-misalignment
+cp "$DECK/"*.tex "$DECK/ref.bib" "$BUILD/"
+cp -R "$DECK/figures" "$BUILD/"
+(cd "$BUILD" && latexmk -pdf -interaction=nonstopmode -halt-on-error short.tex)
+(cd "$BUILD" && latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex)
 ```
 
-See the [research history](../../../docs/history.md) for instrument changes.
-Earlier decks and rewrite drafts are not distributed.
-
-Evidence: `report/studies/final/`, corresponding `report/final/*.csv`, and local
-run directories named in the protocols. Peer-composition results use the sanitized
-`report/final/peer-composition-outcomes.json` and its deterministic chain-level analysis.
-Recompute with `python -m scripts.peer_analysis`. The supplemental peer plot
-with bootstrap intervals is generated by `python -m scripts.peer_figures`.
-
-The observed handoff uses `evidence/relay-example.json`: a retained outgoing-note
-excerpt, recipient tool steps, audit outcomes, and source-file digests. Its paths
-identify original local records; full transcripts are not distributed. The
-recipient also sees the initial seed and other notes, so this example does not
-isolate the influence of a single message.
-
-External-event claims were checked on 2026-10-13 against METR's independent
-investigation, the research-collective paper, the DseWiki archive, the UK AISI
-incident report, and the public-transcript OSINT study. The timeline distinguishes
-activity dates from publication dates, and broader context from observed transmission.
-The bibliography links to the sources. These events motivate the research;
-the experiments test a transmission route rather than reproduce a full intrusion.
+The build directory contains the PDFs and auxiliary files. The sources retain
+the talk, its methods extension, evidence bindings and reproducible figures;
+they do not depend on unpublished draft presentations.
