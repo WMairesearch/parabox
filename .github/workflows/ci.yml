@@ -27,11 +27,19 @@ jobs:
       - run: python -m scripts.deck_tables
       - run: python -m scripts.spread_figures
       - run: python -m scripts.dependent_outcomes
+      - run: python -m scripts.wiki_report --check
+      - run: python -m scripts.resource_report --check
       - run: python -m scripts.release_check
       - run: python -m build
+      - run: |
+          for archive in dist/*.whl dist/*.tar.gz; do
+            python -m scripts.release_check --archive "$archive"
+          done
       - run: python -m venv /tmp/parabox-installed
       - run: /tmp/parabox-installed/bin/pip install dist/*.whl
       - run: cd /tmp && /tmp/parabox-installed/bin/parabox-eval --help
+      - run: cd /tmp && /tmp/parabox-installed/bin/parabox-benchmark selftest
+      - run: cd /tmp && /tmp/parabox-installed/bin/python -m parabox.records --help
       - run: cd /tmp && /tmp/parabox-installed/bin/python -c "import parabox.studies.unified.run, parabox.studies.unified.check, parabox.studies.unified.score, parabox.studies.unified.selftest"
 
   container-instrument:
@@ -49,6 +57,9 @@ jobs:
       - run: uv pip install --python "$(command -v python)" --reinstall-package parabox --no-deps dist/*.whl
       - run: podman build -t localhost/parabox-code:py312 parabox/tasks/code/image
       - run: cd /tmp && parabox-eval selftest
+      - run: |
+          image_id="$(podman image inspect localhost/parabox-code:py312 --format '{{.Id}}')"
+          PARABOX_EPISODE_TEST_IMAGE="$image_id" python -m unittest tests.test_wiki_task_episode tests.test_benchmark_container
       - run: |
           model_config="$GITHUB_WORKSPACE/examples/model.example.json"
           cd /tmp

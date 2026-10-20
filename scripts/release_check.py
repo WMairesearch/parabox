@@ -5,7 +5,9 @@ import argparse
 import json
 import re
 import subprocess
-from pathlib import Path
+import tarfile
+import zipfile
+from pathlib import Path, PurePosixPath
 
 PATTERNS = {
     "private-key": re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
@@ -80,22 +82,72 @@ def inspect_history(root: Path) -> dict:
     return {"blobs_checked": count, "findings": findings}
 
 
+def inspect_archive(root: Path, archive: Path) -> dict:
+    allowed = {
+        line.removeprefix("include ")
+        for line in (root / "MANIFEST.in").read_text().splitlines()
+        if line.startswith(("include docs/", "include report/"))
+    }
+    findings, checked = [], 0
+
+    def inspect(name, content, regular=True):
+        nonlocal checked
+        checked += 1
+        relative = PurePosixPath(name)
+        if (relative.is_absolute() or ".." in relative.parts or "\\" in name
+                or not regular):
+            findings.append({"path": name, "kind": "unsafe-archive-entry"})
+            return
+        if (any(part in {".git", ".venv", "__pycache__", "runs"} for part in relative.parts)
+                or (relative.name.startswith(".env") and relative.name != ".env.example")):
+            findings.append({"path": name, "kind": "private-evidence-or-env"})
+        if name.startswith(("docs/", "report/")) and name not in allowed:
+            findings.append({"path": name, "kind": "unlisted-document"})
+        findings.extend({"path": name, "kind": kind} for kind in scan_bytes(content))
+
+    if archive.suffix == ".whl":
+        with zipfile.ZipFile(archive) as package:
+            for entry in package.infolist():
+                if not entry.is_dir():
+                    inspect(entry.filename, package.read(entry),
+                            regular=(entry.external_attr >> 16) & 0o170000 != 0o120000)
+    elif archive.name.endswith(".tar.gz"):
+        prefix = archive.name.removesuffix(".tar.gz")
+        with tarfile.open(archive, "r:gz") as package:
+            for entry in package.getmembers():
+                if entry.isdir():
+                    continue
+                name = entry.name.removeprefix(prefix + "/")
+                if not entry.name.startswith(prefix + "/"):
+                    findings.append({"path": entry.name, "kind": "unexpected-archive-root"})
+                stream = package.extractfile(entry) if entry.isfile() else None
+                inspect(name, stream.read() if stream else b"", regular=entry.isfile())
+    else:
+        raise ValueError("Expected a wheel or source .tar.gz archive")
+    return {"archive": archive.name, "files_checked": checked, "findings": findings}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--history", action="store_true")
     parser.add_argument("--out", type=Path)
+    parser.add_argument("--archive", type=Path, action="append", default=[])
     args = parser.parse_args()
     result = {"worktree": inspect_worktree(args.root),
               "scope": "Pattern triage only; no guarantee of secret absence or redistribution rights."}
     if args.history:
         result["history"] = inspect_history(args.root)
+    if args.archive:
+        result["archives"] = [inspect_archive(args.root, archive) for archive in args.archive]
     output = json.dumps(result, indent=2) + "\n"
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(output)
     print(output)
-    raise SystemExit(1 if any(result[key]["findings"] for key in ("worktree", "history") if key in result) else 0)
+    found = any(result[key]["findings"] for key in ("worktree", "history") if key in result)
+    found = found or any(record["findings"] for record in result.get("archives", []))
+    raise SystemExit(1 if found else 0)
 
 
 if __name__ == "__main__":
