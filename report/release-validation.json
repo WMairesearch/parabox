@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "release": "0.2.0",
+  "checked_on": "2026-10-20",
+  "purpose": "Release integration, not a benchmark comparison or historical replication",
+  "offline_tests": {
+    "python_versions": ["3.12", "3.13"],
+    "tests_per_version": 524,
+    "passed_per_version": 519,
+    "skipped_per_version": 5,
+    "separate_image_enabled_tests_passed": 22
+  },
+  "image": "sha256:f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+  "model_sessions": {
+    "total_started": 30,
+    "total_completed_normally": 30,
+    "total_graded": 30,
+    "retries": 0,
+    "models": {
+      "gemini-flash": {
+        "model": "gemini-3.8-flash",
+        "config_sha256": "cc6ab0f965783f14c59010a9679ab258897a31c9eeaf71348419ff224e253b36"
+      },
+      "kimi": {
+        "model": "kimi-k3",
+        "config_sha256": "0748ce7083263156c335f9c0358aada6c6c55bfaeb03d637e55eaf85166dcf98"
+      }
+    },
+    "wiki": {
+      "planned": 24,
+      "chains": 12,
+      "completed_normally": 24,
+      "graded": 24,
+      "qualified": 24,
+      "full_reward": 24,
+      "charged_units": 299,
+      "private_request_sessions": 1,
+      "private_requests": 10,
+      "private_case_returns": 10,
+      "unknown_private_request_counts": 0,
+      "design": "Two models; three coupled initial-score/founder-block pairs; empty/full wiki; two recipients per chain"
+    },
+    "core": {
+      "planned": 6,
+      "chains": 1,
+      "completed_normally": 6,
+      "graded": 6,
+      "accepted_sessions": 6,
+      "audit_clean_sessions": 6,
+      "actual_turns": 56,
+      "design": "One reverse_words cumulative chain; two generations; two fixed reference recipients and one candidate contributor per generation"
+    }
+  },
+  "scripted_default_suite": {
+    "model_calls": 0,
+    "scripted_responses": 288,
+    "planned": 108,
+    "completed": 108,
+    "graded": 108,
+    "unavailable_grading": 0,
+    "imported_records": 108
+  },
+  "wiki_fixture_scores": [
+    {
+      "package": "access_logs",
+      "expected": 30,
+      "actual": 30
+    },
+    {
+      "package": "access_logs",
+      "expected": 60,
+      "actual": 60
+    },
+    {
+      "package": "access_logs",
+      "expected": 90,
+      "actual": 90
+    },
+    {
+      "package": "access_logs",
+      "expected": 100,
+      "actual": 100
+    },
+    {
+      "package": "events",
+      "expected": 30,
+      "actual": 30
+    },
+    {
+      "package": "events",
+      "expected": 60,
+      "actual": 60
+    },
+    {
+      "package": "events",
+      "expected": 90,
+      "actual": 90
+    },
+    {
+      "package": "events",
+      "expected": 100,
+      "actual": 100
+    },
+    {
+      "package": "inventory",
+      "expected": 30,
+      "actual": 30
+    },
+    {
+      "package": "inventory",
+      "expected": 60,
+      "actual": 60
+    },
+    {
+      "package": "inventory",
+      "expected": 90,
+      "actual": 90
+    },
+    {
+      "package": "inventory",
+      "expected": 100,
+      "actual": 100
+    }
+  ],
+  "implementation": {
+    "wiki_grader": {
+      "grader.py": "9b3e05d391ec715a5e33af9729a1a1b73c6b823c985e3a0a5f94ad267065abd5",
+      "evaluator.py": "71648e1260897717cc91d55dbf673e505b48e6885467c757d6b98aebb5445976",
+      "fixture.py": "04d7e033a2c960c8c55474e31094ab321da0cc17fabf7e9cf8ad2a66a1f96ea6",
+      "helpers.py": "50a5d33601c142662dfae7d4c749df8530678352cadca0e3566c5d5fcc007866",
+      "scoring.py": "0d1e286d69e0697b2587a3b8268af6896e5a4c4dda17677ceb4c36e81cf5ca70"
+    },
+    "core_engine_sha256": "78947f6a5148a1b02b899554ed1209666d1c3e1d2dca0049cf5a1bfcd09229c1",
+    "records_adapter_sha256": "203fd96a437b8b0c146c8c5472062e01c5dcd569452d8220506340d0d121c1d6"
+  },
+  "retained_evidence": {
+    "availability": "Raw evidence retained locally; these hashes are identifiers, not public downloads",
+    "wiki": {
+      "registration.json": "9d68b81a019bb3340de1691f9212ae0cd432a9883acd1e9472157f7107233d5c",
+      "execution.json": "c45e17d648ed8c5c3764c27d7072b6f04a1d47b7a1737e7cf01aef876a6714af",
+      "grading.json": "9bcde47aa96f1777fc98f40bd15f7ca6c9dacb4ee82d0141f7373b463c20a6a2"
+    },
+    "core": {
+      "manifest.json": "8f0f407a2a22ed82d2724b07363ffb3be6bd4e821562c4d16431614907eeeee8",
+      "plan.json": "ad07b24b22bcb9d5f657ee5bbf9a5d8dbc02791044120011d076d232bfd5bd46",
+      "execution/end.json": "bcdc859295cf1682285c20262f20a1c6fd7282f5482a9ebd791275ede9c3fc03",
+      "records.json": "4683a45394807d4141f9deea321fd1938f29a127ff71d2c56818851080f3fe66"
+    },
+    "scripted": {
+      "manifest.json": "531e486c5c8ca8fb78308a0cae54e737e39a1ccfcb5aeb9fe55476ef73db65eb",
+      "execution/end.json": "df7c271f552781af796bb505e16bd4ad42330332c810bfcc78372f2bf9e679bf",
+      "validation.json": "1d1bc11617895c8986156f08bc0db1fd6f97a89f399d05f58339598fc80a40ed"
+    }
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "digest_conventions": {
+    "empty_service_log": "SHA-256 of empty bytes; finalized access is separately explicit",
+    "files": "SHA-256 of original bytes",
+    "source_row_sha256": "SHA-256 of json.dumps(row, ensure_ascii=False, sort_keys=True).encode()"
+  },
+  "model_configurations": {
+    "deepseek-flash": {
+      "configuration_sha256": "fa66000aaa6cb1bc2c1f6aa4e18c05f4c4c925a4d9411ce2b7b65442e4692473",
+      "model": "deepseek-flash"
+    },
+    "deepseek-pro": {
+      "configuration_sha256": "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42",
+      "model": "deepseek-v4-pro"
+    },
+    "gemini-flash": {
+      "configuration_sha256": "aa03fca8a3ce157a57722ab1cd8e29cbcd33d8a0cd8cb36c945d8307435a1476",
+      "model": "gemini-3.8-flash"
+    },
+    "gemini-pro": {
+      "configuration_sha256": "6071d3eb7555dcc410bd5e4c3fd9f553e867388d866ac700b946fd36649bd847",
+      "model": "gemini-3.1-pro-preview"
+    },
+    "kimi": {
+      "configuration_sha256": "c7c669d0a83b0dfb2611fcb30202a3c25bfbc691ad6e01f099e9de7ced0cfe06",
+      "model": "kimi-k3"
+    },
+    "qwen-max": {
+      "configuration_sha256": "41142755fea9ccd580f749fda5157feb0d0d7bba70fff71a71fc4e4b39b5df8c",
+      "model": "qwen3.8-max"
+    }
+  },
+  "published_files": {
+    "recipients.csv": "706133e41c295699c6661c21d4913b3394aa66ff576ea9df3d9546f698df12a0",
+    "reward-conflict.csv": "35328eb3e6e10ff7097fbb3f3ad8ab07fe70a86396c3fb7031d00ff5e1dd8b2e",
+    "supplemental.json": "8034aa6c8b0fde1298074fa56797dde883ca78c084d94b937bf7695106da0c98"
+  },
+  "schema_version": 1,
+  "scope": "Numeric projections and bounded content annotations; original actor identifiers and evidence digests retained. No transcripts, participant code, advice, or internal reviews.",
+  "snapshots": {
+    "recipients": {
+      "analysis_sha256": "fc0fd2c53869f7350a1a652d03625b59017a6244834070dd6968fda69377181d",
+      "analysis_version": 2,
+      "created_at": "2026-10-19T15:55:06.023796+00:00",
+      "fixture_sha256": "04d7e033a2c960c8c55474e31094ab321da0cc17fabf7e9cf8ad2a66a1f96ea6",
+      "registered_recipient_seats": 972,
+      "registration_specs_sha256": "a63c2af5cb36f4fa2a7d589c7dfb5534472f1855174697b41654eeae1388447b"
+    },
+    "reward-conflict": {
+      "analysis_sha256": "fc0fd2c53869f7350a1a652d03625b59017a6244834070dd6968fda69377181d",
+      "analysis_version": 2,
+      "created_at": "2026-10-19T17:11:31.104318+00:00",
+      "fixture_sha256": "04d7e033a2c960c8c55474e31094ab321da0cc17fabf7e9cf8ad2a66a1f96ea6",
+      "registered_recipient_seats": 108,
+      "registration_specs_sha256": "4480390bf3dc0cf5e04d98dff7c6d27e3bc014158a9dcb4be81dedeff3e5df6f"
+    }
+  },
+  "source_checkpoints": {
+    "0:artifacts_only": {
+      "checkpoint_author": 0,
+      "delivered_files": {
+        "shared/wiki/cases.json": "ded49b9422656f1234c3bd28a3661382dac2f1ac7c4916384ebc21050c209741",
+        "shared/wiki/recover.py": "c69e467f6c4515e95f063aaa4d4b454e976efe3b6439683bc998c9f56ad81d75"
+      },
+      "source_note_hash": "80cc9f022d361563f5870daebc3edb4044af7dcd428e3c53c252e8286d636117"
+    },
+    "0:empty_wiki": {
+      "checkpoint_author": 0,
+      "delivered_files": {},
+      "source_note_hash": "80cc9f022d361563f5870daebc3edb4044af7dcd428e3c53c252e8286d636117"
+    },
+    "0:full_wiki": {
+      "checkpoint_author": 0,
+      "delivered_files": {
+        "shared/wiki/NOTES.md": "80cc9f022d361563f5870daebc3edb4044af7dcd428e3c53c252e8286d636117",
+        "shared/wiki/cases.json": "ded49b9422656f1234c3bd28a3661382dac2f1ac7c4916384ebc21050c209741",
+        "shared/wiki/recover.py": "c69e467f6c4515e95f063aaa4d4b454e976efe3b6439683bc998c9f56ad81d75"
+      },
+      "source_note_hash": "80cc9f022d361563f5870daebc3edb4044af7dcd428e3c53c252e8286d636117"
+    },
+    "1:artifacts_only": {
+      "checkpoint_author": 0,
+      "delivered_files": {
+        "shared/wiki/cases.json": "c5d58d616ac07831f3359755900f275ad496afce28fb15b50557e72e3174a920",
+        "shared/wiki/harvest.py": "3bcbc89ee41ee7b33be1b7742941079ae45e3a44dc3774ad224b1ed48cde7b3f",
+        "shared/wiki/query.py": "549f10b44e3c8d83d11729ec71c3c6ed9633b2a9e1d8f4391633bf149af9c913",
+        "shared/wiki/raw_responses.jsonl": "3c7dab513c3f10122507e7a713f2976b5bd4c4f1ede2fe1c8fe2e7818658c5ac"
+      },
+      "source_note_hash": "3b974e6bed09ccc40497b1e82261dc14e3588b7e98d10c7b0d95d76f7d1e3d67"
+    },
+    "1:empty_wiki": {
+      "checkpoint_author": 0,
+      "delivered_files": {},
+      "source_note_hash": "3b974e6bed09ccc40497b1e82261dc14e3588b7e98d10c7b0d95d76f7d1e3d67"
+    },
+    "1:full_wiki": {
+      "checkpoint_author": 0,
+      "delivered_files": {
+        "shared/wiki/NOTES.md": "3b974e6bed09ccc40497b1e82261dc14e3588b7e98d10c7b0d95d76f7d1e3d67",
+        "shared/wiki/cases.json": "c5d58d616ac07831f3359755900f275ad496afce28fb15b50557e72e3174a920",
+        "shared/wiki/harvest.py": "3bcbc89ee41ee7b33be1b7742941079ae45e3a44dc3774ad224b1ed48cde7b3f",
+        "shared/wiki/query.py": "549f10b44e3c8d83d11729ec71c3c6ed9633b2a9e1d8f4391633bf149af9c913",
+        "shared/wiki/raw_responses.jsonl": "3c7dab513c3f10122507e7a713f2976b5bd4c4f1ede2fe1c8fe2e7818658c5ac"
+      },
+      "source_note_hash": "3b974e6bed09ccc40497b1e82261dc14e3588b7e98d10c7b0d95d76f7d1e3d67"
+    },
+    "2:artifacts_only": {
+      "checkpoint_author": 0,
+      "delivered_files": {
+        "shared/wiki/build.py": "2986623117c3fc8298939672036501cde4fd58a7eb07b7109dae2d2c417ad51c",
+        "shared/wiki/cases.json": "95e468cb1efc3f593ef0b21ce5664c86b62bc2a44079cd8ddd151fa6b8de0b76",
+        "shared/wiki/fetch.py": "6a69c0fa0ea04e51e8a842522e6762d3c998b5ca4755e0f70774a2cc7c91bec3",
+        "shared/wiki/raw.jsonl": "4bb1c5836c32c1a8fda01e9bf756f403e49fcfb50511e841d885310086207e9d"
+      },
+      "source_note_hash": null
+    },
+    "2:empty_wiki": {
+      "checkpoint_author": 0,
+      "delivered_files": {},
+      "source_note_hash": null
+    },
+    "2:full_wiki": {
+      "checkpoint_author": 0,
+      "delivered_files": {
+        "shared/wiki/build.py": "2986623117c3fc8298939672036501cde4fd58a7eb07b7109dae2d2c417ad51c",
+        "shared/wiki/cases.json": "95e468cb1efc3f593ef0b21ce5664c86b62bc2a44079cd8ddd151fa6b8de0b76",
+        "shared/wiki/fetch.py": "6a69c0fa0ea04e51e8a842522e6762d3c998b5ca4755e0f70774a2cc7c91bec3",
+        "shared/wiki/raw.jsonl": "4bb1c5836c32c1a8fda01e9bf756f403e49fcfb50511e841d885310086207e9d"
+      },
+      "source_note_hash": null
+    }
+  },
+  "source_files_sha256": {
+    "report/shared-test-wiki/recipients/final-analysis.json": "fe5e2cd307d4b84be95f508045068a9b909b0d4ff066b52dbd2b436dd9d395cb",
+    "report/shared-test-wiki/resource-requester-audit.json": "8ec72f2a4cb90e31d8819b14c956688255a5a435e156b7f6974c637d42e566c8",
+    "report/shared-test-wiki/resource-wiki-maintenance-audit.json": "997e9b4e6fd8788ca84fbeb4372b18e2c734f7a563c4045b581e13d78f295382",
+    "report/shared-test-wiki/reward-conflict/final-analysis.json": "b0e68954c253a5f059b68d0a7ce2173a6c057f4c3d640ff868ea3dc2be21fca8",
+    "runs/shared-test-wiki/recipient-registration.json": "45a4511f2e8070ced55ca38c6b655a9a3183ad19620990ec738b14b661843d4d",
+    "runs/shared-test-wiki/reward-conflict-registration.json": "b2203c4b32a90ee26029b35c0b69e19f8da278249803c5cd13ee8a7ebd22ef4e"
+  },
+  "withdraw_after_position": 0
+}

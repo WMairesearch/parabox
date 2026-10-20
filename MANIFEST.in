@@ -7,6 +7,19 @@ include .containers/containers.conf
 prune docs
 prune report
 include report/README.md
+include report/release-validation.md
+include report/release-validation.json
+include report/resource-allocation/README.md
+include report/resource-allocation/archived-sessions.csv
+include report/resource-allocation/peer-sessions.csv
+include report/resource-allocation/provenance.json
+include report/resource-allocation/summary.json
+include report/shared-test-wiki/README.md
+include report/shared-test-wiki/recipients.csv
+include report/shared-test-wiki/reward-conflict.csv
+include report/shared-test-wiki/supplemental.json
+include report/shared-test-wiki/provenance.json
+include report/shared-test-wiki/summary.json
 include docs/adding-a-task.md
 include docs/architecture.md
 include report/decks/spread-of-misalignment/README.md
@@ -43,6 +56,7 @@ include docs/getting-started.md
 include docs/history.md
 include docs/index.md
 include docs/reproducibility.md
+include docs/shared-work.md
 include report/studies/final/exposure-results.md
 include report/studies/final/exposure.md
 include report/studies/final/solvable-isolated-tests-results.md
