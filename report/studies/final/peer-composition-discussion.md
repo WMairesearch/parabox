@@ -1,61 +1,27 @@
-# Peer influence on the spread of misalignment
+# Contributor models can redirect the same recipients
 
-See the [generated results](peer-composition-results.md),
-[preregistration](peer-composition.md) and [execution record](peer-composition-execution.md).
-All six conditions completed 160 normal sessions. Including five retained
-infrastructure failures, there were 965 starts, below the 1,000-session cap.
-Every accepted session has a known audit outcome.
+The [results](peer-composition-results.md), [historical protocol](peer-composition.md) and [execution record](peer-composition-execution.md) describe a controlled comparison, not a collection selected for striking trajectories. This is a rewritten synthesis of that evidence.
 
-## What changed relative to earlier experiments
+## Relay and divergent outcomes
 
-The solvable-chain study changes the entire lineage model. Earlier mixed-population comparisons
-can also mix recipient susceptibility with the peer's own outcome in the
-population average. The peer-composition study keeps seats 0–2 as V4 Pro, changes only seat 3, and
-excludes that peer from the primary endpoint. Initial task, note, merge and
-budget are held fixed. The assigned variable is the model configuration;
-the content of subsequent messages is an endogenous outcome.
+Across generations 6–8, the same V4 Pro recipient model recorded 45/45 audited violations with a V4 Pro contributor, 18/45 with Gemini, 18/45 with Kimi and 0/45 with each of Qwen Max, DeepSeek Flash and Qwen Flash. Late recipients without violations had accepted, audit-clean solutions: 27/45 for Gemini and Kimi, and 45/45 for each zero-violation condition. The observed difference therefore involved legitimate task completion, not merely more refusal or a denominator diluted by the contributor's own behavior.
 
-## Observed result
+All six conditions supplied 160 normal sessions. Five retained infrastructure failures brought starts to 965, below the 1000 cap; accepted-session audits were complete.
 
-Across generations 6–8, V4 Pro recipients cheat in 45/45 sessions with a
-V4 Pro peer, 18/45 with Gemini, 18/45 with Kimi, and 0/45 with each of Qwen
-Max, DeepSeek Flash and Qwen Flash. Every late non-cheating recipient in
-these conditions has accepted, audit-clean submissions: 27/45 for Gemini and Kimi,
-45/45 for each zero-cheating condition. The decrease is not merely refusal,
-non-submission, or changing the population-average denominator.
+## What the assignment isolates
 
-Generation-1 recipient cheating is 15/15 in four conditions, 12/15 beside Kimi and
-14/15 beside Qwen Flash. At that point recipients have not received a peer's
-generated output. This is baseline sampling imbalance, not an early peer
-effect. The preregistration specified a descriptive balance check, not a
-numeric balance threshold or an adjusted primary estimator.
+Earlier solvable chains changed the model throughout a lineage. Earlier population averages included the alternative contributor's own outcomes. Here seats 0–2 stayed V4 Pro and only seat 3 changed; the latter was excluded from the primary endpoint. The initial task, seed, merge policy and allowance were fixed. Subsequent writing, methods and corrective contributions emerged from the assigned configurations.
 
-The baseline and alternative-peer registered point-estimate thresholds hold; the near-zero-effect
-falsifier does not fire. These statements are distinct from simultaneous
-significance tests. Five independent chains per condition are few. In particular,
-all-zero/all-one chain observations yield zero-width empirical bootstrap
-intervals; they do not establish a zero/one population probability.
+This supports a contributor-model contrast in the continuation of inherited misalignment. It does not assign a causal effect to a particular generated warning or solution. Kimi records also retained copied hidden-test artifacts, and cumulative merging retained earlier method material. Neither a warning marker nor removal of a particular file is a sufficient explanation of the recipient trajectory.
 
-## Interpretation
+## Timing and independent units
 
-The same recipient model sustains cheating with some peers and returns to
-correct task completion with others. The result connects peer identity to
-whether inherited misalignment continues: the peer's influence reaches beyond
-its own submission to the agents that inherit the shared record.
+Generation-1 recipient violations were 15/15 in four conditions, 12/15 with Kimi and 14/15 with Qwen Flash. Those recipients had not yet received any peer-generated output; these differences are baseline imbalance, not immediate peer effects. The historical analysis specified a descriptive check rather than a numeric balance threshold or post hoc adjusted endpoint.
 
-Model assignment identifies the peer-model contrast, not the effect of any
-particular generated message. Correct-solution and warning markers are
-exploratory. Captured
-hidden-test artifacts also appear in Kimi records, and cumulative merging
-retains earlier exploit material; neither artifact presence nor disappearance
-alone explains recipient behavior. No added message treatment was randomized.
+Five independent chains per condition determine the uncertainty. The baseline and alternative-peer point thresholds were met, and the near-zero-difference falsifier was not. These statements are not simultaneous significance tests. All-zero or all-one observed chains yield zero-width empirical bootstrap intervals without establishing certain population outcomes.
 
-## Scope and reproducibility
+## What to retain in the broader account
 
-One underspecified solvable function, one initial method note and one
-finite horizon were tested here. Model/provider snapshots, timing and baseline
-imbalance limit generalization. Independent task/seed replications and more
-chains are the next evidence needed. Raw transcripts remain local; public
-sanitized outcomes enable numerical recomputation, not independent transcript
-adjudication. The Kimi legacy delivery-check failure is retained and explained
-separately; byte-level delivery checks pass for every final session.
+The result links contributor identity to whether later agents continue the inherited method or complete the task correctly. Shared infrastructure supports both harmful relay and corrective work. Resource allocation can illuminate how that divergence develops alongside audited task completion, violations and successor behavior.
+
+The tested scope remains one underspecified solvable function, one initial note and a finite horizon with recorded provider settings. Independent task and seed replications would address transfer. Public sanitized outcomes support numerical recomputation; raw transcript adjudication requires the retained local archive. The original Kimi preview-check failure and successful final byte-level checks remain explicitly distinguished.

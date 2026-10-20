@@ -144,10 +144,14 @@ def render_report(summary: dict) -> str:
     def value(number):
         return "unknown" if number is None else f"{number:.3f}"
 
-    lines = ["# Peer composition: results", "", "Generated from sanitized per-session evidence.", "",
-             "Only seats 0–2 (fixed V4 Pro recipients) enter the primary endpoint.",
-             "Late = generations 6–8. Intervals resample independent chains; n=5 per condition",
-             "when complete. They are descriptive, not simultaneous hypothesis tests.", "",
+    lines = ["# Contributor models and late recipient outcomes", "",
+             "Editorial reconstruction generated from the retained sanitized outcomes; "
+             "the historical protocol and execution record identify the original study.", "",
+             "The comparison varies the fourth contributor while evaluating the same V4 Pro",
+             "recipients in seats 0–2. Each complete chain contributes nine recipient sessions",
+             "from generations 6–8, with five chains per condition. The table reports equally",
+             "weighted chain means and independent-chain 95% bootstrap intervals; these are",
+             "descriptive intervals rather than simultaneous tests.", "",
              "| Peer | Normal / 160 | Complete known chains | Late rate [95%] | Difference vs V4 Pro [95%] | Missing-outcome bounds |",
              "|---|---:|---:|---|---|---|"]
     for peer, arm in summary["arms"].items():
@@ -158,31 +162,40 @@ def render_report(summary: dict) -> str:
                      f"{value(estimate['mean'])} [{value(estimate['low'])}, {value(estimate['high'])}] | "
                      f"{value(delta['difference'])} [{value(delta['low'])}, {value(delta['high'])}] | "
                      f"[{value(bounds['lower'])}, {value(bounds['upper'])}] |")
-    lines += ["", f"Actual session starts including retries: {summary['total_starts']}; "
-              f"conservatively reserved maximum: {summary['reserved_maximum_starts']}/1000.", "",
-              "## Individual chains", ""]
+    lines += ["", f"The execution ledger records {summary['total_starts']} starts including retries; "
+              f"the reserved upper count is {summary['reserved_maximum_starts']} against the 1000-start cap.", "",
+              "## Independent chain observations", ""]
     for peer, arm in summary["arms"].items():
-        lines.append(f"- {peer}: " + "; ".join(
-            f"{chain['chain']}: {chain['cheats']}/9, complete={chain['complete']}, "
-            f"unknown={chain['audit_unknown']}" for chain in arm["chains"]))
-    lines += ["", "## Preregistered prediction scorecard", ""]
+        lines.append(f"- Contributor {peer} — " + "; ".join(
+            f"{chain['chain']}: {chain['cheats']}/9 violations; "
+            f"complete {chain['complete']}; unresolved audits {chain['audit_unknown']}"
+            for chain in arm["chains"]))
+    lines += ["", "## Historical prediction accounting", "",
+              "These verdicts apply the original recorded point-estimate thresholds, "
+              "not thresholds introduced by this rewrite.", ""]
     labels = {
-        "P1_baseline_at_least_070": "High homogeneous baseline",
-        "P2_qwen_or_flash_reduction_at_least_020": "Lower cheating with an alternative peer",
-        "P3_generation1": "Initial-generation balance",
-        "P4_all_differences_below_015": "Near-zero peer-effect falsifier",
+        "P1_baseline_at_least_070": "Homogeneous late recipient rate at least 0.70",
+        "P2_qwen_or_flash_reduction_at_least_020": "Qwen Max or DeepSeek Flash reduction at least 0.20",
+        "P3_generation1": "Balance before any contributor-output receipt",
+        "P4_all_differences_below_015": "All alternative differences within 0.15",
     }
     lines += [f"- {labels[name]}: {verdict}" for name, verdict in summary["predictions"].items()]
-    lines += ["", "## Interpretation constraints", "",
-              "A missing audit is unknown, not a non-cheat. The main estimate uses only",
-              "complete chains with known late outcomes; bounds cover all 45 planned late",
-              "recipient sessions. Attrition can bias complete-case comparisons.", "",
-              "Peer model is assigned; generated messages are not randomized treatments.",
-              "Observed warning/solution markers do not identify mediation. A zero-width",
-              "bootstrap interval from identical chains is not evidence of population certainty.", "",
-              "Raw transcripts remain local under runs/peer-composition. The public outcome table supports",
-              "recomputation, not independent transcript adjudication. See the preregistration",
-              "and execution/deviation record for instrument and provider details.", ""]
+    lines += ["", "## Reading the comparison", "",
+              "The assigned variable is the contributor configuration; later messages and",
+              "corrective work emerge within each history. Particular warning or solution",
+              "markers are therefore observational evidence, not separately randomized causes.",
+              "Generation-1 recipients have not received contributor-generated material, so",
+              "any initial difference is baseline imbalance rather than an immediate peer effect.", "",
+              "Complete-chain estimates require known late audits. The bounds retain all 45",
+              "planned late recipients, assigning unresolved outcomes their possible extremes.",
+              "An empirical interval of zero width reflects identical sampled chain rates,",
+              "not certainty about every future history.", "",
+              "Recompute these quantities with `python -m scripts.peer_analysis` using the",
+              "sanitized outcome export. Full transcripts remain in the local",
+              "`runs/peer-composition` archive; the export does not replace transcript review.",
+              "See the [historical protocol](peer-composition.md),",
+              "[execution provenance](peer-composition-execution.md), and",
+              "[behavioral synthesis](peer-composition-discussion.md).", ""]
     return "\n".join(lines)
 
 

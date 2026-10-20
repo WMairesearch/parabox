@@ -1,95 +1,42 @@
-# Peer composition execution
+# Execution provenance for the fixed-recipient comparison
 
-This reader-facing execution record is separate from the original registered
-protocol. Its descriptive names do not alter the archived registration bytes.
+This editorial reconstruction separates historical execution evidence from the rewritten scientific account. The original registration and instrument archive remain the source of execution identity.
 
-## Launch
+## Authorized launch
 
-- User approved peer-composition design: three fixed V4 Pro recipients,
-  one peer model, six conditions. No researcher-varying messages or recipes.
-- Original time window expired before any peer composition model call. User explicitly
-  extended execution by six hours at about 01:38 UTC on 2026-10-12.
-- New start cutoff: 06:35 UTC; analysis/integration window ends about 07:38.
-- Design/merge unit tests passed (18). The full container instrument
-  selftest returned `ok=true`, no problems before launch.
-- Six conditions started at about 01:40:35 UTC, concurrency 8 per condition.
-- Registration, frozen configurations, full local requests/responses,
-  submissions and audit evidence live under `runs/peer-composition/`.
-- Initial instrument archive SHA-256:
-  `92cdf92a53601075b079c207538bbc38115c85a6c2ad803662c8d24849890dcd`.
+The approved comparison fixed three V4 Pro recipients and varied one contributor across six model configurations, without researcher-varying messages. After the original window expired with no participant calls, execution was extended by six hours at about 2026-10-12 01:38 UTC. The revised start cutoff was 06:35 UTC, with analysis/integration through about 07:38 UTC.
 
-## Infrastructure retries
+Before launch, 18 design/merge tests passed and the full container selftest returned `ok=true` with no problems. All six conditions began at about 01:40:35 UTC, concurrency 8 each. Registration, configurations, requests/responses, submissions and audits were retained under `runs/peer-composition/`. The initial instrument archive hash was `92cdf92a53601075b079c207538bbc38115c85a6c2ad803662c8d24849890dcd`.
 
-`scripts/peer_continue.py` reserves retry slots under a file lock before
-calling the existing retry command. The conservative maximum is the 960
-original planned starts plus all reserved retries, even if some reserved
-starts never reach a model. The ledger is `runs/peer-composition/retry-budget.json`.
-Original failed sessions remain in each condition's `retried/` directory.
+## Retry accounting
 
-- Gemini-peer condition: three generation-1 recipient sessions failed with two
-  `IncompleteRead` errors and one `RemoteDisconnected`. Reserved and
-  retried on 2026-10-12.
-- DeepSeek-flash-peer condition: one generation-1 peer session failed with
-  `RemoteDisconnected`. Reserved and retried; original records retained.
-- Kimi-peer condition: one generation-5 recipient session failed at turn 9 with
-  `IncompleteRead(0 bytes read)`. After the original process, audit and score
-  finished, one retry was reserved and launched at about 02:58 UTC.
+The file-locked reservation in `scripts/peer_continue.py` preceded the existing retry command. `runs/peer-composition/retry-budget.json` counted 960 planned starts plus every reserved retry, including a reservation that might not reach a provider. Failed originals stayed in condition-specific `retried/` directories.
 
-## Binary delivery-check limitation
+Five infrastructure retries were recorded on 2026-10-12:
+- Three generation-1 recipients in the Gemini-contributor condition failed with two `IncompleteRead` errors and one `RemoteDisconnected`.
+- One generation-1 DeepSeek Flash contributor failed with `RemoteDisconnected`.
+- One generation-5 recipient in the Kimi-contributor condition failed at turn 9 with `IncompleteRead(0 bytes read)`. Its retry was reserved around 02:58 UTC after the preceding process, audit and score completed.
 
-Kimi's cumulative record contains participant-produced binary `.pyc` files.
-The frozen legacy checker converts the lossy UTF-8 preview in `delivered.json`
-back to bytes, then compares it with the original binary. It reports delivery
-mismatches even though the byte-level `shared_sha256` agrees with the source
-record. At the first Kimi stop, all 100 delivery digests matched; 12 previews
-were lossy. No binary artifact or participant outcome was removed or changed.
-The offline evidence validator checks the original byte digest and compares
-the preview with the same documented decoding operation. It has a binary
-regression test. Final reports must retain the legacy check failure and the
-independent byte-level verification, not describe the legacy check as passing.
+None replaced a normal unfavorable behavioral outcome.
 
-These are infrastructure retries, not replacement of normal unfavorable
-outcomes. Total retry starts: five; all original failures are retained.
+## Binary delivery discrepancy
 
-## Terminal evidence
+Kimi records included participant-produced `.pyc` files. The frozen legacy checker round-tripped lossy UTF-8 previews in `delivered.json` and therefore reported mismatches despite matching original-byte `shared_sha256` values. At the first Kimi stop, all 100 delivery digests agreed and 12 previews were lossy.
 
-The last normal subject session ended at `2026-10-12T03:39:04.210482+00:00`.
-All six conditions completed 160 normal sessions, 960 total, with 965 starts
-including retries. No planned cells remain missing and no final accepted
-session has an unknown audit. Normal-session acceptance counts are V4 Pro
-160, Gemini 160, Kimi 152, Qwen Max 145, DeepSeek Flash 154 and Qwen Flash 152.
+The offline validator instead checked original bytes and the documented preview decoding, with a binary regression test. It did not remove artifacts or alter outcomes. The historical Kimi legacy-check failure remains part of the record; byte-level verification is a separate successful check, not a retrospective pass for the old checker.
 
-Final independent evidence checks pass on all 960 sessions, including original
-delivery digests. The legacy Kimi preview check remains a documented failure;
-the other five legacy delivery checks pass. `runs/peer-composition/execution.json` records
-the original orchestrator commands, not the later successful explicit retries.
-`report/final/peer-composition-verification.json` records the final evidence check.
+## Terminal evidence and recomputation
 
-Every registered source file still matched its initial hash through completion.
-Raw submission/audit counts independently matched the late endpoint and
-generation curves in the exported outcomes. Offline recomputation reproduced
-`peer-composition-analysis.json` byte-for-byte. The manuscript reports the imperfect
-generation-1 balance and does not interpret it as a peer effect.
+The last normal participant ended at `2026-10-12T03:39:04.210482+00:00`. Every condition completed 160 normal sessions, totaling 960, with 965 starts including retries. No planned outcome remained missing, and every accepted session had a known audit. Normal-session acceptance totals by contributor were V4 Pro 160, Gemini 160, Kimi 152, Qwen Max 145, DeepSeek Flash 154 and Qwen Flash 152.
 
-## Analysis and release tooling
+Independent evidence checks passed for all 960 final sessions and their original delivery digests. Five legacy delivery checks passed; Kimi's preview failure remained. `runs/peer-composition/execution.json` preserves the original orchestration commands rather than the later explicit retries; `report/final/peer-composition-verification.json` records the final verification.
 
-No subject task, model assignment, planted message, generation rule or
-turn budget was changed during subject execution. New offline analysis/evidence tools,
-documentation and packaging work are release changes, not changes to the
-running instrument. Do not represent the final release commit as the exact
-unmodified source used at registration; the source archive identifies that.
+Registered source hashes matched through completion. Submission/audit records reproduced the late endpoint and generation curves, and offline recomputation reproduced `peer-composition-analysis.json` byte for byte. Generation-1 imbalance is retained as sampling imbalance before peer-output delivery, not attributed to the assigned contributor's yet-unseen output.
 
-Record-text markers are exploratory: literal hook strings, `return None`,
-and warning words near a hook. The seed itself contains hook strings; a
-marker is not endorsement, an honest function, or a causal mediator.
-The primary endpoint and independent-chain bootstrap follow the protocol.
+## Release changes versus historical execution
 
-After all subjects and audits had terminated, release code was hardened with
-descriptor-relative artifact access, bounded regular-file snapshots and safe
-hidden-test/cache cleanup. Regression tests cover task entry points and
-symlink/FIFO attacks. These changes were not active in peer composition and do not retrofit
-its raw evidence. New runs must register the release code and its limits;
-historical results remain tied to the initial archived instrument.
-The release unified checker also uses original-byte delivery digests instead
-of round-tripping binary previews. Its new result must not replace the frozen
-checker's original Kimi failure log.
+No participant task, model assignment, planted message, generation rule or turn limit changed during calls. Offline analysis, evidence checks and release packaging were developed separately. The release commit must not be substituted for the archived execution source.
+
+After participants and audits finished, release code added descriptor-relative artifact access, bounded regular-file snapshots and safer hidden-test/cache cleanup, with task-entry, symlink and FIFO regression tests. Those improvements were not active in this study. The release checker also adopted original-byte delivery comparison; its output does not erase the frozen Kimi failure log.
+
+Record-text markers—hook strings, `return None` and nearby warning terms—remain exploratory. The seed can supply a hook string, and a marker alone is neither a correct implementation nor demonstrated mediation.
