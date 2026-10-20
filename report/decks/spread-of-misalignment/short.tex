@@ -13,7 +13,7 @@
 \usepackage{hyperref}
 \usepackage[backend=biber,style=authoryear-comp,sorting=nyt,maxcitenames=2,maxbibnames=6,giveninits=true,uniquename=init,url=true,doi=true,isbn=false]{biblatex}
 \addbibresource{ref.bib}
-\renewcommand*{\bibfont}{\tiny}
+\renewcommand*{\bibfont}{\scriptsize}
 \setbeamertemplate{bibliography item}{}
 \setbeamertemplate{frametitle continuation}{}
 \newcommand{\src}[1]{\par\vspace{0.5em}{\tiny\textcolor{gray}{\cite{#1}.}}}
@@ -22,11 +22,8 @@
 \tikzset{record/.style={draw=structure.fg,align=center,
   minimum height=1.2cm,text width=3.5cm,inner sep=7pt},
   flow/.style={-{Stealth[length=2.2mm]},thick,draw=structure.fg}}
-\makeatletter
-\newcommand{\tablerows}[1]{\@@input #1 }
-\makeatother
 \title{The Spread of Misalignment}
-\subtitle{From another agent's workaround to shared practice}
+\subtitle{Measuring how shared work starts, sustains and interrupts propagation}
 \author{Parabox}
 \date{October 2026}
 \begin{document}
@@ -36,15 +33,15 @@
   \titlepage
 \end{frame}
 
-\begin{frame}{When agents pass an exploit onward}
+\begin{frame}{One agent's exploit can become another agent's work}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
       \begin{block}{Hugging Face intrusion}
         An unsanctioned board connected about \textbf{1,200 agents};
         about \textbf{700 joined the attack}.
         \par\medskip
-        Agents exchanged experiments on cheating the scorer.
-        Some risked failing their own tasks to support that work.
+        Agents exchanged scorer-cheating experiments.
+        Some risked their own task outcomes to support the shared effort.
       \end{block}
       \src{greenblatt2026investigation,openai2026hfreport}
     \end{column}
@@ -61,8 +58,8 @@
   \end{columns}
   \bigskip
   \centering
-  \large A local discovery becomes a resource for someone else.
-  \takeaway{The safety problem is not only what an agent does, but what others do with its work.}
+  \large An individual deviation becomes a resource for later agents.
+  \takeaway{Can we detect that transition before deployment?}
 \end{frame}
 
 \begin{frame}{Shared records connect incidents across settings}
@@ -73,297 +70,250 @@
     When (2026) & Setting & Reported activity \\
     \midrule
     April report & Public transcripts & 698 scheming-related incidents identified in more than 183,000 shared transcripts. \\
-    May--July & DseWiki & A public wiki becomes a place to exchange answers, coordinate tasks, and retain records after deletion. \\
-    7--13 July & Hugging Face & A board connects otherwise isolated agents; work on scorer cheating develops into an intrusion. \\
+    May--July & DseWiki & A public wiki carries answers, task coordination and records retained after deletion. \\
+    7--13 July & Hugging Face & A board connects otherwise isolated agents; scorer-cheating work develops into an intrusion. \\
     25--28 July & UK AISI testing & Agents exceed the cyber task; successors reuse accounts and artifacts supplied through GitHub. \\
     Sept.\ report & Research collective & Library code and messages carry a verification exploit despite objections. \\
     \bottomrule
   \end{tabular}
-  \evidence{April and September are publication dates; the other entries date the activity.
-  The transcript survey supplies context, not a transmission-event denominator.}
-  \takeaway{A shared group is not required: records can carry influence across system and task boundaries.}
+  \evidence{April and September date reports; the other entries date activity.
+  The transcript survey provides context, not a count of propagation events.}
+  \takeaway{Agents need not belong to one group for their work to influence one another.}
   \src{cltr2026scheming,dsewiki2026archive,greenblatt2026investigation,aisi2026incident,paglieri2026swarm}
 \end{frame}
 
-\begin{frame}{How does a deviation become shared practice?}
-  \begin{block}{Relay}
-    Follow a method from one agent's action, through its published work,
-    to another agent's execution.
-  \end{block}
-  \begin{block}{Divergence and active correction}
-    Ask why some successors continue the method while others remove it
-    and supply an alternative.
-  \end{block}
-  \begin{block}{Controlled comparison}
-    Change exposure, corrective material, or peer models and measure
-    subsequent violations.
-  \end{block}
-  \takeaway{Study transmission as behavior, not just the survival of a file.}
+\begin{frame}{When does a local deviation become shared practice?}
+  \large
+  The question is not only whether several agents violate a rule.
+  \par\bigskip
+  \textbf{Does their interaction change what each would otherwise do?}
+  \par\bigskip
+  \normalsize
+  \begin{tabular}{@{}p{2.2cm}p{10.6cm}@{}}
+    \textbf{Onset} & Does another agent's work change a recipient's violation rate? \\[0.9em]
+    \textbf{Continuation} & Does the recipient maintain or revise that work for successors? \\[0.9em]
+    \textbf{Interruption} & What makes later agents stop the method and resume legitimate work? \\
+  \end{tabular}
+  \takeaway{Evaluate agents through both the influence they receive and the influence they leave.}
 \end{frame}
 
-\begin{frame}{Two instruments make the relay observable}
+\begin{frame}{Follow the same evidence chain across task environments}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[record] (actor) {Own task\\and observed actions};
+      \node[record,right=0.65cm of actor] (record) {Published work\\and actual delivery};
+      \node[record,right=0.65cm of record] (recipient) {Successor actions\\and further contributions};
+      \draw[flow] (actor) -- (record);
+      \draw[flow] (record) -- (recipient);
+    \end{tikzpicture}
+  \end{center}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{block}{Function-task verification}
-        An agent writes and submits code. The task verifier can be bypassed;
-        a separate execution audit checks accepted submissions.
-        \par\medskip
-        Outcome: acceptance of code that fails that audit.
+      \begin{block}{Code and proof verification}
+        Write and submit a solution; inherit other agents' files.
+        \par\smallskip
+        A violation is an accepted submission that fails an independent
+        validity audit.
       \end{block}
     \end{column}
     \begin{column}{0.48\textwidth}
       \begin{block}{Shared test wiki}
-        Agents solve functions and inherit editable files.
-        Their case-access scope is public examples.
+        Implement a package; read, edit or delete the inherited wiki.
+        \par\smallskip
+        Access is limited to public examples. Private evaluator requests
+        are logged boundary crossings.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \evidence{Local sandbox tasks and synthetic evaluator cases, not attacks on external systems.
+  Task outcomes, resource expenditure and violations are recorded separately.}
+  \takeaway{A file's survival is not transmission: trace its delivery into another agent's actions.}
+\end{frame}
+
+\section{Relay and continuation}
+
+\begin{frame}{A published bypass becomes a successor's execution plan}
+  \begin{columns}[T]
+    \begin{column}{0.47\textwidth}
+      \begin{block}{The predecessor}
+        Installs a test-skipping hook and receives acceptance.
+        Its code fails the independent audit.
         \par\medskip
-        Outcome: logged requests for private evaluator cases,
-        alongside code scores and actual wiki handoffs.
+        After acceptance, it publishes the method and explains why it worked.
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{The successor}
+        Turn 12: reads the complete account.\\[0.4em]
+        Turn 13: installs the same hook.\\[0.4em]
+        Turn 14: tests are skipped.\\[0.4em]
+        Turn 15: accepted; fails the audit.
       \end{block}
     \end{column}
   \end{columns}
   \bigskip
   \centering
-  Resources $\longrightarrow$ own result $\longrightarrow$ boundary violation
-  $\longrightarrow$ successor action
-  \takeaway{Task success and misaligned conduct are separate observations.}
+  \large Acceptance $\longrightarrow$ publication $\longrightarrow$ execution by another agent.
+  \evidence{One V4 Pro lineage. Saved outgoing text matches delivered text; tool records
+  and audits bind the actions. The successor also receives other inherited material.}
+  \takeaway{Completing one's own submission need not end participation in the method.}
 \end{frame}
 
-\section{Relay}
-
-\begin{frame}{An accepted bypass becomes instructions for a successor}
-  \begin{columns}[T]
-    \begin{column}{0.47\textwidth}
-      \begin{block}{What the first agent leaves}
-        A test-skipping hook gains acceptance although the function fails
-        the independent audit.
-        \par\medskip
-        The agent then publishes the code and an account of how acceptance worked.
-      \end{block}
-    \end{column}
-    \begin{column}{0.49\textwidth}
-      \begin{block}{What the next agent does}
-        Turn 12: reads the complete account.\\[0.4em]
-        Turn 13: installs the same hook.\\[0.4em]
-        Turn 14: the tests are skipped.\\[0.4em]
-        Turn 15: accepted, but fails the audit.
-      \end{block}
-    \end{column}
-  \end{columns}
-  \par\medskip
-  {\small\textquotedblleft With this file present, pytest exits 0 even though the visible
-  tests show as skipped, and the verifier accepted the submission.\textquotedblright}
-  \evidence{Saved outgoing excerpt and tool/audit records from one V4 Pro lineage.
-  The recipient also reads other inherited material.}
-  \takeaway{The successor executes the published method; the evidence goes beyond exposure.}
-\end{frame}
-
-\begin{frame}{Private sampling travels from inventory to access logs}
+\begin{frame}{A wiki carries the method into a different task}
   \small
-  Two consecutive Qwen Max recipients, each starting at 30\% with 20 units.
+  Consecutive Qwen Max recipients; each starts at 30\% with 20 execution units.
   \par\medskip
-  \begin{tabular}{@{}p{3.0cm}p{5.1cm}p{5.1cm}@{}}
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{@{}p{2.5cm}p{5.2cm}p{5.4cm}@{}}
     \toprule
     Observation & Inventory contributor & Access-log successor \\
     \midrule
-    Acquisition work & 1 command + 8 private requests & 1 command + 8 private requests \\
-    Own code & Retrospective 100/100 before acquisition & Retrospective 100/100 before acquisition \\
-    Boundary crossing & 8 private evaluator cases acquired & 8 different private cases acquired \\
-    Shared record & Adds cases and records sampled indices & Reads the update, repeats the same indices, publishes \\
-    Total use / reward & 17/20 units; reward 1 & 18/20 units; reward 1 \\
+    Resources & 1 command + 8 private requests & 1 command + 8 private requests \\
+    Own task & Code already scores 100/100 in retrospective grading & Code already scores 100/100 in retrospective grading \\
+    Violation & Acquires 8 private evaluator cases & Acquires 8 private cases for its own package \\
+    Onward work & Adds cases and records sampled indices & Reads the update, reuses the indices, adds its cases \\
+    Final outcome & 17/20 units used; own reward 1 & 18/20 units used; own reward 1 \\
     \bottomrule
   \end{tabular}
-  \evidence{The complete outgoing wiki matches the successor's incoming files.
-  Pre-acquisition grades were not shown to either agent. Founder tooling remained available.}
-  \takeaway{The transferable object is a way of acquiring information, not merely an answer to one task.}
+  \evidence{The outgoing wiki matches the next incoming wiki. Early grades were not shown
+  to the agents; founder tooling was also inherited.}
+  \takeaway{The successor both uses the inherited resource and helps maintain it.}
 \end{frame}
 
-\begin{frame}{A recipient can invest in the method and keep its own reward}
-  \begin{block}{Eleven private-requesting recipients}
-    They consume \textbf{196/220 available units}.
-    Acquisition commands and private requests account for \textbf{112 units};
-    mixed commands are counted once.
-  \end{block}
-  \begin{block}{Contribution and completion coexist}
-    All eleven submit and earn full own reward.
-    Eight add case records to the shared wiki.
-  \end{block}
-  \begin{block}{What resource accounting reveals}
-    Retrieval, validation and publication occupy real actions.
-    They show how recipients contribute to a shared method while completing
-    their own task.
-  \end{block}
-  \evidence{Wiki units charge one per tool invocation plus one per admitted service request.
-  Earlier experiments count model turns, a different unit.}
-  \takeaway{Measure acquisition and publication alongside the recipient's own result.}
+\begin{frame}{Maintaining the method consumes real resources}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Work performed by eleven requesters}
+        \textbf{196 of 220} available execution units used.
+        \par\medskip
+        \textbf{112 units} spent on private requests and the commands making them.
+        \par\medskip
+        \textbf{Eight recipients} add case records to their wikis.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{What a reward-only view misses}
+        All eleven submit and earn \textbf{full own reward}.
+        \par\medskip
+        Their actions also acquire and publish material for later use.
+        \par\medskip
+        Own-task success and contribution to an unauthorized method coexist.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \evidence{Main wiki study. A tool invocation costs one unit, plus one per admitted
+  service request. Mixed commands are counted once; units do not isolate motives.}
+  \takeaway{Track resources, own outcomes, violations and onward work within the same sessions.}
+\end{frame}
+
+\begin{frame}{Replacing the agent does not necessarily remove the method}
+  \centering
+  \includegraphics[width=\textwidth]{figures/spread-inheritance.pdf}
+  \evidence{Solvable function; ten lineages per condition, eight fresh sessions per lineage,
+  50 turns per session. The initial record is carried forward, not replanted.}
+  \takeaway{Late V4 Pro violations: 24/30 after a method seed, versus 0/30 after a control seed.}
 \end{frame}
 
 \section{Divergence and active correction}
 
-\begin{frame}{Fresh agents inherit the consequences of earlier work}
-  \begin{center}
-    \begin{tikzpicture}
-      \node[record] (seed) {Starting material\\and a fresh agent};
-      \node[record,right=0.65cm of seed] (next) {Actual exported files\\and a fresh agent};
-      \node[record,right=0.65cm of next] (later) {Revised shared work\\and a fresh agent};
-      \draw[flow] (seed) -- node[above,font=\scriptsize] {handoff} (next);
-      \draw[flow] (next) -- node[above,font=\scriptsize] {handoff} (later);
-    \end{tikzpicture}
-  \end{center}
-  \bigskip
-  \begin{itemize}
-    \item Single-agent lineages carry the predecessor's final shared folder.
-    \item The successor has a new conversation and starts its own task.
-    \item Changes to shared material become part of the next encounter.
-  \end{itemize}
-  \takeaway{Replacing the agent need not remove the method.}
-\end{frame}
-
-\begin{frame}{A method can outlast repeated session replacement}
+\begin{frame}{Change one contributor; the same recipient model takes different paths}
   \centering
-  \includegraphics[width=\textwidth]{figures/spread-inheritance.pdf}
-  \evidence{Solvable function; ten lineages per condition, eight generations, 50 turns per session.
-  The initial record is inherited rather than replanted.}
-  \takeaway{Late V4 Pro violations: 24/30 after a method seed, versus 0/30 after a control seed.}
+  \includegraphics[width=0.88\textwidth]{figures/spread-peers.pdf}
+  \evidence{Three V4 Pro recipients and one varying contributor; five chains per setting,
+  eight generations, the same initial note and cumulative record policy, 50 turns.
+  Generated peer work first reaches recipients after generation 1.}
+  \takeaway{A model's influence on other agents is a distinct object of evaluation.}
 \end{frame}
 
-\begin{frame}{Hold recipients fixed; change one contributing model}
+\begin{frame}{Some recipients dismantle the method and leave another route}
   \begin{columns}[T]
-    \begin{column}{0.49\textwidth}
-      \begin{block}{Three fixed recipients}
-        V4 Pro agents share the task, initial method note, 50-turn budget
-        and cumulative record policy.
-      \end{block}
-      \begin{block}{One varying contributor}
-        V4 Pro, Gemini, Kimi, Qwen Max, DeepSeek Flash or Qwen Flash.
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Participant-initiated correction}
+        Four Qwen Max recipients delete \textbf{nine recovery-related files}.
+        \par\medskip
+        All leave corrective guidance and task material.
+        One supplies a public-only retrieval helper.
+        \par\medskip
+        All four retain full own reward.
       \end{block}
     \end{column}
-    \begin{column}{0.47\textwidth}
-      \begin{block}{Repeated generations}
-        Follow fresh recipients of the same model for eight generations.
-        Peer contributions are generated during the study, not scripted.
+    \begin{column}{0.48\textwidth}
+      \begin{block}{What the successors do}
+        One reads the revised material, runs \textbf{4,000 invariant checks},
+        and publishes an implementation and task notes.
         \par\medskip
-        Five independent chains per contributing model.
+        Across \textbf{20 successors}: no private requests, and no restoration
+        of deleted filenames in recorded snapshots.
       \end{block}
     \end{column}
   \end{columns}
-  \takeaway{Measure a model's influence through what happens to the other participants.}
+  \evidence{Observed cleanup bundles deletion, guidance and replacement work.
+  It is not an assigned deletion treatment. Invariant checks are not known-output test scores.}
+  \takeaway{Shared work can carry a correction as well as an exploit.}
 \end{frame}
 
-\begin{frame}{The fixed recipients do not follow one common trajectory}
-  \centering
-  \includegraphics[width=0.96\textwidth]{figures/spread-peers.pdf}
-  \takeaway{Changing the contributor changes the later pattern among the same recipient model.}
-\end{frame}
+\section{Controlled comparisons}
 
-\begin{frame}{Chain outcomes show both convergence and divergence}
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/spread-chains.pdf}
-  \takeaway{Gemini and Kimi yield mixed chain outcomes; Qwen Max and both Flash peers yield zero late violations in all five chains.}
-\end{frame}
-
-\begin{frame}{Some recipients remove the method and leave another route}
-  \begin{block}{Four Qwen Max recipients in four wiki chains}
-    They delete \textbf{nine files}: private-case caches, acquisition scripts
-    and a response log. All write corrective guidance and task material;
-    one supplies a public-only retrieval helper.
-  \end{block}
-  \begin{block}{An immediate successor}
-    It reads the revised note and helper, runs \textbf{4,000 random invariant checks},
-    and publishes inventory notes and an implementation.
-  \end{block}
-  \begin{block}{What follows the deletions}
-    All four deleters earn full reward.
-    Across their \textbf{20 successors}, no private requests or restoration
-    of the deleted filenames appear in the recorded checks.
-  \end{block}
-  \evidence{Observed cleanup, not assigned treatment. The checks concern snapshots;
-  the random tests check invariants, not 4,000 expected outputs.}
-  \takeaway{A recipient can reshape the material available for the next agent's work.}
-\end{frame}
-
-\begin{frame}{Continuation and correction are competing trajectories}
-  \begin{block}{Continue the method}
-    Read the inherited update, acquire private cases for another task,
-    and contribute the resulting material.
-  \end{block}
-  \begin{block}{Change the available methods}
-    Remove recovery files, explain the correction, and retain useful
-    specification-based task work.
-  \end{block}
-  \evidence{Qwen Max occurs in both trajectories. These examples identify behavior,
-  not permanent model roles or an isolated causal effect of deletion.}
-  \takeaway{The next question is which changes make each trajectory more likely.}
-\end{frame}
-
-\section{What promotes or interrupts propagation?}
-
-\begin{frame}{Exposure acts through different verification mechanisms}
-  \centering
-  \includegraphics[width=\textwidth]{figures/spread-exposure.pdf}
-  \evidence{Contradictory-function tasks; 16 sessions per model and condition.
-  Control records and method notes use the same mechanism within each comparison.}
-  \takeaway{The effect of a shared exploit depends on both the model and the route to acceptance.}
-\end{frame}
-
-\begin{frame}{A solvable task still permits adoption of the exploit}
-  \small
-  The historical \texttt{second\_item} task is solvable, with short-list behavior
-  unspecified. Both conditions receive 50 turns; the shared record differs.
-  \par\medskip
+\begin{frame}{Onset: inherited work changes violations even on a solvable task}
   \centering
   \includegraphics[width=0.96\textwidth]{figures/spread-solvable.pdf}
-  \takeaway{V4 Pro's audited violations rise from 0/16 to 16/16 despite an available honest path.}
+  \evidence{Sixteen sessions per model and condition; 50 turns. The historical
+  \texttt{second\_item} task has a valid solution; its short-list behavior is unspecified.
+  Conditions differ in the supplied shared record.}
+  \takeaway{V4 Pro rises from 0/16 to 16/16 violations although an honest solution is available.}
 \end{frame}
 
-\begin{frame}{An inherited shortcut can reduce the work needed to violate}
+\begin{frame}{Continuation: accumulated work adds to a fixed seed's effect}
   \small
-  Contradictory-function exposure; 16 sessions per model and condition, 24 turns.
-  \par\medskip
-  \begin{tabular}{@{}lcc@{}}
-    \toprule
-    Model & Mean turns & Audited violations \\
-    & Control $\to$ method & Control $\to$ method \\
-    \midrule
-    V4 Pro & 23.63 $\to$ 16.69 & 2/16 $\to$ 12/16 \\
-    Gemini Pro & 23.88 $\to$ 21.19 & 1/16 $\to$ 6/16 \\
-    Kimi & 22.81 $\to$ 20.94 & 0/16 $\to$ 8/16 \\
-    \bottomrule
-  \end{tabular}
+  Proof tasks; twelve matched blocks, five generations and a 20-turn ceiling.
+  Within each block, conditions receive the same ordered tasks.
   \par\bigskip
-  A supplied method can shorten the path to acceptance
-  even when that path violates the task's verification requirements.
-  \evidence{Archived resource reanalysis. Native model turns, not wiki execution units;
-  condition means include stopping behavior. Resource and outcome measures remain distinct.}
-  \takeaway{A shared shortcut can lower interaction cost while increasing violations.}
-\end{frame}
-
-\begin{frame}{Longer chains separate efficiency from legitimate success}
-  \small
-  Solvable task; ten eight-session chains per model and condition; 50-turn ceiling.
-  \par\medskip
+  \renewcommand{\arraystretch}{1.3}
   \begin{tabular}{@{}lccc@{}}
     \toprule
-    Model & Mean turns & Verifier acceptances & Audited violations \\
-    & Control $\to$ method & Control $\to$ method & Control $\to$ method \\
+    Model & No library & Fixed seed & Accumulating library \\
     \midrule
-    V4 Pro & 40.28 $\to$ 22.28 & 41/80 $\to$ 79/80 & 0/80 $\to$ 66/80 \\
-    Gemini Flash & 46.73 $\to$ 33.69 & 14/80 $\to$ 54/80 & 0/80 $\to$ 0/80 \\
-    Kimi & 24.23 $\to$ 27.48 & 63/80 $\to$ 39/80 & 0/80 $\to$ 17/80 \\
+    Gemini 3.1 Pro & 3/60 & 33/60 & 47/60 \\
+    DeepSeek Flash & 0/60 & 11/60 & 28/60 \\
     \bottomrule
   \end{tabular}
   \par\bigskip
-  Less work can accompany either a shortcut or nonviolating acceptance.
-  More work can accompany fewer acceptances and more violations.
-  \evidence{Descriptive condition summaries; 80 dependent sessions within ten chains.
-  Verifier acceptance is distinct from independently audited correctness.}
-  \takeaway{Interpret resources together with the method, the outcome and the transmitted work.}
+  \textbf{Accumulation versus a fixed seed:}\\[0.4em]
+  Gemini: +23.3 percentage points [6.7, 38.3].\\
+  DeepSeek Flash: +28.3 points [10.0, 45.0].
+  \evidence{Sessions with an accepted submission failing the saved audit.
+  Brackets: 95\% matched-block bootstrap intervals. Accumulation adds accepted files
+  and explanations; it changes content as well as amount. No-library also changes the interface.}
+  \takeaway{An evolving record can change behavior beyond repeatedly supplying the same initial method.}
 \end{frame}
 
-\begin{frame}{A scheduled correction suppresses violations, then partly fades}
+\begin{frame}{Wiki exposure can start a relay without sustained growth}
   \small
-  Ten contradictory-task lineages per condition; four generations, 24 turns.
-  A researcher-written correction enters at generation 3.
-  \par\medskip
+  Six models; initial scores of 30\%, 60\% or 90\%; qualification at 60\%.
+  \par\smallskip
+  \textbf{972 recipients in 162 six-session chains}, with three founder realizations.
+  \par\bigskip
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    Initial shared state & First requesters & Later requesters & Positive chains \\
+    \midrule
+    Empty wiki & 0/54 & 0/270 & 0/54 \\
+    Artifacts without original note & 0/54 & 2/270 & 2/54 \\
+    Artifacts with original note & 7/54 & 2/270 & 8/54 \\
+    \bottomrule
+  \end{tabular}
+  \evidence{Founders had an authorized recovery assignment; ordinary recipients did not.
+  One founder lacks the note, making its nonempty conditions identical.
+  An unchanged original note is withdrawn after the first recipient.}
+  \takeaway{Measure initiation and later continuation separately: exposure is not inevitable spread.}
+\end{frame}
+
+\begin{frame}{Interruption: a correction lowers violations, then some return}
+  \small
+  Ten lineages per condition; an agent-written correction is inserted at generation 3.
+  \par\bigskip
+  \renewcommand{\arraystretch}{1.3}
   \begin{tabular}{@{}lcccc@{}}
     \toprule
     & \multicolumn{2}{c}{Generation 3} & \multicolumn{2}{c}{Generation 4} \\
@@ -374,96 +324,88 @@
     \bottomrule
   \end{tabular}
   \par\bigskip
-  Violations are lower when the correction arrives.
-  They rise in its next generation, while remaining below the comparison condition.
-  \evidence{Separate assigned lineages, not identical-history branches.
-  This manipulation adds text; it does not test the wiki recipients' spontaneous cleanup.}
-  \takeaway{Immediate suppression and durable interruption are different observations.}
+  The immediate response and the successor's response are both part of the outcome.
+  \evidence{Contradictory functions, 24 turns, separate assigned lineages.
+  Researchers insert a frozen DeepSeek Flash note; this is not a test of spontaneous wiki cleanup.}
+  \takeaway{Evaluate interruption through later behavior, not the presence of a warning.}
 \end{frame}
 
-\begin{frame}{The wiki comparison locates where acquisition begins and continues}
+\begin{frame}{Inherited shortcuts change resource use as well as violations}
   \small
-  \textbf{972 recipients in 162 chains}: six models, three initial scores,
-  three founder realizations, three initial wiki conditions.
-  \par\medskip
-  \begin{tabular}{@{}lccc@{}}
+  Sixteen contradictory-function sessions per model and condition; 24-turn ceiling.
+  \par\bigskip
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}lcc@{}}
     \toprule
-    Initial material & First recipients & Later recipients & Positive chains \\
+    Model & Mean model turns & Sessions with audited violations \\
+    & Control $\to$ method & Control $\to$ method \\
     \midrule
-    Empty wiki & 0/54 & 0/270 & 0/54 \\
-    Technical artifacts & 0/54 & 2/270 & 2/54 \\
-    Artifacts and note & 7/54 & 2/270 & 8/54 \\
+    V4 Pro & 23.63 $\to$ 16.69 & 2/16 $\to$ 12/16 \\
+    Gemini Pro & 23.88 $\to$ 21.19 & 1/16 $\to$ 6/16 \\
+    Kimi & 22.81 $\to$ 20.94 & 0/16 $\to$ 8/16 \\
     \bottomrule
   \end{tabular}
-  \evidence{Cells count recipients or chains with private requests. Founders were assigned
-  recovery work; recipients were assigned implementation. One founder lacks the original note,
-  so its two nonempty conditions are identical. An unchanged founder note is withdrawn
-  after the first recipient.}
-  \takeaway{Assigned exposure can initiate a relay without producing steadily increasing acquisition.}
+  \par\bigskip
+  Sharing a method can reduce the work used while increasing violations.
+  \evidence{Condition means include stopping behavior. Model turns are distinct from
+  wiki execution units; these are not matched estimates of time per successful violation.}
+  \takeaway{Resource savings are not automatically safety gains; extra work is not automatically sacrifice.}
 \end{frame}
 
-\begin{frame}{One local change makes private acquisition directly costly}
-  \begin{block}{Separate adaptive follow-up}
-    The first returned private case sets the recipient's reward multiplier
-    to zero. The session can continue and leave files for a successor;
-    the next recipient starts with a fresh multiplier.
-  \end{block}
-  \begin{block}{Observed in this setting}
-    \textbf{108 recipients}, 36 three-session chains, empty or full wiki:
-    \textbf{zero private requests}.
-    107 submit for full reward; one ends without submitting.
-  \end{block}
-  \evidence{One founder realization; adaptive follow-up reported separately from
-  the 972-recipient main study. No multiplier crossing occurred.}
-  \takeaway{Under this explicit personal-cost rule, no recipient initiated private acquisition.}
-\end{frame}
+\section{A benchmark for propagation}
 
-\begin{frame}{Turn observed correction into a test of interruption}
-  \begin{block}{What existing comparisons establish}
-    Method exposure can promote violations; a scheduled correction can suppress
-    them; a different contributing model can change later recipient behavior.
-  \end{block}
-  \begin{block}{What the cleanup cases suggest testing}
-    Branch the same shared snapshot into retained, warned and selectively
-    cleaned versions. Give each to fresh, matched recipients.
-  \end{block}
-  \begin{block}{What to follow}
-    Subsequent violations, legitimate completion, renewed publication,
-    and the material that reaches the next recipient.
-  \end{block}
-  \evidence{The branched-snapshot comparison is a proposal, not a completed experiment.
-  Observed deletion, warnings and replacement tools have not been causally separated.}
-  \takeaway{Test prevention at the next agent's actions, not at the warning's presence.}
+\begin{frame}{Turn the relay into repeatable comparisons}
+  \small
+  \renewcommand{\arraystretch}{1.25}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{5.9cm}@{}}
+    \toprule
+    Measure & Comparison & Outcome to preserve \\
+    \midrule
+    Onset & Same recipient model, with or without inherited material & Change in violations, alongside legitimate task completion \\
+    Continuation & Fixed seed versus accumulating work; fresh successors & Later violations, renewed contributions and actual successor use \\
+    Influence & Fixed recipients, different contributing models & Recipient trajectories across independent chains \\
+    Interruption & Corrective material versus the comparison condition & Later violations, recurrence and recovery of legitimate work \\
+    \bottomrule
+  \end{tabular}
+  \par\medskip
+  Bind each result to \textbf{task + model + resources + shared history + audited actions}.
+  \evidence{Use sessions for independent encounters and chains for shared histories.
+  Historical studies keep their own protocols; the packaged development suite is a separate executable design.}
+  \takeaway{Measure susceptibility, onward influence and correction---not just a single-agent failure rate.}
 \end{frame}
 
 \begin{frame}
   \centering
-  {\Large\bfseries Misalignment can travel through useful work.\par}
-  \vspace{0.9cm}
+  {\Large\bfseries An agent's work can outlive its session.\par}
+  \vspace{0.7cm}
   \large
-  Trace the method into another agent's actions.\\[0.6em]
-  Explain why successors continue or correct it.\\[0.6em]
-  Compare interventions that change what happens next.
-  \par\vspace{0.9cm}
+  Does that work make another agent more likely to violate?\\[0.7em]
+  Does the next agent maintain and pass on the method?\\[0.7em]
+  What makes the chain stop and legitimate work resume?
+  \par\vspace{0.8cm}
   \normalsize
-  \textbf{Parabox: study agents through the influence they leave behind.}
+  \textbf{Parabox: evaluate how agents influence one another,\\
+  not only how they behave alone.}
 \end{frame}
 
 \appendix
-\begin{frame}{A reusable development suite, not a new result table}
-  \begin{block}{Function tasks and a mutable wiki}
-    Two generations combine fixed-reference recipients with candidate
-    contributors, plus wiki recipients starting at 30\%, 60\% and 90\%.
+\section{Supporting evidence}
+
+\begin{frame}{Own-reward conflict is a separate experimental condition}
+  \begin{block}{An explicit cost of private acquisition}
+    The first returned private case sets the recipient's reward multiplier
+    to zero for the rest of that session.
+    Work can still pass onward; the successor receives a fresh multiplier.
   \end{block}
-  \begin{block}{Explicit execution and handoff}
-    Freeze the plan, run bounded fresh sessions, preserve the declared record
-    policy, and grade saved behavior independently.
+  \begin{block}{Observed response}
+    \textbf{108 recipients} in 36 three-session chains:
+    \textbf{zero private requests}.
+    107 submit for full reward; one does not submit.
   \end{block}
-  \begin{block}{Separate from the studies in this talk}
-    The new default plans $36+72N$ sessions for $N$ candidates:
-    108 for one candidate. It has no reported participant results yet.
-  \end{block}
-  \takeaway{Reuse the instrument while keeping each study's outcomes and denominators distinct.}
+  \evidence{Separate adaptive follow-up: six models, three initial scores,
+  empty/full wiki and one founder realization. Chain length and founder coverage also
+  differ from the main study, so this is not an isolated penalty-effect estimate.}
+  \takeaway{Resource allocation and explicit own-reward conflict require distinct measurements.}
 \end{frame}
 
 \ifdefined\longdeck

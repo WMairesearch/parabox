@@ -1,48 +1,58 @@
 # The Spread of Misalignment
 
-The presentation follows a method from its first user into another agent's
-actions, then examines diverging trajectories and comparisons that promote or
-interrupt propagation. Influence can cross systems and tasks; it does not
-require membership in one group.
+The presentation asks when an agent's local deviation becomes shared practice:
+does interaction change what recipients would otherwise do, do they maintain
+the method for successors, and what makes the chain stop?
 
-`short.tex` is the talk. `main.tex` uses the same narrative and adds
-`methods-detail.tex`, covering study designs, handoff rules, outcome definitions
-and replication. Both use the default Beamer appearance without slide numbers.
+`short.tex` moves from motivating incidents to linked relays, divergent
+trajectories and controlled comparisons. `main.tex` includes that same talk and
+adds `methods-detail.tex`: protocols, replication units, additional results and
+the executable development suite. Both use default Beamer styling, English
+text and no slide numbers.
 
 ## Reading the evidence
 
-- **Relay:** a published verification bypass is executed by a successor; a
-  consecutive wiki pair transfers private sampling from inventory to access logs.
-- **Divergence:** inherited methods persist in some lineages, while other
-  recipients delete acquisition files and publish corrective task material.
-- **Comparison:** exposure, a scheduled correction and contributor-model
-  composition change subsequent behavior under their respective protocols.
+- **Onset:** compare a recipient's behavior with and without inherited work.
+  A supplied seed tests the start of transmission, not spontaneous discovery
+  of that seed.
+- **Continuation:** connect publication, actual delivery and successor action.
+  Compare an accumulating library with the same fixed seed, and follow fresh
+  recipients across successive handoffs.
+- **Interruption:** observe participant-initiated cleanup and separately test
+  an experimentally inserted, agent-written correction. Measure later violations
+  and legitimate work, not simply whether a warning or deletion occurred.
 
-Resources describe how agents participate in these processes. Private retrieval
-can coexist with full own reward, and exposure can reduce the turns used by a
-violating recipient. Jointly measuring actions, own outcomes and onward work
-reveals these different forms of participation. The separate reward-zeroing
-follow-up records acquisition under an explicit personal cost and appears
-alongside the later comparisons.
+The contributor-model comparison keeps the recipient model fixed. It measures
+how a model changes others' trajectories, rather than substituting that model's
+own failure rate for its influence.
 
-Observed cleanup combines deletion, warnings and replacement material.
-The talk proposes a matched snapshot comparison to separate their effects;
-it does not present that comparison as completed.
+Resource allocation runs through the same evidence: private retrieval and wiki
+maintenance can coexist with full own reward; inherited shortcuts can reduce
+turn use while increasing violations. The own-reward-conflict follow-up is in
+the appendix. It is a separate condition, not a prerequisite for establishing
+propagation.
+
+Accumulation changes both the amount and content of inherited work. It does
+not isolate elapsed time or word count. Likewise, observed cleanup bundles
+deletion, guidance and replacement material. The long version proposes a
+matched-snapshot comparison of these components and labels it as future work.
 
 ## Evidence map
 
 | Material in the talk | Public evidence |
 |---|---|
 | Function-task exposure, inheritance and correction | [Study reports](../../studies/final/) and corresponding [session CSVs](../../final/) |
+| Fixed seed versus accumulated proof work | [Matched-block counts and protocol metadata](evidence/accumulation.json), checked by `scripts/accumulation_report.py` |
 | Fixed recipients with varying contributors | [Composition analysis](../../final/peer-composition-analysis.json), session CSVs and [protocol](../../studies/final/peer-composition.md) |
 | Executed verification bypass | [Selected relay record](evidence/relay-example.json): outgoing excerpt, recipient tool steps and audit bindings |
 | Wiki acquisition, resources, relay and cleanup | [Wiki report](../../shared-test-wiki/README.md), numeric rows and bounded supplemental annotations |
 | Exposure and solvable-chain turn use | [Resource allocation export](../../resource-allocation/README.md), kept separate from wiki charged units |
 
-The displayed outgoing quotation is a saved evidence excerpt, not new
-participant-facing guidance. Full conversations are not distributed. The
-linked examples establish reading and action, while retaining the fact that
-other inherited material was available.
+The relay binding includes a saved outgoing excerpt and tool/audit references.
+Full conversations are not distributed. Linked examples establish reading and
+action, with other inherited material also available. The accumulation export
+contains saved outcome counts and source digests; its public recomputation
+does not rerun withheld proof audits.
 
 Incident accounts are attributed in `ref.bib`. The opening combines the
 Hugging Face intrusion and theorem-proving collective; the next slide places
@@ -65,6 +75,7 @@ python -m scripts.spread_figures
 python -m scripts.peer_figures
 python -m scripts.wiki_report --check
 python scripts/resource_report.py --check
+python scripts/accumulation_report.py --check
 ```
 
 These commands make no model calls. Table and figure generators retain the
@@ -72,17 +83,24 @@ frozen numerical inputs and check denominators. Unknown audits remain gaps in
 trajectories; chain dots represent independent lineages, not independent seats.
 The additional peer plot shows descriptive chain-bootstrap intervals.
 
-Compile outside the source tree:
+Install LaTeX with Beamer, Latin Modern, `latexmk` and `biber`. From the
+repository root, build in a fresh directory and replace both local PDFs only
+after both compilations succeed:
 
 ```sh
+set -eu
 BUILD="$(mktemp -d)"
 DECK=report/decks/spread-of-misalignment
 cp "$DECK/"*.tex "$DECK/ref.bib" "$BUILD/"
 cp -R "$DECK/figures" "$BUILD/"
 (cd "$BUILD" && latexmk -pdf -interaction=nonstopmode -halt-on-error short.tex)
 (cd "$BUILD" && latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex)
+install -m 644 "$BUILD/short.pdf" "$DECK/short.pdf"
+install -m 644 "$BUILD/main.pdf" "$DECK/main.pdf"
 ```
 
-The build directory contains the PDFs and auxiliary files. The sources retain
-the talk, its methods extension, evidence bindings and reproducible figures;
-they do not depend on unpublished draft presentations.
+Open `report/decks/spread-of-misalignment/short.pdf` or `main.pdf`.
+The temporary build directory retains diagnostic logs. The two local deck PDFs
+are Git-ignored: committing or pushing the sources does not publish them.
+Tracked sources, evidence bindings and figures are sufficient to rebuild
+both decks without unpublished presentations or model calls.

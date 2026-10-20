@@ -23,6 +23,7 @@ include report/shared-test-wiki/summary.json
 include docs/adding-a-task.md
 include docs/architecture.md
 include report/decks/spread-of-misalignment/README.md
+include report/decks/spread-of-misalignment/evidence/accumulation.json
 include report/decks/spread-of-misalignment/evidence/relay-example.json
 include report/decks/spread-of-misalignment/figures/peer-composition.pdf
 include report/decks/spread-of-misalignment/figures/peer-composition.png
