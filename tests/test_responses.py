@@ -44,6 +44,7 @@ class FixtureServer(ThreadingHTTPServer):
         super().__init__(("127.0.0.1", 0), FixtureHandler)
         self.requests = []
         self.replies = []
+        self.reject_python_user_agent = False
 
 
 class FixtureHandler(BaseHTTPRequestHandler):
@@ -51,7 +52,10 @@ class FixtureHandler(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         self.server.requests.append({"path": self.path, "body": body,
                                      "authorization": self.headers.get("Authorization")})
-        if self.path.endswith("/chat/completions"):
+        if (self.server.reject_python_user_agent
+                and self.headers.get("User-Agent", "").startswith("Python-urllib/")):
+            status, value = 403, {"error": {"message": "Default Python client blocked by gateway"}}
+        elif self.path.endswith("/chat/completions"):
             status, value = 200, {"choices": [{"message": {"role": "assistant", "content": "chat"}}]}
         else:
             status, value = self.server.replies.pop(0) if self.server.replies else (200, response())
@@ -143,6 +147,17 @@ class ResponsesTest(unittest.TestCase):
         self.assertNotIn("opaque-b", json.dumps(third))
         self.assertNotIn("previous_response_id", third)
         self.assertNotIn("conversation", third)
+
+    def test_gateway_rejecting_default_python_clients_accepts_responses(self):
+        self.server.reject_python_user_agent = True
+        raw = response(function_call("list_dir", {}))
+        self.reply(raw)
+        try:
+            message, saved = self.client.complete(self.messages, tools=self.task.tools(shared=False))
+        except RuntimeError as error:
+            self.fail(f"Responses request must pass the gateway client check: {error}")
+        self.assertEqual(saved, raw)
+        self.assertEqual(message["tool_calls"][0]["function"]["name"], "list_dir")
 
     def test_converts_existing_chat_style_history(self):
         messages = self.messages + [
