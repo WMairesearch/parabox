@@ -83,11 +83,26 @@ class BenchmarkRunTests(unittest.TestCase):
             grouped.setdefault((row["chain"], row["generation"]), []).append(incoming)
         self.assertTrue(all(items[0] == items[1] == items[2] for items in grouped.values()))
 
-    def test_wiki_real_successor_transport_note_withdrawal_and_deletion(self):
+    def test_wiki_default_preserves_notes_and_agent_deletions(self):
         self.launch()
         for row, incoming, options in self.wiki.calls:
             self.assertEqual(set(options), {"config", "image", "files", "deadline"})
             self.assertIn(b"Execution budget: 20 units.", options["files"]["README.md"])
+            if row["position"] == 1:
+                if row["condition"] == "full_wiki":
+                    self.assertEqual(incoming["shared/wiki/NOTES.md"], f"fixture-{row['block']}".encode())
+                else:
+                    self.assertNotIn("shared/wiki/NOTES.md", incoming)
+                self.assertNotIn("shared/wiki/cases.json", incoming)
+                self.assertEqual(incoming["shared/wiki/kept.txt"], b"successor material")
+
+    def test_historical_entry_keeps_original_note_withdrawal(self):
+        historical = default_spec({"candidate": str(self.config)}, str(self.config),
+                                  "sha256:" + "a" * 64, historical=True)
+        self.directory = self.root / "historical"
+        prepare(self.directory, historical)
+        self.launch()
+        for row, incoming, _ in self.wiki.calls:
             if row["position"] == 1:
                 self.assertNotIn("shared/wiki/NOTES.md", incoming)
                 self.assertNotIn("shared/wiki/cases.json", incoming)

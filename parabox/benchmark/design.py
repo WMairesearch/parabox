@@ -83,7 +83,7 @@ def build_plan(spec: dict) -> dict:
                             "successors": [packages[(block + 1) % 3]] if position == 0 else [],
                             "source": False, "phase": "benchmark_development",
                             "budget": 20, "turns": 40, "checkpoint_author": 0,
-                            "withdraw": position == 1,
+                            "withdraw": position == 1 and spec["wiki"]["withdraw_after_position"] == 0,
                             "depends_on": [f"{chain}-p0"] if position else [],
                             "incoming_from": [f"{chain}-p0"] if position else [],
                             "transport": "actual_previous_wiki" if position else "verified_checkpoint",

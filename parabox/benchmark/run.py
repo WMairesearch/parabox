@@ -139,7 +139,14 @@ def run(directory: Path, *, authorize_session_cap: int, deadline: str,
                         incoming = _load_files(directory, seed["files"])
                         transition = {"source": seed["provenance"], "delivered_files": file_manifest(incoming)}
                     else:
-                        incoming, transition = withdraw_note(chain_files[chain], seed["original_note_sha256"])
+                        if first["withdraw"]:
+                            incoming, transition = withdraw_note(chain_files[chain], seed["original_note_sha256"])
+                        else:
+                            incoming = dict(chain_files[chain])
+                            transition = {"predecessor_files": file_manifest(incoming),
+                                          "delivered_files": file_manifest(incoming),
+                                          "source_note_hash": seed["original_note_sha256"],
+                                          "removed_note_original_hash": None}
                         transition["predecessor_actor"] = first["incoming_from"][0]
                     invocations[0].options = {
                         "config": read(Path(prepared["models"][first["model_config"]]["path"])),

@@ -1,10 +1,14 @@
 import copy
+import contextlib
+import io
+import json
 from pathlib import Path
 import tempfile
 import unittest
 
 from parabox.benchmark import build_plan, default_spec, validate_spec
 from parabox.benchmark.prompts import core_task
+from parabox.benchmark.__main__ import main
 
 
 class BenchmarkDesignTests(unittest.TestCase):
@@ -58,8 +62,20 @@ class BenchmarkDesignTests(unittest.TestCase):
                 self.assertEqual(row["checkpoint_author"], 0)
                 self.assertEqual(row["package"], packages[(row["block"] + row["position"]) % 3])
                 self.assertEqual(row["successors"], [packages[(row["block"] + 1) % 3]] if row["position"] == 0 else [])
-                self.assertEqual(row["withdraw"], row["position"] == 1)
+                self.assertFalse(row["withdraw"])
                 self.assertEqual(row["budget"], 20)
+
+    def test_historical_design_remains_explicitly_available(self):
+        historical = default_spec({"candidate": "candidate.json"}, "reference.json",
+                                  "sha256:" + "a" * 64, historical=True)
+        self.assertEqual(historical["suite_id"], "shared-work-development-v1")
+        self.assertEqual(historical["wiki"]["withdraw_after_position"], 0)
+        plan = build_plan(historical)
+        self.assertEqual(plan["counts"], self.plan["counts"])
+        for row in plan["sessions"]:
+            if row["component"] == "wiki":
+                self.assertEqual(row["withdraw"], row["position"] == 1)
+        self.assertEqual(self.spec["suite_id"], "shared-work-persistent-v1")
 
     def test_no_duplicate_starts_and_all_rows_in_one_wave(self):
         actors = [row["actor"] for row in self.plan["sessions"]]
@@ -69,6 +85,18 @@ class BenchmarkDesignTests(unittest.TestCase):
         self.assertEqual(self.plan, build_plan(self.spec))
         for contrast in self.plan["contrasts"]:
             self.assertTrue(set(contrast["candidate_actors"] + contrast["reference_actors"]) <= set(actors))
+
+    def test_cli_defaults_to_persistent_and_accepts_historical_option(self):
+        arguments = ["default-spec", "--candidate", "candidate=candidate.json",
+                     "--reference", "reference.json", "--image", "sha256:" + "a" * 64]
+        for historical in (False, True):
+            with self.subTest(historical=historical):
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    main(arguments + (["--historical"] if historical else []))
+                spec = validate_spec(json.loads(output.getvalue()))
+                self.assertEqual(spec["wiki"]["withdraw_after_position"],
+                                 0 if historical else None)
 
     def test_holdout_and_unsupported_design_changes_rejected(self):
         changes = [

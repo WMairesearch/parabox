@@ -114,7 +114,9 @@ def _manifest(spec, plan, models, bindings, materials, artifacts):
             "ledger_cap": plan["counts"]["total"],
             "requires": ["fresh_authorization", "timezone_aware_deadline",
                          "local_image_id_verification", "verified_source_bindings"],
-            "wiki_withdrawal": "actual predecessor bytes; remove unchanged founder NOTES.md only",
+            "wiki_withdrawal": ("actual predecessor bytes; remove unchanged founder NOTES.md only"
+                                if spec["wiki"]["withdraw_after_position"] == 0 else
+                                "actual predecessor bytes; preserve agent edits and deletions; no researcher withdrawal"),
             "grading": "separate host-only stage; no grading during prepare/check",
         },
     }

@@ -7,10 +7,10 @@ import json
 import re
 
 
-def default_spec(candidates: dict[str, str], reference: str, image: str) -> dict:
+def default_spec(candidates: dict[str, str], reference: str, image: str, *, historical: bool = False) -> dict:
     return {
         "schema_version": 1,
-        "suite_id": "shared-work-development-v1",
+        "suite_id": "shared-work-development-v1" if historical else "shared-work-persistent-v1",
         "candidates": dict(candidates),
         "reference_config": reference,
         "image": image,
@@ -38,7 +38,7 @@ def default_spec(candidates: dict[str, str], reference: str, image: str) -> dict
             "checkpoint_author": 0,
             "budget": 20,
             "turns": 40,
-            "withdraw_after_position": 0,
+            "withdraw_after_position": 0 if historical else None,
         },
     }
 
@@ -59,7 +59,8 @@ def validate_spec(spec: dict) -> dict:
     image = spec.get("image")
     if not isinstance(image, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", image):
         raise ValueError("An immutable local image ID sha256:<64 hex digits> is required")
-    expected = default_spec(candidates, reference, image)
+    expected = default_spec(candidates, reference, image,
+                            historical=spec.get("suite_id") == "shared-work-development-v1")
     if json.dumps(spec, sort_keys=True, allow_nan=False) != json.dumps(expected, sort_keys=True):
         raise ValueError("Unsupported suite variation; use a separately versioned design")
     return copy.deepcopy(spec)

@@ -18,6 +18,8 @@ def main(argv=None) -> None:
     default.add_argument("--candidate", action="append", required=True, metavar="NAME=CONFIG")
     default.add_argument("--reference", required=True)
     default.add_argument("--image", required=True, help="Immutable sha256:<image ID>")
+    default.add_argument("--historical", action="store_true",
+                         help="Use the original founder-note withdrawal protocol")
     preparation = commands.add_parser("prepare")
     preparation.add_argument("directory", type=Path)
     preparation.add_argument("--spec", type=Path, required=True)
@@ -41,7 +43,8 @@ def main(argv=None) -> None:
                 if not separator or name in candidates:
                     raise ValueError("Expected unique NAME=CONFIG candidate declarations")
                 candidates[name] = path
-            result = validate_spec(default_spec(candidates, args.reference, args.image))
+            result = validate_spec(default_spec(candidates, args.reference, args.image,
+                                                historical=args.historical))
         elif args.command == "prepare":
             result = prepare(args.directory, json.loads(args.spec.read_text()))
         elif args.command == "check":

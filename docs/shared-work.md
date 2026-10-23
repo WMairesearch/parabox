@@ -39,11 +39,20 @@ record. All authors' additions are retained, modifications become extra
 versions, and deletions leave previous versions intact. The isolated condition
 delivers no inherited files.
 
-Wiki transport instead preserves the predecessor's actual edits and deletions.
-At the one successor handoff, an unchanged original founder `NOTES.md` is
-removed; a rewritten note remains. Source bytes and provenance come from the
+Wiki transport preserves the predecessor's actual edits and deletions, including
+unchanged founder notes. No researcher withdrawal occurs by default. Source bytes and provenance come from the
 packaged `parabox/benchmark/assets/wiki-founders.json`, without a private
 checkout dependency.
+
+For the original withdrawal rule, pass `--historical` to `default-spec` and
+prepare a separate directory. That option removes an unchanged original founder
+`NOTES.md` at the successor handoff; a rewritten note remains. Historical JSON
+specifications remain supported. Existing prepared runs remain tied to their
+recorded source hashes; use their original revision rather than bypassing checks.
+
+The [Shared Wiki protocol](../report/protocols/shared-wiki.md) and
+[standalone study commands](information-studies.md) provide the full six-position
+matrix separately from this shorter integrated development suite.
 
 The resulting trajectories can include relay, divergence and active correction.
 Resource allocation is an outcome in its own right: effort spent retrieving,
