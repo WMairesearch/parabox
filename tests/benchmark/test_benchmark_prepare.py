@@ -62,7 +62,7 @@ class BenchmarkPreparationTests(unittest.TestCase):
 
     def test_extracted_runtime_modules_remain_source_bound(self):
         manifest = prepare(self.output, self.spec)
-        source_root = Path(__file__).resolve().parents[1]
+        source_root = Path(__file__).resolve().parents[2]
         for name in ("runtime.py", "guards.py"):
             source = str((source_root / "parabox/execution/control" / name).resolve())
             with self.subTest(module=name):

@@ -7,7 +7,7 @@ from pathlib import Path
 from parabox.records.adapters.execution import import_execution
 from parabox.records.schema import validate
 
-from tests.records_fixture import ExecutionAdapterFixture, canonical, measurements
+from tests.records.records_fixture import ExecutionAdapterFixture, canonical, measurements
 
 
 class ExecutionAdapterTests(ExecutionAdapterFixture):

@@ -10,7 +10,7 @@ from parabox.benchmark.run import BoundOutcomeEngine, DeadlineClient, run, withd
 from parabox.execution import CoreEngine, FrozenWikiEngine, Invocation, Outcome
 from parabox.benchmark.protocol.prompts import core_task
 from parabox.util import read, save, sha256
-from tests.test_benchmark_prepare import payload
+from tests.benchmark.test_benchmark_prepare import payload
 
 
 class FakeEngine:

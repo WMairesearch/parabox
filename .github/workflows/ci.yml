@@ -56,5 +56,5 @@ jobs:
       - run: cd /tmp && python -m parabox.benchmark.ternary --help
       - run: |
           image_id="$(podman image inspect localhost/parabox-code:py312 --format '{{.Id}}')"
-          PARABOX_EPISODE_TEST_IMAGE="$image_id" python -m unittest tests.test_wiki_task_episode tests.test_benchmark_container
+          PARABOX_EPISODE_TEST_IMAGE="$image_id" python -m unittest tests.wiki.test_wiki_task_episode tests.ternary.test_benchmark_container
       - run: cd /tmp && python -c "import importlib.util; assert importlib.util.find_spec('parabox.studies') is None"

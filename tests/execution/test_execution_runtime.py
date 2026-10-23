@@ -225,7 +225,7 @@ class ExecutionTests(unittest.TestCase):
         self.assertEqual(ledger.rows(), [])
 
     def test_frozen_scripts_unchanged_by_offline_execution(self):
-        root = Path(__file__).resolve().parents[1]
+        root = Path(__file__).resolve().parents[2]
         paths = [root / "parabox/runner/session.py",
                  root / "parabox/execution/merge.py"]
         before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}

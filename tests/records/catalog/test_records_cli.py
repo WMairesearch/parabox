@@ -5,7 +5,7 @@ import json
 import unittest
 
 from parabox.records.__main__ import main
-from tests import test_records_execution
+from tests.records import test_records_execution
 
 
 class RecordsCLITests(unittest.TestCase):

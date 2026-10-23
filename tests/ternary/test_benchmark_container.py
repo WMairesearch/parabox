@@ -12,7 +12,7 @@ from parabox.sandbox import Box, Limits
 from parabox.tasks.code.spec.problems import PROBLEMS
 from parabox.util import read, sha256
 from tests.helpers import call
-from tests.test_ternary_benchmark import ScriptedClient
+from tests.ternary.test_ternary_benchmark import ScriptedClient
 
 
 class ScriptedCoreClient:

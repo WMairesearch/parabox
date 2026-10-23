@@ -54,7 +54,7 @@ class EngineBoundaryTests(unittest.TestCase):
                 FrozenWikiEngine(variant="base", frozen={str(path): "0" * 64})
 
     def test_lazy_package_import_and_public_exporter_contract(self):
-        root = Path(__file__).resolve().parents[1]
+        root = Path(__file__).resolve().parents[2]
         path = root / "parabox/tasks/wiki/episode.py"
         runner = Mock(return_value={"normal": True, "shutdown_verified": True})
         exporter = Mock(return_value=({"export": "metadata"}, {"shared/wiki/note": b"new"}))
