@@ -19,6 +19,22 @@ IMAGE_ID="sha256:${IMAGE_ID#sha256:}"
 The selftest is offline. Image building may download dependencies. Record the
 immutable image ID for the actual run.
 
+## Provider configuration
+
+For the Responses adapter, copy
+[`examples/model.openai-responses.example.json`](../examples/model.openai-responses.example.json)
+to a private model configuration and set `OPENAI_API_KEY` on the host.
+Its `wire: "responses"` selects the Responses transport; `request_body`
+configures reasoning effort and the output-token allowance. Other configurations
+retain Chat Completions by default or select Gemini with `wire: "gemini"`.
+
+The Responses adapter replays only the current session's history, including
+native reasoning and function-call items, without a shared conversation ID.
+Native items are retained as `responses_output` on assistant messages in
+`meta/requests/`; unmodified provider responses, including usage, remain in
+`meta/responses/`. Tool declarations preserve optional parameters by retaining
+non-strict behavior unless the task explicitly requests strict mode.
+
 ## Ternary sequence experiment
 
 Copy `examples/ternary.example.json` to a private spec. Replace its image ID
