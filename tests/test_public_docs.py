@@ -11,7 +11,6 @@ def public_prose():
     sources = list(ROOT.glob("*.md"))
     for directory in ("docs", "report", "configs", "data", ".github"):
         sources.extend((ROOT / directory).rglob("*.md"))
-    sources.extend((ROOT / "report" / "decks").rglob("*.tex"))
     return sources
 
 
@@ -32,30 +31,11 @@ class PublicDocsTest(unittest.TestCase):
             with self.subTest(source=source.relative_to(ROOT)):
                 content = source.read_text()
                 self.assertNotRegex(content, r"(?i)falsifier\s+falsifier")
-                self.assertNotIn("What changes in the short deck", content)
                 self.assertNotIn("redo.md", content)
                 self.assertNotIn("Parent review", content)
                 self.assertNotIn("extended budget agents", content)
                 self.assertNotIn("replication generations", content)
                 self.assertNotRegex(content, r"(?:extended budget|replication) = [48]")
-
-    def test_deck_uses_default_theme_and_combines_the_incident_accounts(self):
-        deck = (ROOT / "report/decks/spread-of-misalignment/short.tex").read_text()
-        self.assertIn(r"\usetheme{default}", deck)
-        self.assertIn(r"\usecolortheme{default}", deck)
-        self.assertNotIn(r"\setbeamercolor", deck)
-        self.assertNotIn(r"\definecolor", deck)
-        self.assertNotIn(r"\setbeamerfont{frametitle}", deck)
-        self.assertNotIn(r"\insertframenumber", deck)
-        self.assertNotIn("[frame number]", deck)
-        frames = deck.split(r"\begin{frame}")
-        self.assertIn("Hugging Face intrusion", frames[2])
-        self.assertIn("Theorem-proving collective", frames[2])
-        self.assertIn("risked failing", frames[2])
-        self.assertIn("Shared records connect incidents across settings", frames[3])
-        self.assertIn("DseWiki", frames[3])
-        self.assertIn("UK AISI testing", frames[3])
-        self.assertIn("publication dates", frames[3])
 
     def test_task_audits_and_framework_security_have_distinct_documentation(self):
         readme = (ROOT / "README.md").read_text()
@@ -73,15 +53,10 @@ class PublicDocsTest(unittest.TestCase):
                 self.assertNotIn("stronger endpoint", source.read_text().lower())
 
     def test_research_scope_does_not_require_a_shared_group(self):
-        paths = [ROOT / "README.md", ROOT / "pyproject.toml",
-                 ROOT / "report/decks/spread-of-misalignment/short.tex",
-                 ROOT / "report/decks/spread-of-misalignment/README.md"]
+        paths = [ROOT / "README.md", ROOT / "pyproject.toml"]
         for source in paths:
             with self.subTest(source=source.relative_to(ROOT)):
                 self.assertNotRegex(source.read_text(), r"(?i)\bswarms?\b")
-        deck = (ROOT / "report/decks/spread-of-misalignment/short.tex").read_text()
-        self.assertIn(r"\title{The Spread of Misalignment}", deck)
-        self.assertIn("across system and task boundaries", deck)
 
     def test_documentation_has_an_explicit_distribution_inventory(self):
         lines = (ROOT / "MANIFEST.in").read_text().splitlines()

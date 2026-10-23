@@ -46,7 +46,6 @@ python -m parabox continuation select SOURCE_RUN --out report/continuation/selec
 python -m parabox continuation prepare SOURCE_RUN DEST_RUN
 python -m parabox continuation run|audit|report DEST_RUN
 python -m parabox continuation selftest
-python -m parabox review-notes RUN_DIR --out /tmp/t27-cache/NAME.json
 """
 from __future__ import annotations
 
@@ -286,22 +285,8 @@ def main() -> None:
     for name in ("run", "audit", "report"):
         cont.add_parser(name).add_argument("directory", type=Path)
     cont.add_parser("selftest")
-    notes = sub.add_parser("review-notes")
-    notes.add_argument("run_dir", type=Path)
-    notes.add_argument("--out", type=Path, required=True)
-    notes.add_argument("--cache", type=Path, default=None)
-    notes.add_argument("--name", default=None)
-    notes.add_argument("--concurrency", type=int, default=6)
     args = parser.parse_args()
 
-    if args.group == "review-notes":
-        from parabox.studies.continuation.notes import review_new_notes
-        print(json.dumps(
-            review_new_notes(args.run_dir, args.out, cache_dir=args.cache),
-            ensure_ascii=False, indent=2,
-        ))
-        print(f"wrote {args.out}")
-        return
     if args.group == "continuation":
         from parabox.studies.continuation.__main__ import dispatch as cont_dispatch
         cont_dispatch(args)

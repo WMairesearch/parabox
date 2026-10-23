@@ -19,10 +19,6 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("audit").add_argument("directory", type=Path)
     sub.add_parser("report").add_argument("directory", type=Path)
     sub.add_parser("selftest")
-    notes = sub.add_parser("review-notes")
-    notes.add_argument("directory", type=Path)
-    notes.add_argument("--out", type=Path, required=True)
-    notes.add_argument("--cache", type=Path, default=None)
     return parser
 
 
@@ -50,12 +46,6 @@ def dispatch(args) -> None:
         result = R.selftest()
         print(json.dumps(result, ensure_ascii=False, indent=2))
         raise SystemExit(0 if result.get("ok") else 1)
-    if args.command == "review-notes":
-        from parabox.studies.continuation.notes import review_new_notes
-        print(json.dumps(review_new_notes(args.directory, args.out, cache_dir=args.cache),
-                         ensure_ascii=False, indent=2))
-
-
 def main(argv: list[str] | None = None) -> None:
     parser = build_parser()
     dispatch(parser.parse_args(argv))
