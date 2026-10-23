@@ -3,15 +3,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from parabox.studies.composition.task import CompositionTask
-from parabox.studies.population.merge import snapshot_shared
-from parabox.studies.spillover.task import SpilloverTask
-from parabox.studies.transmission.run import shared_snapshot
+from parabox.execution.merge import snapshot_shared
 from parabox.tasks.base import SessionState
 from parabox.tasks.code import verify
-from parabox.tasks.code.mechspan import MechspanCodeTask
 from parabox.tasks.code.task import CodeTask
-from parabox.tasks.lean.task import LeanTask
 from parabox.workspace import list_directory
 
 
@@ -22,22 +17,19 @@ class NoExecution:
 
 class WorkspaceIntegrationTest(unittest.TestCase):
     def test_submit_never_snapshots_a_host_symlink(self):
-        for task in (CodeTask(), CompositionTask(), MechspanCodeTask(), SpilloverTask(), LeanTask()):
-            with self.subTest(task=type(task).__name__), tempfile.TemporaryDirectory() as temporary:
-                parent = Path(temporary)
-                root = parent / "workspace"
-                root.mkdir()
-                outside = parent / "private"
-                outside.write_bytes(b"private host bytes")
-                problem = "toy" if isinstance(task, LeanTask) else "double"
-                filename = "Problem.lean" if isinstance(task, LeanTask) else "solution.py"
-                (root / filename).symlink_to(outside)
-                state = SessionState(problem, root, parent / "meta", False, turn=1)
-                reply = task.call(NoExecution(), "submit", {}, state)
-                self.assertIn("unsafe file", reply)
-                self.assertEqual(state.submissions, [])
-                self.assertFalse(state.meta.exists())
-                self.assertEqual(outside.read_bytes(), b"private host bytes")
+        with tempfile.TemporaryDirectory() as temporary:
+            parent = Path(temporary)
+            root = parent / "workspace"
+            root.mkdir()
+            outside = parent / "private"
+            outside.write_bytes(b"private host bytes")
+            (root / "solution.py").symlink_to(outside)
+            state = SessionState("double", root, parent / "meta", False, turn=1)
+            reply = CodeTask().call(NoExecution(), "submit", {}, state)
+            self.assertIn("unsafe file", reply)
+            self.assertEqual(state.submissions, [])
+            self.assertFalse(state.meta.exists())
+            self.assertEqual(outside.read_bytes(), b"private host bytes")
 
     def test_hidden_tests_cannot_overwrite_a_host_symlink(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -76,7 +68,6 @@ class WorkspaceIntegrationTest(unittest.TestCase):
             (shared / "safe.txt").write_bytes(b"safe")
             expected = {"shared/safe.txt": b"safe"}
             self.assertEqual(snapshot_shared(parent / "session"), expected)
-            self.assertEqual(shared_snapshot(parent / "session"), expected)
 
     def test_tool_access_rechecks_parents_after_path_validation(self):
         with tempfile.TemporaryDirectory() as temporary:

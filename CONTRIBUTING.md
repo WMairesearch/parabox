@@ -13,6 +13,9 @@ python3 -m venv .venv
 .venv/bin/python -m unittest discover -s tests -t .
 ```
 
+Historical studies are checkout-only. Their limited smoke tests run separately
+with `.venv/bin/python -m unittest discover -s parabox/studies/tests -t .`.
+
 Python 3.12+ is required. Container tests also need Podman and the documented
 image. Default tests must not call paid providers. Consult the
 [experiment design](docs/experiments.md) before changing task or transport contracts.

@@ -8,7 +8,7 @@ import sys
 
 from parabox.studies.unified.run import abnormal_actors, past_deadline
 from parabox.util import now, read, save
-from scripts.peer_composition import DIRECTORY, HARD_STOP, PEERS, run_command
+from parabox.studies.scripts.peer_composition import DIRECTORY, HARD_STOP, PEERS, run_command
 
 
 def continue_peer(peer: str) -> None:

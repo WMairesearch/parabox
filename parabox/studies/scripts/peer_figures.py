@@ -2,14 +2,13 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from parabox.util import ROOT
 
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-ROOT = Path(__file__).resolve().parents[1]
 COLORS = ("#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#666666")
 LABELS = {"v4pro": "V4 Pro", "gemini": "Gemini 3.1 Pro", "kimi": "Kimi K3",
           "qwen-max": "Qwen max", "ds-flash": "DeepSeek Flash", "qwen-flash": "Qwen Flash"}

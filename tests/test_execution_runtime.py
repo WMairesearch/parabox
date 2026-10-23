@@ -139,7 +139,7 @@ class ExecutionTests(unittest.TestCase):
         self.assertIn("shared/old", result["files"])
 
     def test_merge_matches_existing_policy(self):
-        from parabox.studies.population.merge import merge_record
+        from parabox.execution.merge import merge_record
         previous = {"shared/note": b"old"}
         outcomes = [Outcome({"normal": True, "actor": "one"},
                             {"shared/note": b"new"}, True),

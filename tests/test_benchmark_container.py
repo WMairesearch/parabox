@@ -7,8 +7,7 @@ from unittest.mock import patch
 
 from parabox.benchmark.prompts import core_task
 from parabox.benchmark.ternary import episode as ternary_episode
-from parabox.studies.evidence import delivery_problems
-from parabox.execution import CoreEngine, Invocation, StartLedger, run_population
+from parabox.execution import CoreEngine, Invocation, StartLedger, manifest, run_population
 from parabox.sandbox import Box, Limits
 from parabox.tasks.code.problems import PROBLEMS
 from parabox.util import read, sha256
@@ -124,8 +123,10 @@ class BenchmarkContainerTests(unittest.TestCase):
             initial_files = {f"shared/{row['actor']}.txt": row["actor"].encode() for row in rows[:2]}
             for row in rows:
                 delivery = read(root / row["actor"] / "meta/delivered.json")
-                self.assertEqual(delivery_problems(
-                    delivery, initial_files if row["generation"] else {}), [])
+                expected = initial_files if row["generation"] else {}
+                self.assertEqual(delivery["files"],
+                                 {name: content.decode() for name, content in expected.items()})
+                self.assertEqual(delivery["file_sha256"], manifest(expected))
             for row in rows[2:]:
                 self.assertTrue(any(message["role"] == "tool" and "g0-s0" in message["content"]
                                     for message in clients[row["actor"]].inputs[-1]))

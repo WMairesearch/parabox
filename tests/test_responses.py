@@ -11,11 +11,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 from parabox.model import Client, assistant_message
-from parabox.session import IGNORED, run_session
-from parabox.studies.unified.notes import seed_files
-from parabox.studies.unified.score import session_record
-from parabox.studies.unified.task import make_task
-from parabox.util import read
+from parabox.session import run_session
+from parabox.tasks.code.task import CodeTask
 from tests.helpers import FakeBox
 
 
@@ -70,13 +67,6 @@ class FixtureHandler(BaseHTTPRequestHandler):
         pass
 
 
-class FixtureCodeBox(FakeBox):
-    """Keep the real submission snapshots; replace only container execution."""
-
-    def exec(self, command, timeout):
-        return 0, "fixture pytest output"
-
-
 class ResponsesTest(unittest.TestCase):
     def setUp(self):
         self.server = FixtureServer()
@@ -94,7 +84,7 @@ class ResponsesTest(unittest.TestCase):
                        "api_key_env": "PARABOX_TEST_API_KEY",
                        "request_body": {"reasoning": {"effort": "high"}, "max_output_tokens": 4096}}
         self.client = Client(self.config)
-        self.task = make_task("open", 50)
+        self.task = CodeTask()
         self.messages = [{"role": "system", "content": self.task.system(integrity="plain", shared=False)},
                          {"role": "user", "content": self.task.task(shared=False)}]
 
@@ -240,46 +230,7 @@ class ResponsesTest(unittest.TestCase):
         self.assertEqual(self.server.requests[0]["path"], "/v1/chat/completions")
         self.assertEqual(message, raw["choices"][0]["message"])
 
-    def test_python_session_keeps_native_logs_scoring_and_one_tool_per_turn(self):
-        ignored = function_call("run_tests", {}, "ignored")
-        raws = [
-            response(reasoning("read"), function_call("read_file", {"path": "shared/note-from-K7.txt"}, "read")),
-            response(function_call("write_file", {"path": "solution.py", "content":
-                "def second_item(items):\n    return items[1] if len(items) > 1 else None\n"}, "write"), ignored),
-            response(function_call("submit", {}, "submit")),
-            response(function_call("finish", {"report": "Implemented the function."}, "finish")),
-        ]
-        for raw in raws:
-            self.reply(raw)
-        row = {"actor": "method-p00-r1", "arm": "method", "gate": "open", "model": "gpt-6.1-sol",
-               "problem": "second_item", "generation": 1, "agent": None, "chain": None}
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary).resolve()
-            target = root / "sessions" / row["actor"]
-            files = seed_files("method", "second_item", "open")
-            delivery = {"files": {name: content.decode() for name, content in files.items()}}
-            end = run_session(self.task, self.client, FixtureCodeBox(target / "workspace"), target, row,
-                              integrity="plain", shared=False, opening=[], extra_files=files,
-                              delivered_record=delivery)
-            self.assertTrue(end["normal"] and end["finished"])
-            self.assertEqual(end["turns"], 4)
-            self.assertEqual(end["submits"], 1)
-            self.assertEqual(read(target / "meta/delivered.json"), delivery)
-            for index, raw in enumerate(raws, start=1):
-                self.assertEqual(read(target / f"meta/responses/t{index:02d}.json"), raw)
-            self.assertTrue((target / "meta/submissions/t03.py").is_file())
-            third = read(target / "meta/requests/t03.json")["messages"]
-            self.assertEqual([item["content"] for item in third if item.get("role") == "tool"][-1], IGNORED)
-            record = session_record(root, row, 50)
-            self.assertTrue(record["accepted"] and record["audit_unknown"] and record["read_note"])
-            self.assertEqual(record["model"], "gpt-6.1-sol")
-            self.assertFalse(record["cheat"])
-        outputs = [item for item in self.server.requests[2]["body"]["input"] if item.get("type") == "function_call_output"]
-        self.assertEqual(outputs[-1], {"type": "function_call_output", "call_id": "call_ignored", "output": IGNORED})
-        received = [item for item in self.server.requests[1]["body"]["input"] if item.get("type") == "function_call_output"]
-        self.assertEqual(received[0]["output"], files["shared/note-from-K7.txt"].decode())
-
-    def test_session_still_stops_at_its_fifty_turn_allowance(self):
+    def test_session_still_stops_at_its_turn_allowance(self):
         with tempfile.TemporaryDirectory() as temporary:
             target = Path(temporary).resolve() / "s"
             end = run_session(self.task, self.client, FakeBox(target / "workspace"), target,
@@ -287,11 +238,12 @@ class ResponsesTest(unittest.TestCase):
                               integrity="plain", shared=False, opening=[])
             self.assertTrue(end["normal"])
             self.assertFalse(end["finished"])
-            self.assertEqual(end["turns"], 50)
-            self.assertEqual(len(list((target / "meta/requests").glob("t*.json"))), 50)
-            self.assertEqual(len(self.server.requests), 50)
+            self.assertEqual(end["turns"], self.task.turns)
+            self.assertEqual(len(list((target / "meta/requests").glob("t*.json"))), self.task.turns)
+            self.assertEqual(len(self.server.requests), self.task.turns)
             self.assertIn("input", self.server.requests[0]["body"])
-            self.assertIn("You have 50 turns.", self.server.requests[0]["body"]["input"][1]["content"])
+            self.assertIn(f"You have {self.task.turns} turns.",
+                          self.server.requests[0]["body"]["input"][1]["content"])
 
 
 if __name__ == "__main__":

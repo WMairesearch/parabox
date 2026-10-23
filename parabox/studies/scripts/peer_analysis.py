@@ -8,7 +8,7 @@ from pathlib import Path
 
 from parabox.analysis import chain_interval, independent_difference, late_chains
 from parabox.util import ROOT, now, read, save, sha256
-from scripts.peer_composition import DIRECTORY, PEERS
+from parabox.studies.scripts.peer_composition import DIRECTORY, PEERS
 
 OUTCOMES = ROOT / "report/final/peer-composition-outcomes.json"
 SUMMARY = ROOT / "report/final/peer-composition-analysis.json"
@@ -190,7 +190,7 @@ def render_report(summary: dict) -> str:
               "planned late recipients, assigning unresolved outcomes their possible extremes.",
               "An empirical interval of zero width reflects identical sampled chain rates,",
               "not certainty about every future history.", "",
-              "Recompute these quantities with `python -m scripts.peer_analysis` using the",
+              "Recompute these quantities with `python -m parabox.studies.scripts.peer_analysis` using the",
               "sanitized outcome export. Full transcripts remain in the local",
               "`runs/peer-composition` archive; the export does not replace transcript review.",
               "See the [historical protocol](peer-composition.md),",
