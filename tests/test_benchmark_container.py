@@ -3,14 +3,17 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from parabox.benchmark.prompts import core_task
-from parabox.evidence import delivery_problems
+from parabox.benchmark.ternary import episode as ternary_episode
+from parabox.studies.evidence import delivery_problems
 from parabox.execution import CoreEngine, Invocation, StartLedger, run_population
 from parabox.sandbox import Box, Limits
 from parabox.tasks.code.problems import PROBLEMS
 from parabox.util import read, sha256
 from tests.helpers import call
+from tests.test_ternary_benchmark import ScriptedClient
 
 
 class ScriptedCoreClient:
@@ -32,8 +35,57 @@ class ScriptedCoreClient:
         return {"role": "assistant", "content": "", "tool_calls": [call(name, arguments)]}, {}
 
 
+class ShortPrefixClient:
+    def __init__(self, config):
+        self.calls = 0
+
+    def complete(self, messages, tools=None):
+        self.calls += 1
+        if self.calls == 1:
+            command = "printf '[0]\\n' > submission.json"
+            name, arguments = "run_command", {"command": command}
+        else:
+            name, arguments = "submit", {}
+        return {"role": "assistant", "content": "", "tool_calls": [call(name, arguments)]}, {}
+
+
 @unittest.skipUnless(os.environ.get("PARABOX_EPISODE_TEST_IMAGE"), "Set a local sandbox image")
 class BenchmarkContainerTests(unittest.TestCase):
+    def test_ternary_short_prefix_receipt(self):
+        image = os.environ["PARABOX_EPISODE_TEST_IMAGE"]
+        with tempfile.TemporaryDirectory(prefix="parabox-prefix-container-") as temporary:
+            root = Path(temporary)
+            wiki = root / "wiki"
+            wiki.mkdir()
+            with patch.object(ternary_episode.base, "Client", ShortPrefixClient):
+                result = ternary_episode.run_generation(root / "generation", {
+                    "prefix": 1, "generation": 1, "actor": "example", "chain": "example"},
+                    {}, [0] * 100, image, wiki, 17,
+                    (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat(), agents=1)
+            self.assertTrue(result["normal"])
+            end = read(root / "generation/seat-0/end.json")
+            self.assertEqual(end["submission_scores"], [0, 0, 0])
+            receipts = sorted((root / "submissions").glob("*.json"))
+            self.assertEqual(len(receipts), 3)
+            self.assertEqual(read(receipts[-1])["feedback"],
+                             {"score": 0, "next_position": 2, "next_value": 0})
+
+    def test_ternary_scored_receipts_in_real_container(self):
+        image = os.environ["PARABOX_EPISODE_TEST_IMAGE"]
+        with tempfile.TemporaryDirectory(prefix="parabox-ternary-container-") as temporary:
+            root = Path(temporary)
+            wiki = root / "wiki"
+            wiki.mkdir()
+            with patch.object(ternary_episode.base, "Client", ScriptedClient):
+                result = ternary_episode.run_generation(root / "generation", {
+                    "prefix": 1, "generation": 1, "actor": "example", "chain": "example"},
+                    {}, [0] * 100, image, wiki, 17,
+                    (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat(), agents=1)
+            self.assertTrue(result["normal"])
+            end = read(root / "generation/seat-0/end.json")
+            self.assertEqual(end["submission_scores"], [1, 1, 1])
+            self.assertEqual(len(list((root / "submissions").glob("*.json"))), 3)
+
     def test_core_generations_real_verifier_audit_and_shared_export(self):
         image = os.environ["PARABOX_EPISODE_TEST_IMAGE"]
         with tempfile.TemporaryDirectory(prefix="parabox-core-container-") as temporary:

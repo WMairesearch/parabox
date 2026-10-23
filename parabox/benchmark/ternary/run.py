@@ -1,0 +1,188 @@
+"""Prepare and execute ternary sequence chains without automatic retries."""
+
+from __future__ import annotations
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
+import fcntl
+import json
+import os
+from pathlib import Path
+import random
+import re
+import subprocess
+import threading
+
+from parabox.execution.guards import parse_deadline, utcnow
+from parabox.util import digest_json, read, save, sha256
+
+from . import episode, fixture
+
+
+START_LOCK = threading.Lock()
+SOURCE_FILES = (
+    "benchmark/ternary/base.py", "benchmark/ternary/episode.py",
+    "benchmark/ternary/fixture.py", "benchmark/ternary/run.py",
+    "execution/guards.py", "model/__init__.py", "model/chat.py", "model/gemini.py",
+    "sandbox.py", "util.py", "workspace.py",
+)
+
+
+def source_hashes() -> dict[str, str]:
+    directory = Path(__file__).resolve().parents[2]
+    return {name: sha256((directory / name).read_bytes()) for name in SOURCE_FILES}
+
+
+def validate_spec(spec: dict) -> dict:
+    if not isinstance(spec, dict) or set(spec) != {"models", "image", "seed", "seats"}:
+        raise ValueError("Spec requires models, image, seed, and seats")
+    models = spec["models"]
+    if not isinstance(models, dict) or not models:
+        raise ValueError("At least one model configuration is required")
+    if any(not re.fullmatch(r"[a-z][a-z0-9-]{0,63}", name) or not isinstance(path, str)
+           or not path for name, path in models.items()):
+        raise ValueError("Models must map safe names to configuration paths")
+    if not isinstance(spec["image"], str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", spec["image"]):
+        raise ValueError("An immutable image ID is required")
+    if (type(spec["seed"]) is not int or spec["seed"] < 0
+            or type(spec["seats"]) is not int or spec["seats"] not in (1, 4)):
+        raise ValueError("Seed must be nonnegative and seats must be one or four")
+    return spec
+
+
+def schedule(models: dict, seats: int) -> list[dict]:
+    conditions = ("method",) if seats == 1 else ("empty", "method")
+    return [{"chain": f"{model}-prefix-{prefix:02d}-{condition}", "model": model,
+             "prefix": prefix, "condition": condition}
+            for prefix in fixture.PREFIXES for condition in conditions for model in models]
+
+
+def prepare(directory: Path, spec: dict) -> dict:
+    spec = validate_spec(spec)
+    directory = Path(directory).resolve()
+    generator = random.Random(spec["seed"])
+    target = [generator.randrange(3) for _ in range(100)]
+    models = {}
+    for name, path in spec["models"].items():
+        source = Path(path).resolve()
+        config = read(source)
+        if not isinstance(config, dict) or "api_key" in config or not config.get("api_key_env"):
+            raise ValueError(f"Invalid or embedded-credential model configuration: {name}")
+        models[name] = {"path": str(source), "sha256": sha256(source.read_bytes())}
+    registration = {"spec": spec, "models": models, "target": target,
+                    "generations": 6, "chains": schedule(models, spec["seats"]),
+                    "session_cap": len(schedule(models, spec["seats"])) * 6 * spec["seats"],
+                    "sources": source_hashes(), "created_at": utcnow().isoformat()}
+    directory.mkdir(parents=True, exist_ok=False)
+    save(directory / "registration.json", registration)
+    (directory / "registration.sha256").write_text(digest_json(registration) + "\n")
+    return {"directory": str(directory), "session_cap": registration["session_cap"],
+            "registration_sha256": digest_json(registration)}
+
+
+def check(directory: Path) -> dict:
+    directory = Path(directory).resolve()
+    registration = read(directory / "registration.json")
+    if (directory / "registration.sha256").read_text().strip() != digest_json(registration):
+        raise ValueError("Registration changed")
+    spec = validate_spec(registration["spec"])
+    if registration["sources"] != source_hashes():
+        raise ValueError("Experiment implementation changed")
+    if registration["chains"] != schedule(registration["models"], spec["seats"]):
+        raise ValueError("Schedule changed")
+    if set(registration["models"]) != set(spec["models"]):
+        raise ValueError("Model bindings changed")
+    if registration["generations"] != 6 or registration["session_cap"] != len(registration["chains"]) * 6 * spec["seats"]:
+        raise ValueError("Session count changed")
+    generator = random.Random(spec["seed"])
+    if registration["target"] != [generator.randrange(3) for _ in range(100)]:
+        raise ValueError("Target differs from prepared seed")
+    for binding in registration["models"].values():
+        source = Path(binding["path"])
+        if sha256(source.read_bytes()) != binding["sha256"]:
+            raise ValueError("Model configuration changed")
+    for name, path in spec["models"].items():
+        if Path(path).resolve() != Path(registration["models"][name]["path"]):
+            raise ValueError("Model configuration path changed")
+    return registration
+
+
+def verify_image(image: str) -> None:
+    result = subprocess.run(["podman", "image", "inspect", image, "--format", "{{.Id}}"],
+                            capture_output=True, text=True, timeout=15, check=True)
+    if result.stdout.strip().removeprefix("sha256:") != image.removeprefix("sha256:"):
+        raise ValueError("Local image differs from prepared image")
+
+
+def claim(directory: Path, spec: dict, seats: int, cap: int) -> None:
+    ledger = directory / "starts.jsonl"
+    with START_LOCK:
+        previous = [json.loads(line) for line in ledger.read_text().splitlines()] if ledger.exists() else []
+        if len(previous) + seats > cap:
+            raise RuntimeError("Session cap exceeded")
+        if any(row["chain"] == spec["chain"] and row["generation"] == spec["generation"]
+               for row in previous):
+            raise RuntimeError("Generation already claimed")
+        with ledger.open("a") as stream:
+            for seat in range(seats):
+                stream.write(json.dumps({**spec, "seat": seat, "claimed_at": utcnow().isoformat()}) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+
+
+def run_chain(directory: Path, row: dict, registration: dict, deadline: datetime) -> str:
+    chain = directory / "chains" / row["chain"]
+    chain.mkdir(parents=True, exist_ok=False)
+    wiki = chain / "wiki"
+    wiki.mkdir()
+    if row["condition"] == "method":
+        (wiki / "method.txt").write_text(fixture.METHOD)
+    spec = registration["spec"]
+    config = read(Path(registration["models"][row["model"]]["path"]))
+    for generation in range(1, 7):
+        if utcnow() >= deadline:
+            raise TimeoutError("Deadline reached before generation start")
+        assignment = {**row, "generation": generation,
+                      "actor": f"{row['chain']}-g{generation:02d}"}
+        claim(directory, assignment, spec["seats"], registration["session_cap"])
+        order_seed = int(sha256(f"ternary:{row['chain']}:{generation}")[:16], 16)
+        result = episode.run_generation(chain / f"generation-{generation:02d}", assignment,
+                                        config, registration["target"], spec["image"], wiki,
+                                        order_seed, deadline.isoformat(), agents=spec["seats"])
+        if not result["normal"]:
+            raise RuntimeError(f"Generation {generation} failed")
+    return row["chain"]
+
+
+def run(directory: Path, *, authorize_session_cap: int, deadline: str, workers: int = 4) -> dict:
+    directory = Path(directory).resolve()
+    cutoff = parse_deadline(deadline)
+    if utcnow() >= cutoff:
+        raise ValueError("Deadline is not in the future")
+    if not 1 <= workers <= 6:
+        raise ValueError("Workers must be between one and six")
+    with (directory / ".execution.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        registration = check(directory)
+        if authorize_session_cap != registration["session_cap"]:
+            raise ValueError("Authorization must equal the planned session count")
+        if ((directory / "authorization.json").exists() or (directory / "starts.jsonl").exists()
+                or (directory / "chains").exists()):
+            raise ValueError("Prior execution exists; no automatic resume")
+        verify_image(registration["spec"]["image"])
+        save(directory / "authorization.json", {"session_cap": authorize_session_cap,
+             "deadline": cutoff.isoformat(), "registration_sha256": digest_json(registration)})
+        errors = {}
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = {pool.submit(run_chain, directory, row, registration, cutoff): row["chain"]
+                       for row in registration["chains"]}
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as error:
+                    errors[futures[future]] = type(error).__name__
+                sessions = [read(path) for path in sorted(directory.glob("chains/*/generation-*/seat-*/end.json"))]
+                save(directory / "results.json", {"registration_sha256": digest_json(registration),
+                     "session_cap": registration["session_cap"], "completed": len(sessions),
+                     "chain_errors": errors, "sessions": sessions})
+        return {"completed": len(sessions), "chain_errors": errors}
