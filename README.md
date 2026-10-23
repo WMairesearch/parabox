@@ -19,6 +19,11 @@ See [experiment design](docs/experiments.md) for the task surfaces, comparisons,
 and outcome definitions. The [public results page](report/results.md) is
 intentionally empty until results for these integrated protocols are released.
 
+For a first read: start here, then read the [experiment designs](docs/experiments.md),
+and use the [run guide](docs/running.md) when ready to reproduce a protocol.
+The [historical study guide](parabox/studies/README.md) explains earlier
+experiments and the archived tables; those are not the installed benchmark.
+
 ## Run
 
 Python 3.12+ is required. Preparation and checks make no model calls:

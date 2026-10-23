@@ -5,6 +5,11 @@ Provider credentials stay on the host in environment variables; never put them
 in model configuration JSON or mount them into a container. The example model
 file is a template, not a working provider account.
 
+Choose one runner before preparing a run: [ternary sequence](#ternary-sequence-experiment)
+for costly information contribution, or [function tasks](#function-task-development-suite)
+for misaligned method propagation. Their specifications and session caps are not
+interchangeable.
+
 ## Install and check
 
 ```sh
