@@ -10,7 +10,6 @@ dependencies = ["python-dotenv>=1.0"]
 
 [project.scripts]
 parabox = "parabox.__main__:main"
-parabox-eval = "parabox.studies.unified.__main__:main"
 parabox-benchmark = "parabox.benchmark.__main__:main"
 
 [project.optional-dependencies]
@@ -25,10 +24,8 @@ dev = ["build>=1.2", "setuptools>=77"]
 
 [tool.setuptools.packages.find]
 include = ["parabox*"]
+exclude = ["parabox.studies*", "parabox.tasks.lean*"]
 
 [tool.setuptools.package-data]
 "parabox.benchmark" = ["assets/*.json"]
-"parabox.studies.transmission" = ["assets/*.txt"]
-"parabox.studies.relay_search" = ["corpus/*.lean"]
-"parabox.tasks.lean" = ["image/**/*", "oracle/*.lean"]
 "parabox.tasks.code" = ["image/**/*", "oracle/*"]

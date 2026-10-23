@@ -10,6 +10,7 @@ from parabox.util import digest_json
 
 from .artifacts import Outcome, manifest
 from .ledger import verify_files
+from .merge import final_accepted, snapshot_shared
 
 
 @dataclass
@@ -31,7 +32,6 @@ class CoreEngine:
         self.exporter = exporter
 
     def __call__(self, invocation: Invocation, incoming: dict[str, bytes]) -> Outcome:
-        from parabox.studies.population.merge import final_accepted, snapshot_shared
         incoming_hashes = manifest(incoming)
         if any(not name.startswith("shared/") for name in incoming):
             raise ValueError("Core shared input must stay under shared/")

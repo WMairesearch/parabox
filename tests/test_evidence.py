@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from parabox.evidence import delivery_problems, validate_run
+from parabox.studies.evidence import delivery_problems, validate_run
 from parabox.studies.transmission.run import shared_digest
 from parabox.util import save, sha256
 

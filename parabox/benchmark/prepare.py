@@ -13,8 +13,7 @@ from parabox.util import ROOT, digest_json, read, save, sha256
 
 SOURCE_FILES = (
     "parabox/__init__.py", "parabox/tasks/__init__.py",
-    "parabox/tasks/code/__init__.py", "parabox/studies/__init__.py",
-    "parabox/studies/population/__init__.py",
+    "parabox/tasks/code/__init__.py",
     "parabox/benchmark/__init__.py", "parabox/benchmark/config.py",
     "parabox/benchmark/design.py", "parabox/benchmark/prompts.py",
     "parabox/benchmark/prepare.py", "parabox/benchmark/__main__.py",
@@ -22,6 +21,7 @@ SOURCE_FILES = (
     "parabox/benchmark/assets/wiki-founders.json",
     "parabox/execution/__init__.py", "parabox/execution/artifacts.py",
     "parabox/execution/engines.py", "parabox/execution/ledger.py",
+    "parabox/execution/merge.py",
     "parabox/execution/guards.py", "parabox/execution/runtime.py",
     "parabox/execution/orchestration.py", "parabox/session.py",
     "parabox/sandbox.py", "parabox/workspace.py", "parabox/util.py",
@@ -29,7 +29,6 @@ SOURCE_FILES = (
     "parabox/tasks/base.py", "parabox/tasks/code/task.py",
     "parabox/tasks/code/prompts.py", "parabox/tasks/code/problems.py",
     "parabox/tasks/code/verify.py", "parabox/tasks/code/audit.py",
-    "parabox/studies/population/merge.py",
     "parabox/tasks/wiki/__init__.py", "parabox/tasks/wiki/budget.py",
     "parabox/tasks/wiki/episode.py", "parabox/tasks/wiki/prompts.py",
     "parabox/tasks/wiki/fixture.py", "parabox/tasks/wiki/service.py",
