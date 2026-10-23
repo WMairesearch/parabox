@@ -1,7 +1,7 @@
 import unittest
 
 from parabox.tasks.wiki import fixture
-from parabox.tasks.wiki import prompts
+from parabox.tasks.wiki.runtime import prompts
 
 
 class PromptTests(unittest.TestCase):

@@ -5,7 +5,8 @@ import json
 from pathlib import Path
 import unittest
 
-from parabox.tasks.wiki import budget, episode, evaluator, fixture, prompts, service
+from parabox.tasks.wiki import episode, evaluator, fixture
+from parabox.tasks.wiki.runtime import budget, prompts, service
 from parabox.util import digest_json, sha256
 
 

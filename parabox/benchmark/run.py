@@ -7,13 +7,13 @@ from pathlib import Path
 import subprocess
 
 from parabox.benchmark.prepare import check
-from parabox.benchmark.prompts import core_task
+from parabox.benchmark.protocol.prompts import core_task
 from parabox.execution import (
     BoundOutcomeEngine, CoreEngine, DeadlineClient, FrozenWikiEngine, Invocation, StartLedger,
     run_population, run_sequential,
 )
 from parabox.execution.artifacts import manifest as file_manifest
-from parabox.execution.guards import parse_deadline, utcnow
+from parabox.execution.control.guards import parse_deadline, utcnow
 from parabox.util import digest_json, read, save, sha256
 
 

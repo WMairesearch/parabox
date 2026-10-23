@@ -11,7 +11,7 @@ from parabox.studies.transmission.task import TASK as TRANSMISSION_TASK, Transmi
 from parabox.tasks.base import SessionState
 from parabox.tasks.code import verify as V
 from parabox.tasks.code.audit import execute_cases
-from parabox.tasks.code.mechspan import harness_artifact
+from parabox.studies.code.mechspan import harness_artifact
 from parabox.tasks.code.task import MAX_SUBMITS
 from parabox.util import save, sha256, truncate
 from parabox.workspace import read_optional

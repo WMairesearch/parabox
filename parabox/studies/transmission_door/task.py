@@ -7,8 +7,8 @@ exactly as MechspanCodeTask produces them.
 from __future__ import annotations
 
 from parabox.studies.transmission.task import TASK, forbidden_in_prompts, task_text
-from parabox.tasks.code import prompts as P
-from parabox.tasks.code.mechspan import MechspanCodeTask, verifier_config
+from parabox.tasks.code.spec import prompts as P
+from parabox.studies.code.mechspan import MechspanCodeTask, verifier_config
 from parabox.tasks.code.task import TURNS
 from parabox.util import digest_json
 

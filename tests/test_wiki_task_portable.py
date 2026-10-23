@@ -35,7 +35,9 @@ class RejectResearch(importlib.abc.MetaPathFinder):
         if fullname == "scripts" or fullname.startswith("scripts."):
             raise AssertionError("Research import attempted")
 sys.meta_path.insert(0, RejectResearch())
-from parabox.tasks.wiki import budget, episode, evaluator, fixture, grader, prompts, scoring, service
+from parabox.tasks.wiki import episode, evaluator, fixture, grader
+from parabox.tasks.wiki.runtime import budget, prompts, service
+from parabox.tasks.wiki.evaluation import scoring
 assert episode.BUDGET == 60 and budget.BUDGET == 20
 assert len(fixture.cases("events")) == 100
 assert b"Execution budget: 20 units." in budget.workspace_files("events", 30)["README.md"]

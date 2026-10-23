@@ -7,7 +7,7 @@ from unittest.mock import Mock, call
 from parabox.execution import (
     BoundOutcomeEngine, DeadlineClient, Invocation, Outcome,
 )
-from parabox.execution.runtime import execute_invocation
+from parabox.execution.control.runtime import execute_invocation
 
 
 class GuardCompatibilityTests(unittest.TestCase):

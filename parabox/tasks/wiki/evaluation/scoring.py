@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import json
 
-from . import fixture
-from .helpers import _equal
+from .. import fixture
+from ..runtime.helpers import _equal
 
 
 def validated_cases(raw: bytes) -> dict:

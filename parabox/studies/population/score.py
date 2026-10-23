@@ -6,7 +6,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from parabox.stats import rate, wilson
+from parabox.studies.support.stats import rate, wilson
 from parabox.studies.population import design as D
 from parabox.studies.relay.run import session_dir
 from parabox.studies.transmission.variants import FILE_VARIANTS, file_variant, note_variant

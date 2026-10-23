@@ -5,7 +5,7 @@ from pathlib import Path
 
 from parabox.model import Client
 from parabox.util import digest_json, read, sha256
-from . import episode as engine
+from .. import episode as engine
 from . import prompts
 from .prompts import assignment
 

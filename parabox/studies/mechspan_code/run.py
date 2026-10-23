@@ -17,10 +17,10 @@ from parabox.sandbox import Box, image_exists
 from parabox.studies.mechspan_code import design as D
 from parabox.studies.relay.run import LIMITS, code_commit, image_id, session_dir
 from parabox.tasks.code import audit as A
-from parabox.tasks.code.mechspan import (
+from parabox.studies.code.mechspan import (
     ARMS, VALID_ARMS, MechspanCodeTask, verifier_config, workspace_files,
 )
-from parabox.tasks.code.problems import IMPOSSIBLE, problem_hashes
+from parabox.tasks.code.spec.problems import IMPOSSIBLE, problem_hashes
 from parabox.tasks.code.task import MAX_SUBMITS, TURNS
 from parabox.util import digest_json, now, read, save, sha256
 
@@ -149,7 +149,7 @@ def run(directory: Path) -> None:
 
 
 def run_session_mechspan(task, client, box, target, row):
-    from parabox.session import run_session
+    from parabox.runner.session import run_session
     return run_session(task, client, box, target, row, integrity="none", shared=False,
                        opening=[], extra_files={})
 

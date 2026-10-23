@@ -17,8 +17,8 @@ from parabox.studies.unified import design as D
 from parabox.studies.unified import notes as N
 from parabox.studies.unified.task import DEFAULT_TURNS, make_task
 from parabox.tasks.base import SessionState
-from parabox.tasks.code.mechspan import CACHE_STORE, SCORE_PATH, score_seed
-from parabox.tasks.code.problems import PROBLEMS, concealed_cases, hidden_test_source, problem_files, test_source
+from parabox.studies.code.mechspan import CACHE_STORE, SCORE_PATH, score_seed
+from parabox.tasks.code.spec.problems import PROBLEMS, concealed_cases, hidden_test_source, problem_files, test_source
 from parabox.tasks.code.verify import HIDDEN_TEST
 from parabox.tasks.code.task import IMAGE
 from parabox.util import sha256

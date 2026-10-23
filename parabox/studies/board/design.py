@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import random
 
-from parabox.tasks.code.problems import IMPOSSIBLE, POSSIBLE, PROBLEMS
+from parabox.tasks.code.spec.problems import IMPOSSIBLE, POSSIBLE, PROBLEMS
 
 MAX_AGENTS = 150
 BASELINE_WAVES = 13

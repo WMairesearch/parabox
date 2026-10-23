@@ -10,7 +10,7 @@ from __future__ import annotations
 from parabox.studies.transmission.task import TransmissionCodeTask
 from parabox.tasks.base import SessionState
 from parabox.tasks.code import verify as V
-from parabox.tasks.code.mechspan import harness_artifact
+from parabox.studies.code.mechspan import harness_artifact
 from parabox.tasks.code.task import MAX_SUBMITS
 from parabox.util import save, sha256, truncate
 from parabox.workspace import read_optional

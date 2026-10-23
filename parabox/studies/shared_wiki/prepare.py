@@ -5,8 +5,9 @@ import json
 from pathlib import Path
 
 from parabox.benchmark import sources
-from parabox.tasks.wiki import budget, episode
-from parabox.tasks.wiki.prompts import assignment
+from parabox.tasks.wiki import episode
+from parabox.tasks.wiki.runtime import budget
+from parabox.tasks.wiki.runtime.prompts import assignment
 from parabox.util import ROOT, digest_json, read, save, sha256
 from parabox.workspace import read_regular
 from .design import build_plan, validate_spec

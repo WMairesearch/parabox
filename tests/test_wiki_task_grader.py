@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from parabox.tasks.wiki import evaluator, fixture, grader
-from parabox.tasks.wiki.scoring import submission_score
+from parabox.tasks.wiki.evaluation.scoring import submission_score
 from parabox.util import read, save, sha256
 
 

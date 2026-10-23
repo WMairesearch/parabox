@@ -5,12 +5,12 @@ import json
 from pathlib import Path
 from statistics import median
 
-from parabox.stats import rate, wilson
+from parabox.studies.support.stats import rate, wilson
 from parabox.studies.relay.run import session_dir
 from parabox.studies.transmission.variants import note_variant
 from parabox.studies.transmission_door import notes as N
 from parabox.studies.transmission_door.design import ARMS
-from parabox.tasks.code.mechspan import (
+from parabox.studies.code.mechspan import (
     ASSIGNED, CACHE_STORE, SCORE_PATH, cache_accepted, classify_realized, score_faked,
 )
 from parabox.util import read, save

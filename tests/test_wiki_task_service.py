@@ -8,7 +8,7 @@ import time
 import unittest
 from unittest.mock import Mock, patch
 
-from parabox.tasks.wiki.service import (
+from parabox.tasks.wiki.runtime.service import (
     Budget, MAX_CASE_BYTES, ObjectService, REJECTION_LOG_LIMIT, ServiceHandler, ServiceServer,
 )
 

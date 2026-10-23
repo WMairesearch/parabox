@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from parabox.benchmark.config import default_spec, validate_spec
+from parabox.benchmark.protocol.config import default_spec, validate_spec
 from parabox.benchmark.prepare import check, prepare
 
 
@@ -34,7 +34,7 @@ def main(argv=None) -> None:
     args = parser.parse_args(argv)
     try:
         if args.command == "selftest":
-            from parabox.benchmark.selftest import selftest
+            from parabox.benchmark.protocol.selftest import selftest
             result = selftest()
         elif args.command == "default-spec":
             candidates = {}
@@ -50,7 +50,7 @@ def main(argv=None) -> None:
         elif args.command == "check":
             result = check(args.directory)
         elif args.command == "grade":
-            from parabox.benchmark.grade import grade
+            from parabox.benchmark.evaluation.grade import grade
             result = grade(args.directory)
         else:
             from parabox.benchmark.run import run

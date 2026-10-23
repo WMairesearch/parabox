@@ -6,7 +6,7 @@ file under /workspace/shared is reachable without being mentioned.
 """
 from __future__ import annotations
 
-from parabox.tasks.code import prompts as P
+from parabox.tasks.code.spec import prompts as P
 from parabox.tasks.code.task import CodeTask
 from parabox.util import digest_json
 

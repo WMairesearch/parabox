@@ -8,7 +8,7 @@ from parabox.benchmark import default_spec
 from parabox.benchmark.prepare import prepare
 from parabox.benchmark.run import BoundOutcomeEngine, DeadlineClient, run, withdraw_note
 from parabox.execution import CoreEngine, FrozenWikiEngine, Invocation, Outcome
-from parabox.benchmark.prompts import core_task
+from parabox.benchmark.protocol.prompts import core_task
 from parabox.util import read, save, sha256
 from tests.test_benchmark_prepare import payload
 

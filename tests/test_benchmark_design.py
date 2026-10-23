@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 from parabox.benchmark import build_plan, default_spec, validate_spec
-from parabox.benchmark.prompts import core_task
+from parabox.benchmark.protocol.prompts import core_task
 from parabox.benchmark.__main__ import main
 
 

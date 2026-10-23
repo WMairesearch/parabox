@@ -7,7 +7,8 @@ import subprocess
 import copy
 
 from parabox.workspace import snapshot_regular
-from . import base, fixture
+from . import fixture
+from .runtime import base
 
 
 ASSIGNMENT = fixture.ASSIGNMENT
@@ -78,7 +79,7 @@ class Actor:
             self.workspace, image, base.Limits(cpus="2", memory="2g"),
             mounts=((str(wiki), "/workspace/shared/wiki", "rw,z"),
                     (str(self.receipts), "/workspace/shared/submissions", "ro,z")))
-        from parabox.execution.guards import DeadlineClient
+        from parabox.execution.control.guards import DeadlineClient
         self.client = DeadlineClient(base.Client(config), deadline)
         self.pending = deque()
         self.used = self.turns = 0

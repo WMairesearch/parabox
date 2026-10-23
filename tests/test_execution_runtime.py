@@ -226,7 +226,7 @@ class ExecutionTests(unittest.TestCase):
 
     def test_frozen_scripts_unchanged_by_offline_execution(self):
         root = Path(__file__).resolve().parents[1]
-        paths = [root / "parabox/session.py",
+        paths = [root / "parabox/runner/session.py",
                  root / "parabox/execution/merge.py"]
         before = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
         run_sequential([self.invocation(1)], ledger=self.ledger(), initial={},

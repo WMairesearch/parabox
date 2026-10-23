@@ -4,7 +4,7 @@ from __future__ import annotations
 import random
 
 from parabox.studies.spillover.task import VERIFIER
-from parabox.tasks.code.problems import IMPOSSIBLE, POSSIBLE
+from parabox.tasks.code.spec.problems import IMPOSSIBLE, POSSIBLE
 
 ARMS = ("mixed", "recipe")
 CHAINS = 2

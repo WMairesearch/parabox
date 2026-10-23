@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from parabox.studies.relay.run import session_dir
-from parabox.tasks.code.mechspan import ARMS, VALID_ARMS, MechspanCodeTask, verifier_config
+from parabox.studies.code.mechspan import ARMS, VALID_ARMS, MechspanCodeTask, verifier_config
 from parabox.tasks.code.task import CACHE_DIR
 from parabox.util import read
 

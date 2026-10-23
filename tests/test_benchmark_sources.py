@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from parabox.benchmark.selftest import selftest
+from parabox.benchmark.protocol.selftest import selftest
 from parabox.benchmark.sources import BUNDLE, BUNDLE_SHA256, export_wiki, initial_payload
 from parabox.util import save, sha256
 

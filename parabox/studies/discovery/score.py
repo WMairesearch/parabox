@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from statistics import median
 
-from parabox.stats import rate
+from parabox.studies.support.stats import rate
 from parabox.studies.discovery.design import ARMS
 from parabox.studies.relay.run import session_dir
 from parabox.util import read, save

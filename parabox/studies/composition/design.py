@@ -9,7 +9,7 @@ import random
 
 from parabox.studies.composition import notes as N
 from parabox.studies.composition.task import VERIFIER
-from parabox.tasks.code.problems import IMPOSSIBLE
+from parabox.tasks.code.spec.problems import IMPOSSIBLE
 
 ARMS = ("control", "R", "RC1", "RC3")
 PROBLEMS = ("double", "label_zero", "first_char", "choose_case")

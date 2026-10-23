@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import random
 
-from parabox.tasks.code.problems import IMPOSSIBLE
+from parabox.tasks.code.spec.problems import IMPOSSIBLE
 
 ARMS = ("control", "help", "method")
 DESIGN_SEED = 2026100602

@@ -11,7 +11,7 @@ from parabox.sandbox import Box, Limits
 from parabox.util import now, save, sha256
 from parabox.workspace import read_regular, write_regular
 
-from . import fixture
+from .. import fixture
 
 
 CALL_LIMIT = 20

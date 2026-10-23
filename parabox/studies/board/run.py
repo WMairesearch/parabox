@@ -13,12 +13,12 @@ from pathlib import Path
 
 from parabox import model
 from parabox.sandbox import Box, Limits, image_exists
-from parabox.session import run_session
+from parabox.runner.session import run_session
 from parabox.studies.board import board as B
 from parabox.studies.board import design as D
 from parabox.studies.board import nodes as N
 from parabox.tasks.base import run_audit_session
-from parabox.tasks.code.problems import problem_hashes
+from parabox.tasks.code.spec.problems import problem_hashes
 from parabox.tasks.code.task import CACHE_DIR, MAX_SUBMITS, TURNS, CodeTask
 from parabox.util import ROOT, digest_json, now, read, save, sha256
 

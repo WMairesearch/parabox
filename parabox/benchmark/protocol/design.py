@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 
-from parabox.benchmark.config import validate_spec
+from parabox.benchmark.protocol.config import validate_spec
 
 
 def build_plan(spec: dict) -> dict:

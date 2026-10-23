@@ -14,7 +14,7 @@ from pathlib import Path
 
 from parabox import model
 from parabox.sandbox import Box, Limits, image_exists
-from parabox.session import run_session
+from parabox.runner.session import run_session
 from parabox.studies.relay import design as D
 from parabox.studies.relay import library as Lib
 from parabox.tasks.lean import task as LT

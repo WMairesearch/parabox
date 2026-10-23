@@ -64,7 +64,7 @@ class BenchmarkPreparationTests(unittest.TestCase):
         manifest = prepare(self.output, self.spec)
         source_root = Path(__file__).resolve().parents[1]
         for name in ("runtime.py", "guards.py"):
-            source = str((source_root / "parabox/execution" / name).resolve())
+            source = str((source_root / "parabox/execution/control" / name).resolve())
             with self.subTest(module=name):
                 self.assertIn(source, manifest["sources"])
                 changed = source_bindings()

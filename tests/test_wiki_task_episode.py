@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from parabox.util import read, sha256
 from parabox.tasks.wiki import episode
-from parabox.tasks.wiki.service import ObjectService
+from parabox.tasks.wiki.runtime.service import ObjectService
 
 
 def response(name, arguments):
@@ -268,7 +268,7 @@ class EpisodeTests(unittest.TestCase):
         self.assertFalse((meta / "artifacts" / sha256(b"secret")).exists())
 
     def test_fastbox_has_no_network(self):
-        from parabox.tasks.wiki.helpers import FastBox
+        from parabox.tasks.wiki.runtime.helpers import FastBox
         box = FastBox("session-test", self.directory, "image")
         argv = box.run_argv()
         self.assertEqual(argv[argv.index("--network") + 1], "none")
@@ -277,7 +277,7 @@ class EpisodeTests(unittest.TestCase):
 @unittest.skipUnless(os.environ.get("PARABOX_EPISODE_TEST_IMAGE"), "Set a local sandbox image for live integration")
 class SandboxIntegrationTests(unittest.TestCase):
     def test_real_socket_metering_archive_and_teardown_with_scripted_client(self):
-        from parabox.tasks.wiki.prompts import workspace_files
+        from parabox.tasks.wiki.runtime.prompts import workspace_files
         with tempfile.TemporaryDirectory(prefix="session-test-") as temporary:
             directory = Path(temporary) / "episode"
             command = (

@@ -5,11 +5,11 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from parabox.benchmark.prompts import core_task
+from parabox.benchmark.protocol.prompts import core_task
 from parabox.benchmark.ternary import episode as ternary_episode
 from parabox.execution import CoreEngine, Invocation, StartLedger, manifest, run_population
 from parabox.sandbox import Box, Limits
-from parabox.tasks.code.problems import PROBLEMS
+from parabox.tasks.code.spec.problems import PROBLEMS
 from parabox.util import read, sha256
 from tests.helpers import call
 from tests.test_ternary_benchmark import ScriptedClient

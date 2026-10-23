@@ -10,8 +10,8 @@ import json
 import re
 from pathlib import Path
 
-from parabox import review as R
-from parabox.stats import bootstrap, rate
+from parabox.studies.support import review as R
+from parabox.studies.support.stats import bootstrap, rate
 from parabox.studies.board import design as D
 from parabox.tasks.code.verify import mechanisms as scan_mechanisms
 from parabox.util import read, save

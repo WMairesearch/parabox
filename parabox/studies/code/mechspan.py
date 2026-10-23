@@ -13,9 +13,9 @@ import shlex
 
 from parabox.sandbox import Box
 from parabox.tasks.base import SessionState
-from parabox.tasks.code import prompts as P
+from parabox.tasks.code.spec import prompts as P
 from parabox.tasks.code import verify as V
-from parabox.tasks.code.problems import PROBLEMS, stub
+from parabox.tasks.code.spec.problems import PROBLEMS, stub
 from parabox.tasks.code.task import CodeTask
 from parabox.util import digest_json, save, sha256, truncate
 from parabox.workspace import read_optional, read_regular

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 
-from . import fixture
+from .. import fixture
 from .service import CLIENT
 
 

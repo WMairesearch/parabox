@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from parabox.benchmark.grade import grade
+from parabox.benchmark.evaluation.grade import grade
 from parabox.util import read, save
 
 
@@ -28,7 +28,7 @@ class BenchmarkGradeTests(unittest.TestCase):
             save(target / "meta/spec.json", row)
             save(target / "meta/submissions.json", [{"turn": 2, "accepted": True}])
         self.addCleanup(patch.stopall)
-        patch("parabox.benchmark.grade.check", return_value={"manifest_sha256": "bound"}).start()
+        patch("parabox.benchmark.evaluation.grade.check", return_value={"manifest_sha256": "bound"}).start()
         patch("parabox.model.Client", side_effect=AssertionError("No models")).start()
         patch("subprocess.run", side_effect=AssertionError("Injected audits only")).start()
 

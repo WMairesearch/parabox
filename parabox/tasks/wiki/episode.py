@@ -12,11 +12,11 @@ from parabox.sandbox import Limits
 from parabox.util import digest_json, now, read, save, sha256
 from parabox.workspace import snapshot_regular, write_regular
 from . import fixture
-from .helpers import FastBox
-from .helpers import before_deadline, fingerprints
-from .prompts import assignment
-from .service import Budget, ObjectService, ServiceServer
-from .helpers import archive, shutdown, snapshot_solution
+from .runtime.helpers import FastBox
+from .runtime.helpers import before_deadline, fingerprints
+from .runtime.prompts import assignment
+from .runtime.service import Budget, ObjectService, ServiceServer
+from .runtime.helpers import archive, shutdown, snapshot_solution
 
 
 SYSTEM = "Call exactly one tool each turn."

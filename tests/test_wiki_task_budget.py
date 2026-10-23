@@ -5,8 +5,9 @@ import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from parabox.tasks.wiki import budget, episode, prompts
-from parabox.tasks.wiki.service import ObjectService
+from parabox.tasks.wiki import episode
+from parabox.tasks.wiki.runtime import budget, prompts
+from parabox.tasks.wiki.runtime.service import ObjectService
 from parabox.util import digest_json, read, save
 
 

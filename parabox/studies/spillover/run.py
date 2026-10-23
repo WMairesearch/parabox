@@ -14,7 +14,7 @@ from pathlib import Path
 
 from parabox import model
 from parabox.sandbox import Box, Limits, image_exists
-from parabox.session import run_session
+from parabox.runner.session import run_session
 from parabox.studies.population.merge import final_accepted, merge_record, snapshot_shared
 from parabox.studies.population.run import merge_path, record_dir, record_snapshot
 from parabox.studies.population.run import write_record as pop_write_record
@@ -23,7 +23,7 @@ from parabox.studies.spillover import design as D
 from parabox.studies.spillover.task import VERIFIER, SpilloverTask
 from parabox.studies.transmission import notes as N
 from parabox.studies.transmission.run import shared_digest
-from parabox.tasks.code.problems import problem_hashes
+from parabox.tasks.code.spec.problems import problem_hashes
 from parabox.tasks.code.task import MAX_SUBMITS, TURNS
 from parabox.util import digest_json, now, read, save, sha256
 

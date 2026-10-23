@@ -14,7 +14,7 @@ from pathlib import Path
 
 from parabox import model
 from parabox.sandbox import Box, Limits, image_exists
-from parabox.session import run_session
+from parabox.runner.session import run_session
 from parabox.studies.population.merge import final_accepted, merge_record, snapshot_shared
 from parabox.studies.relay.run import code_commit, image_id, session_dir
 from parabox.studies.transmission.run import shared_digest, shared_snapshot
@@ -22,7 +22,7 @@ from parabox.studies.unified import design as D
 from parabox.studies.unified import notes as N
 from parabox.studies.unified.task import DEFAULT_TURNS, VERIFIER, make_task
 from parabox.tasks.base import run_audit_session
-from parabox.tasks.code.problems import problem_hashes
+from parabox.tasks.code.spec.problems import problem_hashes
 from parabox.tasks.code.task import MAX_SUBMITS
 from parabox.util import ROOT, digest_json, now, read, save, sha256
 

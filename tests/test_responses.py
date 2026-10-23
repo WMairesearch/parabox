@@ -11,7 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from parabox.model import Client, assistant_message
-from parabox.session import run_session
+from parabox.runner.session import run_session
 from parabox.tasks.code.task import CodeTask
 from tests.helpers import FakeBox
 

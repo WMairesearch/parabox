@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 import tempfile
 
-from parabox.benchmark.config import default_spec
+from parabox.benchmark.protocol.config import default_spec
 from parabox.benchmark.prepare import check, prepare
 from parabox.benchmark.sources import initial_payload
 from parabox.util import save

@@ -2,7 +2,7 @@ import json
 import unittest
 
 from parabox.tasks.wiki import fixture
-from parabox.tasks.wiki.scoring import source_score, submission_score, validated_cases
+from parabox.tasks.wiki.evaluation.scoring import source_score, submission_score, validated_cases
 
 
 class ScoringTests(unittest.TestCase):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .artifacts import manifest
+from ..artifacts import manifest
 
 
 def execute_invocation(engine, ledger, invocation, incoming):

@@ -13,7 +13,7 @@ import re
 import subprocess
 import threading
 
-from parabox.execution.guards import parse_deadline, utcnow
+from parabox.execution.control.guards import parse_deadline, utcnow
 from parabox.util import digest_json, read, save, sha256
 
 from . import episode, fixture
@@ -21,9 +21,11 @@ from . import episode, fixture
 
 START_LOCK = threading.Lock()
 SOURCE_FILES = (
-    "benchmark/ternary/base.py", "benchmark/ternary/episode.py",
+    "benchmark/ternary/runtime/__init__.py", "benchmark/ternary/runtime/base.py",
+    "benchmark/ternary/episode.py",
     "benchmark/ternary/fixture.py", "benchmark/ternary/run.py",
-    "execution/guards.py", "model/__init__.py", "model/chat.py", "model/gemini.py",
+    "execution/control/__init__.py", "execution/control/guards.py",
+    "model/__init__.py", "model/chat.py", "model/gemini.py",
     "sandbox.py", "util.py", "workspace.py",
 )
 

@@ -9,7 +9,7 @@ import threading
 from parabox.benchmark.sources import NOTE, export_wiki
 from parabox.execution import BoundOutcomeEngine, FrozenWikiEngine, Invocation, StartLedger, run_sequential
 from parabox.execution.artifacts import manifest as file_manifest
-from parabox.execution.guards import parse_deadline, utcnow
+from parabox.execution.control.guards import parse_deadline, utcnow
 from parabox.util import digest_json, read, save, sha256
 from parabox.workspace import read_regular
 from .design import TRANSPORTS

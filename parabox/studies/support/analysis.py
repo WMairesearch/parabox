@@ -64,7 +64,7 @@ def outcome_value(row: dict) -> bool | None:
 
 
 def outcome_summary(rows: list[dict], *, draws: int = 20_000) -> dict:
-    from parabox.stats import wilson
+    from parabox.studies.support.stats import wilson
 
     outcomes = [outcome_value(row) for row in rows]
     total = len(rows)

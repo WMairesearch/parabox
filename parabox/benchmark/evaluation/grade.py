@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from parabox.benchmark.prepare import check
-from parabox.benchmark.prompts import core_task
+from parabox.benchmark.protocol.prompts import core_task
 from parabox.benchmark.run import verify_image
 from parabox.util import digest_json, now, read, save, sha256
 

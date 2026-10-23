@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-from parabox.analysis import chain_interval, independent_difference, late_chains
+from parabox.studies.support.analysis import chain_interval, independent_difference, late_chains
 from parabox.util import ROOT, now, read, save, sha256
 from parabox.studies.scripts.peer_composition import DIRECTORY, PEERS
 

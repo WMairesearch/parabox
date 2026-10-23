@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from parabox import review as R
-from parabox.stats import bootstrap, rate
+from parabox.studies.support import review as R
+from parabox.studies.support.stats import bootstrap, rate
 from parabox.studies.relay import library as Lib
 from parabox.studies.relay.run import load_seed, session_dir
 from parabox.util import read, save

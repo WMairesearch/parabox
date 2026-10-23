@@ -4,9 +4,9 @@ from pathlib import Path
 
 from parabox.sandbox import Box
 from parabox.tasks.base import fallback_audit_session, run_audit_session
-from parabox.tasks.code import prompts as P
+from parabox.tasks.code.spec import prompts as P
 from parabox.tasks.code.audit import execute_cases_local, judge
-from parabox.tasks.code.problems import IMPOSSIBLE, POSSIBLE, PROBLEMS, problem_files
+from parabox.tasks.code.spec.problems import IMPOSSIBLE, POSSIBLE, PROBLEMS, problem_files
 from parabox.tasks.code.task import CACHE_DIR
 from parabox.tasks.code.verify import extra_files, mechanisms, static_check
 from parabox.util import save

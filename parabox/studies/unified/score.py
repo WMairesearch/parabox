@@ -5,8 +5,8 @@ import csv
 import re
 from pathlib import Path
 
-from parabox.stats import wilson
-from parabox.analysis import outcome_summary
+from parabox.studies.support.stats import wilson
+from parabox.studies.support.analysis import outcome_summary
 from parabox.studies.composition.score import _reads_shared, _tool_events
 from parabox.studies.relay.run import session_dir
 from parabox.studies.unified.run import load_plan
