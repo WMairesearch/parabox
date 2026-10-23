@@ -240,8 +240,7 @@ def artifacts(directory):
                                     for row in value) + "\n  ]"
                    if isinstance(value, list) else json.dumps(value))
         sections.append("  " + json.dumps(key) + ": " + encoded)
-    return {"summary.json": "{\n" + ",\n".join(sections) + "\n}\n",
-            "README.md": report(summary, provenance)}
+    return {"summary.json": "{\n" + ",\n".join(sections) + "\n}\n"}
 
 
 def main(argv=None):
@@ -256,7 +255,7 @@ def main(argv=None):
         for name, text in generated.items():
             if (args.data_dir / name).read_text() != text:
                 raise ValueError(f"Regeneration mismatch: {name}")
-        print("Resource evidence and generated report verified; no experiments executed.")
+        print("Resource evidence verified; no experiments executed.")
     else:
         args.output_dir.mkdir(parents=True, exist_ok=False)
         for name, text in generated.items():

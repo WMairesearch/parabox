@@ -1,7 +1,7 @@
 # Runtime input inventory
 
 Only execution inputs belong here. Protocols, figures, outcomes and supporting
-analyses are in [`report/`](../report/README.md); raw runs remain local.
+analyses are in [`report/`](../report/results.md); raw runs remain local.
 
 | Input | Consumer |
 |---|---|
@@ -16,4 +16,4 @@ The default suite's founder checkpoints are packaged separately at
 Some seeds contain model-generated text. Runtime compatibility does not replace
 the rights and privacy review required for redistribution. See
 [third-party provenance](../THIRD_PARTY.md) and
-[evidence availability](../docs/reproducibility.md).
+[reproducibility guidance](../docs/running.md).

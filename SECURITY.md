@@ -17,7 +17,7 @@ Provider credentials stay on the host in environment variables or an ignored
 and dependency installation are separate host operations. Deliberately weak
 task verifiers are research fixtures, not permission to expose the host.
 
-## Wiki service and grading
+## Grading and shared records
 
 The synthetic wiki service supplies fixed JSON examples through a Unix socket;
 requests do not resolve into host filesystem paths. Its read-only service
@@ -27,6 +27,8 @@ and tool operations consume the task budget.
 Submission seals the service and stops the participant before final export.
 Independent wiki grading runs each case in a fresh container with read-only
 candidate code and the current input. Expected answers remain on the host.
+The ternary task likewise keeps its target on the host. Its shared submission
+receipts are read-only inside participant containers.
 
 ## Artifact safeguards
 

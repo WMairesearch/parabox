@@ -16,7 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
     prep.add_argument("--gate", choices=["harness", "state", "score", "open"], required=True)
     conditions = prep.add_mutually_exclusive_group(required=True)
     conditions.add_argument("--conditions", dest="arms", metavar="CONDITIONS",
-                            help="comma-separated conditions; see docs/getting-started.md for names and aliases")
+                            help="comma-separated conditions; see --help for names and aliases")
     conditions.add_argument("--arms", dest="arms", help=argparse.SUPPRESS)
     prep.add_argument("--problems", default=None, help="comma-separated problem keys")
     prep.add_argument("--model", required=True, help="model config path")

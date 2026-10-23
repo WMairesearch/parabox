@@ -14,8 +14,8 @@ python3 -m venv .venv
 ```
 
 Python 3.12+ is required. Container tests also need Podman and the documented
-image. Default tests must not call paid providers. Consult
-[architecture](docs/architecture.md) before changing task or transport contracts.
+image. Default tests must not call paid providers. Consult the
+[experiment design](docs/experiments.md) before changing task or transport contracts.
 Preserve frozen experiments; protocol changes belong in a new run.
 
 ## Sign-off and attribution

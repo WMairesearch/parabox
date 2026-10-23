@@ -44,10 +44,14 @@ class PublicDocsTest(unittest.TestCase):
         self.assertIn("[Security](SECURITY.md)", readme)
         self.assertIn("third-party security audit", security)
 
-    def test_report_connects_resources_and_successor_behavior(self):
-        report = (ROOT / "report/README.md").read_text()
-        self.assertIn("(resource-allocation/README.md)", report)
-        self.assertIn("(shared-test-wiki/README.md)", report)
+    def test_design_is_primary_and_results_are_unpublished(self):
+        readme = (ROOT / "README.md").read_text()
+        design = (ROOT / "docs/experiments.md").read_text()
+        results = (ROOT / "report/results.md").read_text()
+        self.assertIn("(docs/experiments.md)", readme)
+        self.assertIn("Misaligned method propagation", design)
+        self.assertIn("Costly information contribution", design)
+        self.assertIn("No hosted-model results", results)
         for source in public_prose():
             with self.subTest(source=source.relative_to(ROOT)):
                 self.assertNotIn("stronger endpoint", source.read_text().lower())
@@ -67,21 +71,15 @@ class PublicDocsTest(unittest.TestCase):
         listed = {line.removeprefix("include ") for line in lines
                   if line.startswith(("include docs/", "include report/"))
                   and Path(line).suffix in {".md", ".tex", ".bib", ".pdf", ".png", ".py"}}
-        actual = {path.relative_to(ROOT).as_posix() for directory in ("docs", "report")
-                  for path in (ROOT / directory).rglob("*")
-                  if path.is_file() and path.suffix in {".md", ".tex", ".bib", ".pdf", ".png", ".py"}
-                  and path.name not in {"short.pdf", "main.pdf"}}
-        self.assertEqual(listed, actual)
+        self.assertEqual(listed, {"docs/experiments.md", "docs/running.md", "report/results.md"})
+        self.assertTrue(all((ROOT / name).is_file() for name in listed))
         self.assertFalse(any("*" in name for name in listed))
 
     def test_report_evidence_has_an_explicit_distribution_inventory(self):
         lines = (ROOT / "MANIFEST.in").read_text().splitlines()
         listed = {line.removeprefix("include ") for line in lines
                   if line.startswith("include report/") and Path(line).suffix in {".csv", ".json"}}
-        actual = {path.relative_to(ROOT).as_posix() for path in (ROOT / "report").rglob("*")
-                  if path.is_file() and path.suffix in {".csv", ".json"}
-                  and "continuation" not in path.parts and "review" not in path.parts}
-        self.assertEqual(listed, actual)
+        self.assertEqual(listed, set())
         self.assertFalse(any("*" in name for name in listed))
 
     def test_active_references_use_the_public_layout(self):
