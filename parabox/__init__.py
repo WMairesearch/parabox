@@ -1,1 +1,1 @@
-"""Controlled studies of cheating that spreads through shared agent artifacts."""
+"""Evaluate models' own violations, influence on peers, and contributions to shared work."""

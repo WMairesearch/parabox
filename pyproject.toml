@@ -1,7 +1,7 @@
 [project]
 name = "parabox"
 version = "0.2.0"
-description = "A benchmark framework for misalignment propagation between AI agents"
+description = "Evaluate models' own violations, influence on peers, and contributions to shared work"
 readme = "README.md"
 license = "MIT AND Apache-2.0"
 license-files = ["LICENSE", "licenses/*.txt"]

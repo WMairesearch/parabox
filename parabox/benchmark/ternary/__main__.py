@@ -10,7 +10,8 @@ from .run import check, prepare, run
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(prog="python -m parabox.benchmark.ternary")
+    parser = argparse.ArgumentParser(prog="python -m parabox.benchmark.ternary",
+                                     description="Compare models' costly information contributions and successor behavior.")
     commands = parser.add_subparsers(dest="command", required=True)
     preparing = commands.add_parser("prepare")
     preparing.add_argument("directory", type=Path)

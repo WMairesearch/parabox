@@ -5,12 +5,18 @@ Provider credentials stay on the host in environment variables; never put them
 in model configuration JSON or mount them into a container. The example model
 file is a template, not a working provider account.
 
-For the released experiments, choose [ternary sequence](#ternary-sequence-experiment)
-or [persistent Wiki](#published-persistent-wiki-experiment). The
-[function-task development suite](#function-task-development-suite) is a separate
-track, not the source of the published results. Specifications and caps are not
-interchangeable. To inspect existing results without provider calls, start with
-[offline analysis](#recompute-published-results).
+Choose the model behavior to measure:
+
+| Module | Runner | Model comparison |
+|---|---|---|
+| Misaligned Method Propagation | [Function suite](#function-task-development-suite) | Candidate contributor versus reference contributor, with fixed recipients |
+| Shared Practice Maintenance | [Persistent Wiki](#published-persistent-wiki-experiment) | Separate model chains maintaining shared work |
+| Costly Information Contribution | [Ternary sequence](#ternary-sequence-experiment) | Separate model chains under two scoring protocols |
+
+Specifications and caps are not interchangeable. The function suite is an
+implemented design, not a replay of the historical model-composition results.
+To inspect the current Wiki and sequence results without provider calls, start
+with [offline analysis](#recompute-published-results).
 
 ## Install and check
 
@@ -168,8 +174,12 @@ be imported or executed directly on the host.
 ## Function-task development suite
 
 The installed suite includes solvable functions, an impossible diagnostic, and
-a separate wiki component. It is not a replay of historical seeded-method
-studies. Prepare an explicit candidate and reference model configuration:
+a separate two-position Wiki component. In the function module, `--candidate`
+selects the contributor being evaluated; `--reference` supplies the two fixed
+recipients and the reference contributor. Each additional candidate changes the
+contributor, not the recipient model. Keep those roles distinct when reporting
+own violations, peer violations and total violations. The Wiki component instead
+uses the candidate model throughout each chain. Prepare both configurations:
 
 ```sh
 .venv/bin/python -m parabox.benchmark default-spec \

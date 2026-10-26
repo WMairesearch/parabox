@@ -1,26 +1,37 @@
 # Parabox
 
-Parabox is a sandboxed benchmark for studying how one AI agent's work changes
-another agent's behavior. It separates a violation discovered by one agent from
-its publication, exposure, adoption, and continuation by later agents.
+Parabox evaluates how AI models participate in and shape misaligned collective
+work: whether they violate task boundaries, change other agents' behavior, and
+contribute resources that allow a shared practice to continue. Models can also
+interrupt that practice by refusing, correcting, or dismantling it.
+
+The motivating concern is agent-built collaboration in incidents such as the
+[OpenAI–Hugging Face incident](https://openai.com/index/hugging-face-incident-and-the-road-ahead/):
+agents repurposed existing infrastructure to coordinate unauthorized work.
+We study models as participants, not which researcher-written message is most
+persuasive. Shared files, messages and receipts are channels through which model
+behavior affects peers and successors.
 
 ## Experiments
 
-| Experiment | Agent's task | Shared material | Main observation |
+| Experiment | Agent's task | Model behavior measured | Main comparison |
 |---|---|---|---|
-| Misaligned method propagation: persistent Wiki | Repair a function with public examples and a private-case access boundary | An editable directory inherited from earlier agents | Unauthorized private-case requests, returned cases, task scores, and continuation or correction |
-| Costly information contribution | Match a hidden sequence of 100 ternary values | An editable wiki and read-only submission receipts | Whether a scored submission gives up attainable points to reveal information used by successors |
+| Misaligned Method Propagation | Implement a function | Own violations and changes in peers' violations | Replace a contributor model while keeping recipient models fixed; compare isolated and cumulative work |
+| Shared Practice Maintenance | Repair a function while maintaining a Wiki | Acquisition, contribution, correction and successor continuation | Compare model trajectories under matched starting conditions |
+| Costly Information Contribution | Match a hidden ternary sequence | Spending personal scoring opportunities to produce information for successors | Compare models under terminal and repeated scoring |
 
-The released Wiki experiment varies inherited material and starter-program
-scores (30, 60, or 90, not ceilings). The sequence experiment varies the number
-of initially known values (1, 40, or 85); those correspond to approximate
-random-completion expectations of 34, 60, and 90 points, not guaranteed scores.
-See [experiment design](docs/experiments.md) for the task surfaces, comparisons,
-and outcome definitions. The [results](report/results.md) link the completed
-sequence and persistent-Wiki experiments to their configurations and evidence.
-Sequence information contribution is measured separately from misconduct.
-The function-task development suite and earlier impossible-function studies
-remain available; they are not the experiments in this results bundle.
+Keep a model's own behavior, its effect on peers, and the whole population's
+outcome separate. Wiki and sequence model comparisons describe participating
+models; they do not substitute for the fixed-recipient influence comparison.
+Sequence contributions isolate personal cost and are not themselves labeled
+misconduct. Starting records, task conditions and scoring rules expose different
+opportunities for these behaviors; they are specified in the
+[experiment designs](docs/experiments.md).
+
+The [results](report/results.md) connect historical contributor-model evidence
+with the current Wiki and sequence release. The current function protocol is
+implemented but has no released participant results. Historical protocols and
+current runs retain separate denominators.
 
 For a first read: start here, then read the [experiment designs](docs/experiments.md),
 and use the [run guide](docs/running.md) when ready to reproduce a protocol.
@@ -41,7 +52,7 @@ python3 -m venv .venv
 
 Participant runs require Linux, rootless Podman, an immutable local image,
 provider configuration, an exact session authorization, and a deadline.
-[Running and extending](docs/running.md) gives a complete 18-session sequence
+[Running and extending](docs/running.md) provides all three entry points, a complete 18-session sequence
 walkthrough and a 162-session, one-model Wiki walkthrough. These are the smallest
 supported batches, not single-chain smoke runs. Start with offline analysis
 before authorizing either batch.

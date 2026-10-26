@@ -11,12 +11,14 @@ from parabox.benchmark.prepare import check, prepare
 
 
 def main(argv=None) -> None:
-    parser = argparse.ArgumentParser(prog="python -m parabox.benchmark")
+    parser = argparse.ArgumentParser(prog="python -m parabox.benchmark",
+                                     description="Evaluate model influence on peers and shared practice maintenance.")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("selftest", help="Check installed assets and prepare offline")
     default = commands.add_parser("default-spec")
-    default.add_argument("--candidate", action="append", required=True, metavar="NAME=CONFIG")
-    default.add_argument("--reference", help="Required for default/historical profiles; omit for --published")
+    default.add_argument("--candidate", action="append", required=True, metavar="NAME=CONFIG",
+                         help="Contributor model in function populations; participant model in Wiki chains")
+    default.add_argument("--reference", help="Fixed function recipients and reference contributor; omit for --published")
     default.add_argument("--image", required=True, help="Immutable sha256:<image ID>")
     profiles = default.add_mutually_exclusive_group()
     profiles.add_argument("--historical", action="store_true",

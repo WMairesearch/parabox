@@ -8,8 +8,8 @@ analyses are in [`report/`](../report/results.md); raw runs remain local.
 | `corpus/mathlib-v4.33.1.json` | Historical search-relay tasks |
 | `seeds/` | Historical relay, board and transmission studies |
 
-The transmission seed also has a byte-identical wheel asset under
-`parabox/studies/transmission/assets/`, used by shared unified-runner modules.
+The transmission seed also has a byte-identical checkout-only asset under
+`parabox/studies/transmission/assets/`, used by historical study modules.
 The default suite's founder checkpoints are packaged separately at
 `parabox/benchmark/assets/wiki-founders.json`.
 
