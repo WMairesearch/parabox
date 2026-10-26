@@ -5,10 +5,12 @@ Provider credentials stay on the host in environment variables; never put them
 in model configuration JSON or mount them into a container. The example model
 file is a template, not a working provider account.
 
-Choose one runner before preparing a run: [ternary sequence](#ternary-sequence-experiment)
-for costly information contribution, or [function tasks](#function-task-development-suite)
-for misaligned method propagation. Their specifications and session caps are not
-interchangeable.
+For the released experiments, choose [ternary sequence](#ternary-sequence-experiment)
+or [persistent Wiki](#published-persistent-wiki-experiment). The
+[function-task development suite](#function-task-development-suite) is a separate
+track, not the source of the published results. Specifications and caps are not
+interchangeable. To inspect existing results without provider calls, start with
+[offline analysis](#recompute-published-results).
 
 ## Install and check
 
@@ -19,6 +21,7 @@ python3 -m venv .venv
 podman build -t localhost/parabox-code:py312 parabox/tasks/code/image
 IMAGE_ID="$(podman image inspect localhost/parabox-code:py312 --format '{{.Id}}')"
 IMAGE_ID="sha256:${IMAGE_ID#sha256:}"
+export IMAGE_ID
 ```
 
 The selftest is offline. Image building may download dependencies. Record the
@@ -42,47 +45,89 @@ non-strict behavior unless the task explicitly requests strict mode.
 
 ## Ternary sequence experiment
 
-Copy `examples/ternary.example.json` to a private spec. Replace its image ID
-with `$IMAGE_ID` and its model path with a provider configuration based on
-`examples/model.example.json`. Keep credentials in the named environment
-variable. Preparation fixes one target and schedules all named models against
-it; it makes no model calls.
+The smallest supported batch is one model, three prefixes, six generations and
+one agent per generation: **18 sessions**, all starting with the method note.
+It is not a single-chain smoke run or the full published comparison.
+After installation and image building above, configure your provider:
 
 ```sh
-.venv/bin/python -m parabox.benchmark.ternary prepare runs/ternary --spec private-ternary.json
+mkdir -p runs/config
+cp examples/model.example.json runs/config/model.json
+```
+
+Edit `runs/config/model.json`: set the provider URL and model ID, remove the
+`configuration_status` placeholder, and set the named API-key environment
+variable on the host. Use the Responses template instead when appropriate.
+Then create a spec using the published terminal target/profile:
+
+```sh
+.venv/bin/python - <<'PY'
+import json
+import os
+from pathlib import Path
+
+spec = json.loads(Path("examples/ternary.terminal-historical.example.json").read_text())
+spec.update(image=os.environ["IMAGE_ID"], seats=1,
+            models={"candidate": "runs/config/model.json"})
+Path("runs/config/ternary.json").write_text(json.dumps(spec, indent=2) + "\n")
+PY
+.venv/bin/python -m parabox.benchmark.ternary prepare runs/ternary --spec runs/config/ternary.json
 .venv/bin/python -m parabox.benchmark.ternary check runs/ternary
 ```
 
-For one model, `seats: 1` plans 18 sessions (three prefixes × six
-generations); `seats: 4` plans 144 sessions (three prefixes × two conditions ×
-six generations × four seats). With multiple models, multiply by their count.
-Use the exact `session_cap` printed by `prepare` and a future timezone-aware
-deadline. Only `run` makes provider calls:
+Preparation and checks make no provider calls. The following command authorizes
+18 sessions and a 24-hour execution deadline; adjust the deadline to your needs.
+Only `run` makes provider calls:
 
 ```sh
+DEADLINE="$(.venv/bin/python -c 'from datetime import datetime, timedelta, timezone; print((datetime.now(timezone.utc) + timedelta(hours=24)).isoformat())')"
 .venv/bin/python -m parabox.benchmark.ternary run runs/ternary \
-  --authorize-session-cap 144 --deadline "$DEADLINE"
+  --authorize-session-cap 18 --deadline "$DEADLINE"
+.venv/bin/python -m parabox.benchmark analyze runs/ternary --output runs/ternary-summary.json
 ```
 
-Replace the example cap and deadline with the values for your run. Outputs,
+For a four-agent batch set `seats: 4` before preparation: one model then needs
+144 sessions, including method and empty conditions. Always authorize the exact
+cap printed by `prepare`; use a fresh run directory for another configuration. Outputs,
 including all scored submissions, actions, wiki transitions, and failed starts,
 stay under `runs/ternary/`. There is no automatic replacement or resume.
-For the published target and order seeds, use
+For the published target and ordering profile, use
 `examples/ternary.terminal-historical.example.json` or
 `examples/ternary.repeated-historical.example.json`. Choose `seats: 1` or
 `seats: 4` explicitly. Six models require 108 or 864 sessions respectively;
 both populations total 972 per scoring protocol. Provider templates must be
-configured before execution. The published target/order profile does not imply
+configured before execution. Model mapping keys are experiment aliases, distinct
+from provider model IDs; the alias also enters the ordering seed. The walkthrough's
+`candidate` alias is a new model configuration, not a replay of a published model.
+For a published model's mapping and alias, consult `report/release/protocols.json`
+and `report/release/specs/`. For new exploratory targets instead, start from
+`examples/ternary.example.json`; its generated profile differs from the released one.
+The published target/order profile does not imply
 identical remote-model behavior or transport: final historical Kimi/Qwen recovery
 used streaming; the public `json-900-v1` profile explicitly records its JSON
 transport and retry policy.
 
 ## Published persistent-Wiki experiment
 
-Use `examples/wiki.published.example.json`, replace the image and provider paths,
-then use the same `prepare`, `check`, `run` and `grade` commands as the function
-suite below. Alternatively, generate it with `default-spec --published`, repeated
-`--candidate NAME=CONFIG` arguments and `--image "$IMAGE_ID"`; omit `--reference`.
+After the installation and provider setup above, run the smallest supported
+published-profile batch: **162 sessions** for one model (three starter scores ×
+three conditions × three blocks × six positions). This is a multi-chain batch.
+
+```sh
+.venv/bin/python -m parabox.benchmark default-spec --published \
+  --candidate candidate=runs/config/model.json --image "$IMAGE_ID" > runs/config/wiki.json
+.venv/bin/python -m parabox.benchmark prepare runs/wiki --spec runs/config/wiki.json
+.venv/bin/python -m parabox.benchmark check runs/wiki
+DEADLINE="$(.venv/bin/python -c 'from datetime import datetime, timedelta, timezone; print((datetime.now(timezone.utc) + timedelta(hours=24)).isoformat())')"
+.venv/bin/python -m parabox.benchmark run runs/wiki \
+  --authorize-session-cap 162 --deadline "$DEADLINE"
+.venv/bin/python -m parabox.benchmark grade runs/wiki
+.venv/bin/python -m parabox.benchmark analyze runs/wiki --output runs/wiki-summary.json
+```
+
+Only `run` calls the provider; `grade` executes candidates in sandbox containers.
+For the full model mapping use `report/release/specs/`; for a configurable template
+use `examples/wiki.published.example.json`. Omit `--reference` for this profile.
 This profile contains six positions and three conditions, with no function-suite
 or reference-model sessions. Six models require exactly 972 sessions. The older
 two-position development profile remains unchanged.
