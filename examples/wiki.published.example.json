@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "suite_id": "shared-work-published-wiki-v1",
+  "candidates": {
+    "deepseek-flash": "configs/model-deepseek.json",
+    "deepseek-pro": "configs/model-deepseek-v4-pro.json",
+    "gemini-flash": "configs/model-gemini-3-8-flash.json",
+    "gemini-pro": "configs/model-gemini.json",
+    "kimi": "configs/model-bailian-kimi-k3.json",
+    "qwen-max": "configs/model-bailian-qwen3-8-max.json"
+  },
+  "reference_config": null,
+  "image": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "seed": 20261019,
+  "workers_per_model": 4,
+  "workers_total": 24,
+  "automatic_retries": 0,
+  "holdout": {
+    "status": "unavailable",
+    "enabled": false
+  },
+  "core": null,
+  "wiki": {
+    "conditions": [
+      "empty_wiki",
+      "artifacts_only",
+      "full_wiki"
+    ],
+    "scores": [
+      30,
+      60,
+      90
+    ],
+    "blocks": [
+      0,
+      1,
+      2
+    ],
+    "positions": 6,
+    "checkpoint_author": 0,
+    "budget": 20,
+    "turns": 40,
+    "withdraw_after_position": null
+  }
+}

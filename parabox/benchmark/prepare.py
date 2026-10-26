@@ -49,7 +49,10 @@ def source_bindings() -> dict[str, str]:
 
 def model_bindings(spec: dict) -> dict:
     bindings = {}
-    for configured in sorted(set([spec["reference_config"], *spec["candidates"].values()])):
+    configurations = [*spec["candidates"].values()]
+    if spec["reference_config"] is not None:
+        configurations.append(spec["reference_config"])
+    for configured in sorted(set(configurations)):
         path = Path(configured).resolve()
         raw = path.read_bytes()
         config = json.loads(raw)

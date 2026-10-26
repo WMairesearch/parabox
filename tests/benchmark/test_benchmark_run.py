@@ -36,6 +36,27 @@ class FakeEngine:
 
 
 class BenchmarkRunTests(unittest.TestCase):
+    def test_published_six_position_persistent_handoffs(self):
+        spec = default_spec({'candidate': str(self.config)}, None, self.spec['image'],
+                            published=True)
+        directory = self.root / 'published'
+        prepare(directory, spec)
+        result = run(directory, authorize_session_cap=162, deadline=self.deadline,
+                     core_engine=self.core, wiki_engine=self.wiki, image_verifier=lambda image: None)
+        self.assertEqual((result['completed'], len(result['ledger']), len(self.wiki.calls)), (162, 162, 162))
+        self.assertEqual(self.core.calls, [])
+        for row, incoming, options in self.wiki.calls:
+            if row['position']:
+                self.assertEqual(incoming['shared/wiki/kept.txt'], b'successor material')
+                self.assertNotIn('shared/wiki/cases.json', incoming)
+                if row['condition'] != 'empty_wiki':
+                    self.assertIn('shared/wiki/NOTES.md', incoming)
+                wave = read(directory / 'execution/waves' / f"wiki-candidate-p{row['position']}.json")
+                record = next(record for record in wave['records'] if record['chain'] == row['chain'])
+                self.assertEqual(record['transition']['predecessor_actor'], f"{row['chain']}-p{row['position'] - 1}")
+            if row['position'] == 5:
+                self.assertIn(b'Scheduled subsequent package assignments: [].', options['files']['README.md'])
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)

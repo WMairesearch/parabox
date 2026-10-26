@@ -1,4 +1,5 @@
 import copy
+import random
 import contextlib
 import io
 import json
@@ -12,6 +13,65 @@ from parabox.benchmark.__main__ import main
 
 
 class BenchmarkDesignTests(unittest.TestCase):
+    def test_published_all_36_wave_orders_match_historical_sort_and_seed(self):
+        models = ('deepseek-flash', 'gemini-flash', 'kimi', 'qwen-max', 'deepseek-pro', 'gemini-pro')
+        spec = default_spec({model: model + '.json' for model in models}, None,
+                            'sha256:' + 'a' * 64, published=True)
+        plan = build_plan(spec)
+        indexed = {row['actor']: row for row in plan['sessions']}
+        waves = {wave['id']: wave['actors'] for wave in plan['waves']}
+        self.assertEqual(len(waves), 36)
+        for model in models:
+            for position in range(6):
+                expected = sorted((score, condition, block) for score in (30, 60, 90)
+                                  for condition in ('empty_wiki', 'artifacts_only', 'full_wiki')
+                                  for block in range(3))
+                random.Random(20261019 + position).shuffle(expected)
+                actual = [tuple(indexed[actor][key] for key in ('score', 'condition', 'block'))
+                          for actor in waves[f'wiki-{model}-p{position}']]
+                self.assertEqual(actual, expected)
+
+    def test_legacy_wave_insertion_order_unchanged(self):
+        for historical in (False, True):
+            spec = default_spec({'candidate': 'candidate.json'}, 'reference.json',
+                                'sha256:' + 'a' * 64, historical=historical)
+            plan = build_plan(spec)
+            indexed = {row['actor']: row for row in plan['sessions']}
+            for wave in plan['waves']:
+                if not wave['id'].startswith('wiki-'):
+                    continue
+                position = indexed[wave['actors'][0]]['position']
+                expected = [(score, condition, block) for score in (30, 60, 90)
+                            for block in range(3) for condition in ('empty_wiki', 'full_wiki')]
+                random.Random(20261019 + position).shuffle(expected)
+                self.assertEqual([tuple(indexed[actor][key] for key in ('score', 'condition', 'block'))
+                                  for actor in wave['actors']], expected)
+
+    def test_published_wiki_six_positions_three_conditions(self):
+        spec = default_spec({'candidate': 'candidate.json'}, None, 'sha256:' + 'a' * 64,
+                            published=True)
+        plan = build_plan(spec)
+        wiki = [row for row in plan['sessions'] if row['component'] == 'wiki']
+        self.assertEqual((len(wiki), plan['counts']['total']), (162, 162))
+        self.assertEqual(plan['counts']['core_reference'], 0)
+        self.assertEqual(plan['counts']['core_candidates'], 0)
+        self.assertEqual(plan['counts']['max_core_model_turns'], 0)
+        six_models = default_spec({f'model-{number}': f'model-{number}.json' for number in range(6)},
+                                  None, spec['image'], published=True)
+        self.assertEqual(build_plan(six_models)['counts']['total'], 972)
+        self.assertEqual(plan['counts']['max_wiki_charged_units'], 3240)
+        self.assertEqual({row['condition'] for row in wiki}, {'empty_wiki', 'artifacts_only', 'full_wiki'})
+        self.assertEqual({row['position'] for row in wiki}, set(range(6)))
+        for row in wiki:
+            self.assertFalse(row['withdraw'])
+            self.assertEqual(len(row['successors']), 5 - row['position'])
+            self.assertEqual(row['incoming_from'], [f"{row['chain']}-p{row['position'] - 1}"] if row['position'] else [])
+        self.assertTrue(all(len(row['candidate_actors']) == 6 for row in plan['contrasts'] if row['id'].startswith('wiki-')))
+        self.assertEqual(len([row for row in plan['contrasts'] if row['id'].startswith('wiki-')]), 27)
+        with self.assertRaises(ValueError):
+            default_spec({'candidate': 'candidate.json'}, 'reference.json', spec['image'],
+                         published=True, historical=True)
+
     def setUp(self):
         self.spec = default_spec({"candidate": "candidate.json"}, "reference.json", "sha256:" + "a" * 64)
         self.plan = build_plan(self.spec)

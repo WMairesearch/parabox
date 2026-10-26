@@ -7,8 +7,11 @@ import json
 import re
 
 
-def default_spec(candidates: dict[str, str], reference: str, image: str, *, historical: bool = False) -> dict:
-    return {
+def default_spec(candidates: dict[str, str], reference: str | None, image: str, *,
+                 historical: bool = False, published: bool = False) -> dict:
+    if historical and published:
+        raise ValueError("Published persistent Wiki and historical withdrawal are distinct profiles")
+    spec = {
         "schema_version": 1,
         "suite_id": "shared-work-development-v1" if historical else "shared-work-persistent-v1",
         "candidates": dict(candidates),
@@ -41,6 +44,14 @@ def default_spec(candidates: dict[str, str], reference: str, image: str, *, hist
             "withdraw_after_position": 0 if historical else None,
         },
     }
+    if published:
+        if reference is not None:
+            raise ValueError("The published Wiki-only profile does not use a reference configuration")
+        spec["suite_id"] = "shared-work-published-wiki-v1"
+        spec["core"] = None
+        spec["wiki"]["conditions"] = ["empty_wiki", "artifacts_only", "full_wiki"]
+        spec["wiki"]["positions"] = 6
+    return spec
 
 
 def validate_spec(spec: dict) -> dict:
@@ -54,13 +65,15 @@ def validate_spec(spec: dict) -> dict:
                 or name == "reference" or not isinstance(path, str) or not path):
             raise ValueError("Invalid candidate name or configuration path")
     reference = spec.get("reference_config")
-    if not isinstance(reference, str) or not reference:
+    published = spec.get("suite_id") == "shared-work-published-wiki-v1"
+    if not published and (not isinstance(reference, str) or not reference):
         raise ValueError("An explicit fixed reference configuration is required")
     image = spec.get("image")
     if not isinstance(image, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", image):
         raise ValueError("An immutable local image ID sha256:<64 hex digits> is required")
     expected = default_spec(candidates, reference, image,
-                            historical=spec.get("suite_id") == "shared-work-development-v1")
+                            historical=spec.get("suite_id") == "shared-work-development-v1",
+                            published=published)
     if json.dumps(spec, sort_keys=True, allow_nan=False) != json.dumps(expected, sort_keys=True):
         raise ValueError("Unsupported suite variation; use a separately versioned design")
     return copy.deepcopy(spec)

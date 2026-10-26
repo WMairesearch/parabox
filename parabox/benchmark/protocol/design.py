@@ -10,8 +10,9 @@ from parabox.benchmark.protocol.config import validate_spec
 def build_plan(spec: dict) -> dict:
     spec = validate_spec(spec)
     rows, contrasts, waves = [], [], []
-    core = spec["core"]
-    configurations = {"reference": spec["reference_config"], **spec["candidates"]}
+    core = spec["core"] or {"tasks": []}
+    positions = spec["wiki"]["positions"]
+    configurations = {"reference": spec["reference_config"], **spec["candidates"]} if spec["core"] else {}
     for contributor, config_path in configurations.items():
         for problem in core["tasks"]:
             for condition in core["conditions"]:
@@ -74,42 +75,58 @@ def build_plan(spec: dict) -> dict:
             for block in spec["wiki"]["blocks"]:
                 for condition in spec["wiki"]["conditions"]:
                     chain = f"wiki-{candidate}-{score}-{block}-{condition}"
-                    for position in range(2):
+                    for position in range(positions):
                         rows.append({
                             "actor": f"{chain}-p{position}", "component": "wiki", "chain": chain,
                             "model": candidate, "model_config": config_path,
                             "score": score, "block": block, "condition": condition,
                             "position": position, "package": packages[(block + position) % 3],
-                            "successors": [packages[(block + 1) % 3]] if position == 0 else [],
+                            "successors": [packages[(block + later) % 3]
+                                           for later in range(position + 1, positions)],
                             "source": False, "phase": "benchmark_development",
                             "budget": 20, "turns": 40, "checkpoint_author": 0,
                             "withdraw": position == 1 and spec["wiki"]["withdraw_after_position"] == 0,
-                            "depends_on": [f"{chain}-p0"] if position else [],
-                            "incoming_from": [f"{chain}-p0"] if position else [],
+                            "depends_on": [f"{chain}-p{position - 1}"] if position else [],
+                            "incoming_from": [f"{chain}-p{position - 1}"] if position else [],
                             "transport": "actual_previous_wiki" if position else "verified_checkpoint",
                         })
                 contrasts.append({
                     "id": f"wiki-exposure-{candidate}-{score}-{block}",
                     "estimand": "full_vs_empty_by_position",
                     "matched_block": f"wiki-source-{block}-score-{score}",
-                    "candidate_actors": [f"wiki-{candidate}-{score}-{block}-full_wiki-p{position}" for position in range(2)],
-                    "reference_actors": [f"wiki-{candidate}-{score}-{block}-empty_wiki-p{position}" for position in range(2)],
+                    "candidate_actors": [f"wiki-{candidate}-{score}-{block}-full_wiki-p{position}" for position in range(positions)],
+                    "reference_actors": [f"wiki-{candidate}-{score}-{block}-empty_wiki-p{position}" for position in range(positions)],
                 })
-        for position in range(2):
+                if "artifacts_only" in spec["wiki"]["conditions"]:
+                    for condition, reference in (("artifacts_only", "empty_wiki"), ("full_wiki", "artifacts_only")):
+                        contrasts.append({
+                            "id": f"wiki-{condition}-vs-{reference}-{candidate}-{score}-{block}",
+                            "estimand": f"{condition}_vs_{reference}_by_position",
+                            "matched_block": f"wiki-source-{block}-score-{score}",
+                            "candidate_actors": [f"wiki-{candidate}-{score}-{block}-{condition}-p{position}" for position in range(positions)],
+                            "reference_actors": [f"wiki-{candidate}-{score}-{block}-{reference}-p{position}" for position in range(positions)],
+                        })
+        for position in range(positions):
             actors = [row["actor"] for row in rows if row["component"] == "wiki"
                       and row["model"] == candidate and row["position"] == position]
+            if spec["suite_id"] == "shared-work-published-wiki-v1":
+                wave = [row for row in rows if row["actor"] in actors]
+                actors = [row["actor"] for row in sorted(wave, key=lambda row: (
+                    row["score"], row["condition"], row["block"]))]
             random.Random(spec["seed"] + position).shuffle(actors)
             waves.append({"id": f"wiki-{candidate}-p{position}", "actors": actors,
                           "depends_on_waves": [f"wiki-{candidate}-p{position - 1}"] if position else []})
-    count = len(spec["candidates"])
+    core_rows = [row for row in rows if row["component"] == "core"]
+    reference_count = sum(row["contributor"] == "reference" for row in core_rows)
+    wiki_count = sum(row["component"] == "wiki" for row in rows)
     return {
         "schema_version": 1, "suite_id": spec["suite_id"], "sessions": rows,
         "waves": waves, "contrasts": contrasts,
-        "counts": {"core_reference": 36, "core_candidates": 36 * count,
-                   "wiki": 36 * count, "total": 36 + 72 * count,
-                   "max_core_model_turns": 1800 * (count + 1),
-                   "max_wiki_model_turns": 1440 * count,
-                   "max_wiki_charged_units": 720 * count},
+        "counts": {"core_reference": reference_count, "core_candidates": len(core_rows) - reference_count,
+                   "wiki": wiki_count, "total": len(rows),
+                   "max_core_model_turns": sum(row["turns"] for row in core_rows),
+                   "max_wiki_model_turns": spec["wiki"]["turns"] * wiki_count,
+                   "max_wiki_charged_units": spec["wiki"]["budget"] * wiki_count},
         "execution_policy": {
             "no_autoexecution": True, "requires_fresh_execution_authorization": True,
             "requires_deadline": True, "automatic_retries": 0,

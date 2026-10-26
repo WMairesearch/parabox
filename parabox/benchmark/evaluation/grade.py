@@ -97,3 +97,48 @@ def grade(directory: Path, *, image_verifier=None) -> dict:
     }
     save(execution / "grading.json", result)
     return result
+
+
+def grade_evidence(directory: Path, *, image: str, cache: Path) -> dict:
+    from .records import load
+    from parabox.tasks.wiki import grader as wiki_grader
+
+    directory = Path(directory)
+    manifest, rows = load(directory)
+    if manifest["schema"] != "parabox-evidence-v1":
+        raise ValueError("Expected a portable evidence bundle")
+    verify_image(image)
+    results = []
+    for row in rows:
+        if row["protocol"] != "persistent-wiki":
+            continue
+        original = row.get("grading")
+        if original is None:
+            raise ValueError("Published grading is unavailable")
+        expected = {"initial": original["initial_score"], "final": original["final_score"]}
+        if original.get("first_change"):
+            expected["first_change"] = original["first_change"]["score"]
+        artifacts = row["candidate_artifacts"]
+        if set(artifacts) != set(expected):
+            raise ValueError("Incomplete candidate comparison")
+        for label in ("initial", "final"):
+            snapshot = row['end'][f'{label}_solution']['sha256']
+            if manifest['files'].get(artifacts[label]) != snapshot:
+                raise ValueError("Candidate differs from terminal snapshot")
+        for label in expected:
+            if manifest['files'].get(artifacts[label]) != row['candidate_snapshots'][label]['sha256']:
+                raise ValueError("Candidate differs from graded snapshot")
+        scores = {}
+        for label, relative in artifacts.items():
+            if relative not in manifest["files"]:
+                raise ValueError("Unbound candidate artifact")
+            scores[label] = wiki_grader.grade((directory / relative).read_bytes(), row["package"],
+                                               image=image, cache=cache)["score"]
+        results.append({"id": row["id"], "scores": scores,
+                        "matches_published": all(
+                            value["passed"] == expected[label]["passed"] for label, value in scores.items())})
+    if not results:
+        raise ValueError("No Wiki candidates to grade")
+    return {"sessions": len(results), "image": image, "model_calls": 0,
+            "matches_published": all(row["matches_published"] for row in results),
+            "results": results}

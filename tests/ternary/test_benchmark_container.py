@@ -48,8 +48,45 @@ class ShortPrefixClient:
         return {"role": "assistant", "content": "", "tool_calls": [call(name, arguments)]}, {}
 
 
+class TerminalShortPrefixClient(ShortPrefixClient):
+    def __init__(self, config):
+        super().__init__(config)
+        self.inputs = []
+
+    def complete(self, messages, tools=None):
+        self.inputs.append(list(messages))
+        return super().complete(messages, tools=tools)
+
+
 @unittest.skipUnless(os.environ.get("PARABOX_EPISODE_TEST_IMAGE"), "Set a local sandbox image")
 class BenchmarkContainerTests(unittest.TestCase):
+    def test_terminal_final_receipt_has_no_own_feedback_turn(self):
+        image = os.environ["PARABOX_EPISODE_TEST_IMAGE"]
+        with tempfile.TemporaryDirectory(prefix="parabox-terminal-container-") as temporary:
+            root = Path(temporary)
+            wiki = root / "wiki"
+            wiki.mkdir()
+            client = TerminalShortPrefixClient({})
+            with patch.object(ternary_episode.base, "Client", return_value=client):
+                result = ternary_episode.run_generation(root / "generation", {
+                    "prefix": 1, "generation": 1, "actor": "example", "chain": "example"},
+                    {}, [0] * 100, image, wiki, 17,
+                    (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat(),
+                    agents=1, protocol="terminal")
+            self.assertTrue(result["normal"])
+            end = read(root / "generation/seat-0/end.json")
+            receipt = read(root / "submissions/generation-01-seat-0.json")
+            self.assertEqual(end["earned_score"], 0)
+            self.assertEqual(end["final_feedback"],
+                             {"score": 0, "next_position": 2, "next_value": 0})
+            self.assertEqual(receipt["feedback"], end["final_feedback"])
+            self.assertEqual(receipt["submission"], [0])
+            self.assertEqual(len(client.inputs), 2)
+            messages = read(root / "generation/seat-0/meta/messages.json")
+            self.assertEqual(messages[-1]["role"], "assistant")
+            self.assertEqual(messages[-1]["tool_calls"][0]["function"]["name"], "submit")
+            self.assertFalse(end["evaluations"][-1]["feedback_delivered_to_current_agent"])
+
     def test_ternary_short_prefix_receipt(self):
         image = os.environ["PARABOX_EPISODE_TEST_IMAGE"]
         with tempfile.TemporaryDirectory(prefix="parabox-prefix-container-") as temporary:

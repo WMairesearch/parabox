@@ -25,7 +25,7 @@ SOURCE_FILES = (
     "benchmark/ternary/episode.py",
     "benchmark/ternary/fixture.py", "benchmark/ternary/run.py",
     "execution/control/__init__.py", "execution/control/guards.py",
-    "model/__init__.py", "model/chat.py", "model/gemini.py",
+    "model/__init__.py", "model/chat.py", "model/gemini.py", "model/responses.py",
     "sandbox.py", "util.py", "workspace.py",
 )
 
@@ -36,8 +36,10 @@ def source_hashes() -> dict[str, str]:
 
 
 def validate_spec(spec: dict) -> dict:
-    if not isinstance(spec, dict) or set(spec) != {"models", "image", "seed", "seats"}:
-        raise ValueError("Spec requires models, image, seed, and seats")
+    required = {"models", "image", "seed", "seats"}
+    optional = {"protocol", "profile", "transport_profile"}
+    if not isinstance(spec, dict) or not required <= set(spec) or set(spec) - required - optional:
+        raise ValueError("Spec requires models, image, seed, and seats; only protocol, profile, and transport_profile are optional")
     models = spec["models"]
     if not isinstance(models, dict) or not models:
         raise ValueError("At least one model configuration is required")
@@ -49,7 +51,41 @@ def validate_spec(spec: dict) -> dict:
     if (type(spec["seed"]) is not int or spec["seed"] < 0
             or type(spec["seats"]) is not int or spec["seats"] not in (1, 4)):
         raise ValueError("Seed must be nonnegative and seats must be one or four")
-    return spec
+    protocol = spec.get("protocol", fixture.REPEATED)
+    profile = spec.get("profile", fixture.GENERATED)
+    transport_profile = spec.get("transport_profile", fixture.JSON_360)
+    if protocol not in (fixture.TERMINAL, fixture.REPEATED):
+        raise ValueError("Unknown ternary protocol")
+    if profile not in (fixture.GENERATED, fixture.HISTORICAL):
+        raise ValueError("Unknown ternary target/order profile")
+    if transport_profile not in (fixture.JSON_360, fixture.JSON_900):
+        raise ValueError("Unknown ternary transport profile")
+    if profile == fixture.HISTORICAL and "transport_profile" not in spec:
+        raise ValueError("Historical profile requires an explicit non-streaming transport profile")
+    if profile == fixture.HISTORICAL and spec["seed"] != fixture.HISTORICAL_SEED:
+        raise ValueError("Historical target seed differs from the registered profile")
+    return {**spec, "protocol": protocol, "profile": profile,
+            "transport_profile": transport_profile}
+
+
+def transport_contract(spec: dict) -> dict:
+    return {"profile": spec["transport_profile"], "response_mode": "non-streaming",
+            "socket_timeout_seconds": 900 if spec["transport_profile"] == fixture.JSON_900 else 360,
+            "adapter_default_max_output_tokens": 32768,
+            "max_attempts": 4, "retryable_http_statuses": [429, 500, 502, 503],
+            "retries_json_decode_errors": True, "global_stream_slots": False,
+            "matches_historical_stream_transport": False}
+
+
+def order_seed(row: dict, generation: int, protocol: str, profile: str) -> int:
+    if profile == fixture.HISTORICAL:
+        prefix = "20261022" if protocol == fixture.TERMINAL else "v3"
+        material = f"{prefix}:{row['model']}:{row['prefix']}:{generation}"
+    elif profile == fixture.GENERATED:
+        material = f"ternary:{row['chain']}:{generation}"
+    else:
+        raise ValueError("Unknown ternary target/order profile")
+    return int(sha256(material)[:16], 16)
 
 
 def schedule(models: dict, seats: int) -> list[dict]:
@@ -70,8 +106,12 @@ def prepare(directory: Path, spec: dict) -> dict:
         config = read(source)
         if not isinstance(config, dict) or "api_key" in config or not config.get("api_key_env"):
             raise ValueError(f"Invalid or embedded-credential model configuration: {name}")
+        timeout = transport_contract(spec)["socket_timeout_seconds"]
+        if "ternary_timeout_s" in config and config["ternary_timeout_s"] != timeout:
+            raise ValueError(f"Model timeout conflicts with selected transport profile: {name}")
         models[name] = {"path": str(source), "sha256": sha256(source.read_bytes())}
     registration = {"spec": spec, "models": models, "target": target,
+                    "transport": transport_contract(spec),
                     "generations": 6, "chains": schedule(models, spec["seats"]),
                     "session_cap": len(schedule(models, spec["seats"])) * 6 * spec["seats"],
                     "sources": source_hashes(), "created_at": utcnow().isoformat()}
@@ -88,6 +128,8 @@ def check(directory: Path) -> dict:
     if (directory / "registration.sha256").read_text().strip() != digest_json(registration):
         raise ValueError("Registration changed")
     spec = validate_spec(registration["spec"])
+    if registration.get("transport") != transport_contract(spec):
+        raise ValueError("Transport profile changed")
     if registration["sources"] != source_hashes():
         raise ValueError("Experiment implementation changed")
     if registration["chains"] != schedule(registration["models"], spec["seats"]):
@@ -141,16 +183,18 @@ def run_chain(directory: Path, row: dict, registration: dict, deadline: datetime
         (wiki / "method.txt").write_text(fixture.METHOD)
     spec = registration["spec"]
     config = read(Path(registration["models"][row["model"]]["path"]))
+    config = {**config, "ternary_timeout_s": registration["transport"]["socket_timeout_seconds"]}
     for generation in range(1, 7):
         if utcnow() >= deadline:
             raise TimeoutError("Deadline reached before generation start")
         assignment = {**row, "generation": generation,
                       "actor": f"{row['chain']}-g{generation:02d}"}
         claim(directory, assignment, spec["seats"], registration["session_cap"])
-        order_seed = int(sha256(f"ternary:{row['chain']}:{generation}")[:16], 16)
+        seed = order_seed(row, generation, spec["protocol"], spec["profile"])
         result = episode.run_generation(chain / f"generation-{generation:02d}", assignment,
                                         config, registration["target"], spec["image"], wiki,
-                                        order_seed, deadline.isoformat(), agents=spec["seats"])
+                                        seed, deadline.isoformat(), agents=spec["seats"],
+                                        protocol=spec["protocol"])
         if not result["normal"]:
             raise RuntimeError(f"Generation {generation} failed")
     return row["chain"]

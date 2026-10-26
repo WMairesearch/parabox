@@ -6,7 +6,8 @@ import json
 import subprocess
 from pathlib import Path
 
-from parabox.model import Client, assistant_message, parse_args
+from parabox.model import Client as DefaultClient, assistant_message, parse_args
+from parabox.model import chat, gemini, responses
 from parabox.sandbox import Box, Limits
 from parabox.util import now, save, sha256
 from parabox.workspace import read_regular, write_regular
@@ -15,6 +16,21 @@ from .. import fixture
 
 
 CALL_LIMIT = 20
+
+
+class Client(DefaultClient):
+    def complete(self, messages, tools=None, *, thinking=True):
+        timeout = self.config.get("ternary_timeout_s")
+        if timeout is None:
+            return super().complete(messages, tools=tools, thinking=thinking)
+        if self.config.get("wire") == "gemini":
+            return gemini.complete(self.config, self.key, messages, tools=tools,
+                                   max_tokens=32768, timeout=timeout)
+        if self.config.get("wire") == "responses":
+            return responses.complete(self.config, self.key, messages, tools=tools,
+                                      max_tokens=32768, timeout=timeout)
+        return chat.complete(self.config, self.key, messages, tools=tools,
+                             max_tokens=32768, timeout=timeout, thinking=thinking)
 
 
 def archive(meta: Path, raw: bytes) -> str:

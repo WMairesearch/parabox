@@ -21,6 +21,22 @@ def payload(block, condition, checkpoint_author=0):
 
 
 class BenchmarkPreparationTests(unittest.TestCase):
+    def test_cli_published_profile_prepare_check(self):
+        stream = io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            main(['default-spec', '--published', '--candidate', f'candidate={self.model}',
+                  '--image', self.spec['image']])
+        spec = json.loads(stream.getvalue())
+        self.assertEqual(spec['wiki']['positions'], 6)
+        self.assertEqual(spec['wiki']['conditions'], ['empty_wiki', 'artifacts_only', 'full_wiki'])
+        manifest = prepare(self.output, spec)
+        self.assertEqual(len(manifest['models']), 1)
+        self.assertIsNone(spec['reference_config'])
+        self.assertEqual(check(self.output)['counts']['wiki'], 162)
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            main(['default-spec', '--published', '--historical', '--candidate', f'candidate={self.model}',
+                  '--reference', str(self.model), '--image', self.spec['image']])
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
