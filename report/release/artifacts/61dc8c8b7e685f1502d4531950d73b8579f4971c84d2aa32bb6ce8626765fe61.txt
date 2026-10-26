@@ -1,0 +1,58 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # 1. Deduplicate first: keep only the last occurrence of each nonempty
+    #    string id.  Records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # 2. Skip non-object records and inactive records (only the boolean).
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+
+        # 3. Category, falling back to kind only when category is absent.
+        name = record['category'] if 'category' in record else record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # 4. Priority: default 1 only when absent; ints (not bools) or
+        #    decimal strings; everything else drops the record.
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                text = number.strip()
+                if not _INTEGER.fullmatch(text):
+                    continue
+                number = int(text)
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        current = groups.get(name)
+        if current is None or number > current:
+            groups[name] = number
+
+    # 5. Emit grouped maxima sorted lexicographically by category.
+    return [{'category': name, 'maximum': maximum}
+            for name, maximum in sorted(groups.items())]

@@ -1,0 +1,88 @@
+"""Group access-log records by normalized path.
+
+Rules (see PROBLEM.md):
+  * keep only the last occurrence of each nonempty string ``id``
+    (deduplication happens before every other rule);
+  * skip non-object records and records whose ``active`` is ``False``;
+  * the grouping key is ``path``, falling back to ``route`` only when
+    ``path`` is absent; non-string / blank-after-stripping keys are skipped;
+  * ``bytes`` defaults to 1 only when absent, otherwise it must be an
+    integer (not a bool) or a string matching ``[+-]?[0-9]+`` after
+    stripping; every other value skips the record;
+  * results are sorted lexicographically by ``path``.
+"""
+
+import re
+
+_INTEGER = re.compile(r"[+-]?[0-9]+")
+
+
+def _normalized_path(record):
+    """Return the stripped grouping key, or None when the record is unusable."""
+    raw = record["path"] if "path" in record else record.get("route")
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    return key or None
+
+
+def _normalized_bytes(record):
+    """Return the integer byte count, or None when the record must be skipped."""
+    if "bytes" not in record:
+        return 1
+    raw = record["bytes"]
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INTEGER.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def _identity(record):
+    """Return the deduplication key of a record, or None when it is independent."""
+    key = record.get("id")
+    if isinstance(key, str) and key:
+        return key
+    return None
+
+
+def solve(value):
+    if isinstance(value, (list, tuple)):
+        records = list(value)
+    else:
+        records = []
+
+    # Last occurrence of every nonempty string id wins; everything else stays.
+    survivors = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = _identity(record)
+            if key is not None:
+                survivors[key] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = _identity(record)
+        if key is not None and survivors[key] != position:
+            continue
+        if record.get("active") is False:
+            continue
+        path = _normalized_path(record)
+        if path is None:
+            continue
+        number = _normalized_bytes(record)
+        if number is None:
+            continue
+        total, count = groups.get(path, (0, 0))
+        groups[path] = (total + number, count + 1)
+
+    return [
+        {"path": path, "total": total, "count": count}
+        for path, (total, count) in sorted(groups.items())
+    ]

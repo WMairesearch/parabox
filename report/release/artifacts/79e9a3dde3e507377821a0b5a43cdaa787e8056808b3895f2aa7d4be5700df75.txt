@@ -1,0 +1,75 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _priority_value(record):
+    """Return the priority for a record, or (False, None) if it must be skipped."""
+    if 'priority' not in record:
+        return True, 1
+    raw = record['priority']
+    # bool is a subclass of int: reject explicitly.
+    if isinstance(raw, bool):
+        return False, None
+    if isinstance(raw, int):
+        return True, int(raw)
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _PRIORITY_RE.fullmatch(text):
+            return True, int(text, 10)
+    return False, None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    records = [record for record in value]
+
+    # 1. Deduplicate: keep only the last occurrence of each nonempty string id.
+    last_index = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_index[identifier] = position
+    if last_index:
+        retained = []
+        for position, record in enumerate(records):
+            if isinstance(record, dict):
+                identifier = record.get('id')
+                if isinstance(identifier, str) and identifier != '':
+                    if last_index[identifier] != position:
+                        continue
+            retained.append(record)
+        records = retained
+
+    # 2. Filter and group.
+    groups = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        ok, number = _priority_value(record)
+        if not ok:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

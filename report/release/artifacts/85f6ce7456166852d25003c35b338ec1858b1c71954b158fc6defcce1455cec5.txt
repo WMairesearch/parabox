@@ -1,0 +1,69 @@
+"""access_logs: filter, deduplicate, group and summarize access log records."""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # Rule 1 (applies before every other rule): keep only the LAST occurrence of
+    # each nonempty string 'id'.  The id is used raw (no stripping); records
+    # without such an id stay independent.
+    last_seen = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                last_seen[ident] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        # Rule 2: skip non-object records and records explicitly marked inactive.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active', True) is False:
+            continue
+
+        # A superseded duplicate is dropped even when its surviving twin is
+        # itself skipped by a later rule.
+        ident = record.get('id')
+        if isinstance(ident, str) and ident != '' and last_seen[ident] != index:
+            continue
+
+        # Rule 3: 'path' wins; 'route' is used only when 'path' is absent.
+        key = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        # Rule 4: 'bytes' defaults to 1 only when the key is absent; accept
+        # integers (never booleans) and plain base-10 integer strings.
+        if 'bytes' in record:
+            number = record['bytes']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if _INTEGER.fullmatch(text) is None:
+                    continue
+                number = int(text)
+            else:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(key, (0, 0))
+        groups[key] = (total + number, count + 1)
+
+    # Rule 5: sorted lexicographically by normalized path.
+    return [
+        {'path': key, 'total': groups[key][0], 'count': groups[key][1]}
+        for key in sorted(groups)
+    ]

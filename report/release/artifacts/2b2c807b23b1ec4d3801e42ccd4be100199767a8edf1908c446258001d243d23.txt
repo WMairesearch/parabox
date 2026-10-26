@@ -1,0 +1,69 @@
+import re
+
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    records = value
+
+    # Deduplicate before all other rules: keep only the last occurrence of
+    # each nonempty string 'id'.  Records without such an id are independent.
+    last_positions = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        ident = record.get('id')
+        if isinstance(ident, str) and ident != '':
+            last_positions[ident] = position
+
+    groups = {}
+
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+
+        ident = record.get('id')
+        if isinstance(ident, str) and ident != '':
+            if last_positions.get(ident) != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            key = record['path']
+        elif 'route' in record:
+            key = record['route']
+        else:
+            continue
+
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        if 'bytes' in record:
+            number = record['bytes']
+            if type(number) is int:
+                # Accept integers, including negative integers, but not booleans.
+                pass
+            elif isinstance(number, str):
+                stripped = number.strip()
+                if _BYTES_RE.match(stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(key, (0, 0))
+        groups[key] = (total + number, count + 1)
+
+    return [
+        {'path': key, 'total': groups[key][0], 'count': groups[key][1]}
+        for key in sorted(groups)
+    ]

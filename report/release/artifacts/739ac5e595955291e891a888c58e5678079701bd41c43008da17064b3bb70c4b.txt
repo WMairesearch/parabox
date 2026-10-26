@@ -1,0 +1,71 @@
+import re
+
+_PRIORITY_TEXT = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _priority(record):
+    """Return the record's priority as an int, or None when it must be skipped."""
+    if 'priority' not in record:
+        return 1
+    value = record['priority']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _PRIORITY_TEXT.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def _category(record):
+    """Return the normalized category name, or None when it must be skipped."""
+    if 'category' in record:
+        name = record['category']
+    else:
+        name = record.get('kind')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if not name:
+        return None
+    return name
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if last_position.get(identifier) != position:
+                continue
+        if record.get('active') is False:
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

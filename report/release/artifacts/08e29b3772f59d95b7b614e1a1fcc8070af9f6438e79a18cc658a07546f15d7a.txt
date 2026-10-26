@@ -1,0 +1,96 @@
+"""Inventory grouping (see PROBLEM.md).
+
+Rules, in order:
+  1. Deduplicate first: for every record that is an object with a nonempty
+     string 'id', keep only its LAST occurrence; records without such an id
+     remain independent.  Deduplication precedes all other rules.
+  2. Skip non-object records and records whose 'active' is false.
+  3. Grouping key: 'sku', falling back to 'item' only when 'sku' is absent.
+     Non-string or blank-after-stripping keys are skipped; keys are stripped.
+  4. 'delta' defaults to 1 only when absent.  Accept integers (never booleans)
+     and strings fullmatching [+-]?[0-9]+ after stripping; skip the record for
+     every other value, null included.
+  5. Emit {'sku': key, 'total': sum} sorted lexicographically by 'sku';
+     [] when nothing remains.  The input is never mutated.
+"""
+
+import json
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _records(value):
+    """Return a list of candidate records for any input shape."""
+    if isinstance(value, (str, bytes, bytearray)):
+        # Hedge: a JSON-encoded list still works; anything else yields no
+        # object records below.
+        try:
+            value = json.loads(value)
+        except (ValueError, TypeError):
+            return []
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def _key(record):
+    """Normalized grouping key, or None when the record has no usable key."""
+    name = record['sku'] if 'sku' in record else record.get('item')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def _delta(record):
+    """Integer delta for the record, or None when the record must be skipped."""
+    if 'delta' not in record:
+        return 1
+    number = record['delta']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _INT_RE.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    records = _records(value)
+
+    # 1. keep only the last occurrence of each nonempty string 'id'.
+    last_index = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            identity = record.get('id')
+            if isinstance(identity, str) and identity != '':
+                last_index[identity] = index
+
+    totals = {}
+    for index, record in enumerate(records):
+        # 2. non-objects and inactive records are skipped.
+        if not isinstance(record, dict):
+            continue
+        identity = record.get('id')
+        if isinstance(identity, str) and identity != '' and last_index[identity] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        # 3. grouping key.
+        key = _key(record)
+        if key is None:
+            continue
+        # 4. delta.
+        number = _delta(record)
+        if number is None:
+            continue
+        totals[key] = totals.get(key, 0) + number
+
+    # 5. sorted output.
+    return [{'sku': key, 'total': totals[key]} for key in sorted(totals)]

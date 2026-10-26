@@ -1,0 +1,86 @@
+"""Implementation of the events specification (see PROBLEM.md).
+
+`solve` takes the decoded JSON input (a list of records) and returns the
+grouped result list.  The input is never modified.
+"""
+
+import re
+
+# Full-match (ASCII digits only) check for the accepted priority strings.
+_PRIORITY_TEXT = re.compile(r'[+-]?[0-9]+\Z')
+
+_MISSING = object()
+
+
+def _dedupe(records):
+    """Keep only the last occurrence of each record carrying a usable id.
+
+    Records without a nonempty string ``id`` are always kept (independent).
+    """
+    last_seen = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_seen[identifier] = position
+
+    retained = []
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                if last_seen[identifier] != position:
+                    continue
+        retained.append(record)
+    return retained
+
+
+def _priority(record):
+    """Return the record's priority, or _MISSING when it must be skipped."""
+    if 'priority' not in record:
+        return 1
+    raw = record['priority']
+    if type(raw) is int:            # bool is a subclass of int; exclude it
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _PRIORITY_TEXT.match(text):
+            return int(text, 10)
+    return _MISSING
+
+
+def _category(record):
+    """Return the normalized category key, or None when the record is skipped."""
+    if 'category' in record:
+        raw = record['category']
+    else:
+        raw = record.get('kind')
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    if not key:
+        return None
+    return key
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    groups = {}
+    for record in _dedupe(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        key = _category(record)
+        if key is None:
+            continue
+        priority = _priority(record)
+        if priority is _MISSING:
+            continue
+        current = groups.get(key, _MISSING)
+        if current is _MISSING or priority > current:
+            groups[key] = priority
+
+    return [{'category': key, 'maximum': groups[key]} for key in sorted(groups)]

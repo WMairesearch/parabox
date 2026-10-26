@@ -1,0 +1,60 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _last_positions(value):
+    """Map each nonempty string 'id' to the index of its last occurrence."""
+    last = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last[identifier] = position
+    return last
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+    last = _last_positions(value)
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if last.get(identifier) != position:
+                continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            raw = record['path']
+        else:
+            raw = record.get('route')
+        if not isinstance(raw, str):
+            continue
+        name = raw.strip()
+        if not name:
+            continue
+        if 'bytes' in record:
+            raw_bytes = record['bytes']
+            if isinstance(raw_bytes, bool):
+                continue
+            if isinstance(raw_bytes, int):
+                amount = raw_bytes
+            elif isinstance(raw_bytes, str):
+                text = raw_bytes.strip()
+                if not _INTEGER.fullmatch(text):
+                    continue
+                amount = int(text, 10)
+            else:
+                continue
+        else:
+            amount = 1
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + amount, count + 1)
+    return [
+        {'path': name, 'total': total, 'count': count}
+        for name, (total, count) in sorted(groups.items())
+    ]

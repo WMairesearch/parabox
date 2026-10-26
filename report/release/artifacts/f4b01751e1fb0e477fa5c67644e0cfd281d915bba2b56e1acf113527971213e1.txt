@@ -1,0 +1,72 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def _coerce_delta(record):
+    """Return integer delta, or None when the value must be skipped."""
+    if 'delta' not in record:
+        return 1
+    value = record['delta']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _NUMBER.fullmatch(text):
+            try:
+                return int(text, 10)
+            except ValueError:
+                return None
+    return None
+
+
+def _record_id(record):
+    if isinstance(record, dict):
+        value = record.get('id')
+        if isinstance(value, str) and value:
+            return value
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: deduplicate by 'id', keeping only the last occurrence.
+    last_positions = {}
+    for position, record in enumerate(value):
+        key = _record_id(record)
+        if key is not None:
+            last_positions[key] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        key = _record_id(record)
+        if key is not None and last_positions.get(key) != position:
+            continue
+        retained.append(record)
+
+    # Steps 2+: filter, normalize, group.
+    totals = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        delta = _coerce_delta(record)
+        if delta is None:
+            continue
+        totals[name] = totals.get(name, 0) + delta
+
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

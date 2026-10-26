@@ -1,0 +1,48 @@
+import re
+
+
+def solve(value):
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                number = number.strip()
+                if not re.fullmatch(r'[+-]?[0-9]+', number):
+                    continue
+                number = int(number)
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

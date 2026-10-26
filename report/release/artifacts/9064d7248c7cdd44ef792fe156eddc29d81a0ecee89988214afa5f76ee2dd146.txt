@@ -1,0 +1,100 @@
+"""access_logs: group retained records by normalized path.
+
+Rules (per PROBLEM.md):
+  * deduplicate by the last occurrence of each nonempty string 'id' FIRST;
+    records without such an id stay independent;
+  * skip non-object records and records whose 'active' is false;
+  * key = 'path', falling back to 'route' only when 'path' is absent; must be a
+    string that is non-empty after stripping, and the stripped text groups;
+  * value = 'bytes', defaulting to 1 only when the key is absent; integers
+    (never booleans) and strings fully matching [+-]?[0-9]+ after stripping are
+    accepted (strings parsed base 10); anything else skips the record;
+  * output {'path', 'total', 'count'} rows sorted lexicographically by path;
+  * the input is never modified.
+"""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _records_of(value):
+    """Return the candidate records as a list, without mutating the input."""
+    if value is None or isinstance(value, (str, bytes, bytearray)):
+        return []
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def _record_id(record):
+    """Return the dedup key for a record, or None when it stays independent."""
+    rid = record.get('id')
+    if isinstance(rid, str) and rid != '':
+        return rid
+    return None
+
+
+def _path_of(record):
+    """Return the normalized path, or None when the record must be skipped."""
+    if 'path' in record:
+        key = record['path']
+    else:
+        key = record.get('route')
+    if not isinstance(key, str):
+        return None
+    key = key.strip()
+    if not key:
+        return None
+    return key
+
+
+def _bytes_of(record):
+    """Return the byte count, or None when the record must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    raw = record['bytes']
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    records = _records_of(value)
+
+    last_seen = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            rid = _record_id(record)
+            if rid is not None:
+                last_seen[rid] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        rid = _record_id(record)
+        if rid is not None and last_seen[rid] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        path = _path_of(record)
+        if path is None:
+            continue
+        size = _bytes_of(record)
+        if size is None:
+            continue
+        entry = groups.get(path)
+        if entry is None:
+            groups[path] = [size, 1]
+        else:
+            entry[0] += size
+            entry[1] += 1
+
+    return [{'path': path, 'total': groups[path][0], 'count': groups[path][1]}
+            for path in sorted(groups)]

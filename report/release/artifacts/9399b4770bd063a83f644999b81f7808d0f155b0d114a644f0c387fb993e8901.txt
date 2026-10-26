@@ -1,0 +1,101 @@
+"""Events package: group retained records by category and report the maximum priority.
+
+Rules implemented literally from PROBLEM.md:
+  * De-duplicate first: only the last occurrence of each nonempty string 'id'
+    survives; records without such an id remain independent.
+  * Skip non-object records and records whose 'active' is False.
+  * Category key comes from 'category', falling back to 'kind' only when
+    'category' is absent.  The key must be a string that is nonempty after
+    stripping surrounding whitespace; the stripped text is the group name.
+  * 'priority' defaults to 1 only when the key is absent.  Accepted values are
+    integers (never booleans) and strings matching [+-]?[0-9]+ after stripping,
+    converted base 10.  Everything else (including null) skips the record.
+  * Output objects {'category', 'maximum'} sorted lexicographically by category.
+  * The input is never modified.
+"""
+
+import re
+
+_INTEGER_TEXT = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedup_id(record):
+    """Return the de-duplication id of a record, or None when independent."""
+    if not isinstance(record, dict):
+        return None
+    key = record.get('id')
+    if isinstance(key, str) and key != '':
+        return key
+    return None
+
+
+def _category(record):
+    """Normalized category of a record, or None when the record is skipped."""
+    if 'category' in record:
+        name = record['category']
+    elif 'kind' in record:
+        name = record['kind']
+    else:
+        return None
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if not name:
+        return None
+    return name
+
+
+def _priority(record):
+    """Integer priority of a record, or None when the record is skipped."""
+    if 'priority' not in record:
+        return 1
+    value = record['priority']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INTEGER_TEXT.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if isinstance(value, (str, bytes)):
+        return []
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # De-duplication runs before every other rule.
+    last_seen = {}
+    for position, record in enumerate(records):
+        key = _dedup_id(record)
+        if key is not None:
+            last_seen[key] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        key = _dedup_id(record)
+        if key is not None and last_seen[key] != position:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

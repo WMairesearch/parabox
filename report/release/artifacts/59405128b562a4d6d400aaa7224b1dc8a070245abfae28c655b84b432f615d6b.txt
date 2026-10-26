@@ -1,0 +1,61 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: de-duplicate by nonempty string 'id' FIRST, keeping only the
+    # last occurrence of each such id. Records without one stay independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_position[rid] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last_position[rid] != position:
+            continue
+
+        # Rule 2: skip inactive records (strict boolean false only).
+        if record.get('active') is False:
+            continue
+
+        # Rule 3: 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Rule 4: 'delta', defaulting to 1 only when absent.
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, bool):
+                continue
+            if type(number) is int:
+                delta = number
+            elif isinstance(number, str):
+                text = number.strip()
+                if _INT_RE.fullmatch(text) is None:
+                    continue
+                delta = int(text, 10)
+            else:
+                continue
+        else:
+            delta = 1
+
+        totals[name] = totals.get(name, 0) + delta
+
+    return [{'sku': key, 'total': totals[key]} for key in sorted(totals)]

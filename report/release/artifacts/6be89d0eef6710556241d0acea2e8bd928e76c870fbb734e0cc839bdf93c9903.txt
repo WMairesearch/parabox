@@ -1,0 +1,47 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if last_position[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record['bytes'] if 'bytes' in record else 1
+        if isinstance(number, str):
+            stripped = number.strip()
+            if not _INT_RE.fullmatch(stripped):
+                continue
+            number = int(stripped, 10)
+        elif type(number) is not int:
+            continue
+        total, count = totals.get(name, (0, 0))
+        totals[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': totals[name][0], 'count': totals[name][1]}
+        for name in sorted(totals)
+    ]

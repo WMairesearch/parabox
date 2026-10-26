@@ -1,0 +1,68 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _record_id(record):
+    """Return the record's id if it is a nonempty string, else None."""
+    if 'id' not in record:
+        return None
+    identifier = record['id']
+    if isinstance(identifier, str) and identifier != '':
+        return identifier
+    return None
+
+
+def _parse_delta(record):
+    """Return (True, value) when the delta is usable, else (False, None)."""
+    if 'delta' not in record:
+        return True, 1
+    delta = record['delta']
+    if isinstance(delta, bool):
+        return False, None
+    if isinstance(delta, int):
+        return True, int(delta)
+    if isinstance(delta, str):
+        text = delta.strip()
+        if _INTEGER.fullmatch(text):
+            return True, int(text, 10)
+        return False, None
+    return False, None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each valid id.
+    last_seen = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = _record_id(record)
+            if identifier is not None:
+                last_seen[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = _record_id(record)
+        if identifier is not None and last_seen.get(identifier) != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        ok, delta = _parse_delta(record)
+        if not ok:
+            continue
+        groups[name] = groups.get(name, 0) + delta
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

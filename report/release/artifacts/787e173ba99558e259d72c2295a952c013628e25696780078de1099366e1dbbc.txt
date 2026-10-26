@@ -1,0 +1,76 @@
+"""Inventory aggregation.
+
+Retains the last occurrence of each nonempty string ``id`` (deduplication
+happens before every other rule), drops non-object/inactive records, groups
+by the normalized ``sku`` (falling back to ``item``) and sums ``delta``.
+"""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _has_usable_id(record):
+    identifier = record.get('id')
+    return isinstance(identifier, str) and identifier != ''
+
+
+def _normalized_key(record):
+    """Return the stripped, nonempty key of a record, or None to skip it.
+
+    ``sku`` is used whenever that key is present; ``item`` is consulted only
+    when ``sku`` is entirely absent from the record.
+    """
+    if 'sku' in record:
+        raw = record['sku']
+    else:
+        raw = record.get('item')
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip()
+    return name or None
+
+
+def _delta(record):
+    """Return the record's delta as an int, or None when it must be skipped."""
+    if 'delta' not in record:
+        return 1
+    raw = record['delta']
+    if type(raw) is int:          # bools are excluded on purpose
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INTEGER.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: remember the position of the last occurrence of every
+    # usable id so earlier duplicates can be discarded.
+    last_seen = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict) and _has_usable_id(record):
+            last_seen[record['id']] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        if _has_usable_id(record) and last_seen.get(record['id']) != position:
+            continue                      # superseded duplicate
+        if record.get('active') is False:
+            continue
+        name = _normalized_key(record)
+        if name is None:
+            continue
+        delta = _delta(record)
+        if delta is None:
+            continue
+        totals[name] = totals.get(name, 0) + delta
+
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

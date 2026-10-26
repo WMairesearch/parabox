@@ -1,0 +1,70 @@
+"""Group event records by normalized category, keeping the maximum priority."""
+
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Pass 1: last occurrence of each nonempty string id wins.
+    # Deduplication happens before every other rule.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    # Pass 2: filter, normalize and group.
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        # 'category' wins; 'kind' is used only when 'category' is absent.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # 'priority' defaults to 1 only when the key is absent.
+        if 'priority' in record:
+            number = record['priority']
+        else:
+            number = 1
+
+        if isinstance(number, str):
+            text = number.strip()
+            if _PRIORITY_RE.fullmatch(text) is None:
+                continue
+            number = int(text, 10)
+        elif type(number) is not int:  # rejects bools, floats, None, etc.
+            continue
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

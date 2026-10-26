@@ -1,0 +1,80 @@
+import re
+
+BYTES_PATTERN = re.compile(r'^[+-]?[0-9]+$')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: Deduplication
+    # First retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent. Deduplicate before all other rules.
+    last_seen = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                last_seen[rec_id] = i
+
+    retained = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                if last_seen[rec_id] != i:
+                    continue
+        retained.append(record)
+
+    # Step 2: Processing and grouping
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            raw_path = record['path']
+        elif 'route' in record:
+            raw_path = record['route']
+        else:
+            continue
+
+        if not isinstance(raw_path, str):
+            continue
+        path = raw_path.strip()
+        if not path:
+            continue
+
+        if 'bytes' not in record:
+            num_bytes = 1
+        else:
+            raw_bytes = record['bytes']
+            if isinstance(raw_bytes, bool):
+                continue
+            elif isinstance(raw_bytes, int):
+                num_bytes = raw_bytes
+            elif isinstance(raw_bytes, str):
+                s = raw_bytes.strip()
+                if BYTES_PATTERN.match(s):
+                    num_bytes = int(s, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        if path not in groups:
+            groups[path] = [0, 0]
+        groups[path][0] += num_bytes
+        groups[path][1] += 1
+
+    result = []
+    for path in sorted(groups.keys()):
+        result.append({
+            'path': path,
+            'total': groups[path][0],
+            'count': groups[path][1],
+        })
+    return result

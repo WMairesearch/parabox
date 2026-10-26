@@ -1,0 +1,79 @@
+"""Inventory grouping per PROBLEM.md.
+
+Rules implemented (literal reading of the specification):
+  1. De-duplicate first: keep only the last occurrence of each nonempty string
+     'id' (compared raw, no stripping).  Records without such an id stay
+     independent.  This happens before every other rule.
+  2. Skip non-object records and records whose 'active' is false (strict
+     ``is False``; the spec is type-precise elsewhere, so 0/null/"" are kept).
+  3. Key = record['sku'] when the 'sku' key is present, otherwise record['item']
+     (fallback only when 'sku' is *absent*).  Skip non-string keys and keys that
+     are empty after stripping; otherwise strip surrounding whitespace.
+  4. 'delta' defaults to 1 only when the key is absent.  Accept ints (not bools)
+     and strings matching [+-]?[0-9]+ after stripping; convert with int(text, 10).
+     Everything else (including null) skips the record.
+  5. Group by normalized key, sum deltas, emit {'sku': ..., 'total': ...} sorted
+     lexicographically by 'sku'.  [] when nothing remains.  Input is never mutated.
+"""
+
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _amount(raw):
+    """Return the integer value of a 'delta' payload, or None when invalid."""
+    kind = type(raw)
+    if kind is int:
+        return raw
+    if kind is str:
+        text = raw.strip()
+        if _DELTA_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Pass 1: last index seen for every nonempty string id.
+    last_seen = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                last_seen[ident] = index
+
+    # Pass 2: filter, then accumulate.
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = record.get('id')
+        if isinstance(ident, str) and ident != '':
+            if last_seen[ident] != index:
+                continue
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            key = record['sku']
+        else:
+            key = record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        amount = _amount(record['delta'] if 'delta' in record else 1)
+        if amount is None:
+            continue
+
+        if key in groups:
+            groups[key] += amount
+        else:
+            groups[key] = amount
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

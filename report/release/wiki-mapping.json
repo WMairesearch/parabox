@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-26T10:07:17.896522+00:00",
+  "bindings": {
+    "public": {
+      "parabox/benchmark/protocol/config.py": "f68132ab9c3de9a68d7180fc9bbecc9fa049bca8be9936a1f8fe677a413a7b67",
+      "parabox/benchmark/protocol/design.py": "470a31f4330e64cf4ccfa8c6134fb67e7a61cf689ac9ffc02258e778ee034aeb",
+      "parabox/benchmark/prepare.py": "3796dea46874d066b23e3ad803b663228db896dabf7e7fe19350f726da78802e",
+      "parabox/benchmark/run.py": "a244ff2cde61c3ce1484c3256fb67a8e1a2cd6fc9f7f5f6ea0795e6cc87ce67b",
+      "parabox/benchmark/sources.py": "afd05afbe78af73ab16c7e657a40dd0493df1f74fae9f462067792410320a217",
+      "parabox/benchmark/assets/wiki-founders.json": "f0a2b4ab853a42e4419f7778b98c5e9986c68689675a005cfe69e46c20879139",
+      "parabox/tasks/wiki/episode.py": "f1d0ca48d625ab314f56000ef1605c23fd933d842f91c9f1b2884a39d0ec962e",
+      "parabox/tasks/wiki/runtime/budget.py": "bd9b6dcec2aa93e05aad49233698e1bb047e703812a3ffa0de8eca5b3236e47f",
+      "parabox/tasks/wiki/runtime/prompts.py": "ad969b5f1f2f77d57fc4306c0e58e050c1c370336d828645e769ebea4707ccad"
+    },
+    "original": {
+      "scripts/wiki_persistent_run.py": "c02b3cde3f65b9345baa8cfebcd380fd6c9ce392f58bf146873090904f88c300",
+      "scripts/wiki_recipient_run.py": "ebdaa22a998072f6c1acac6bf46917b02b0b5bcf3680db3d717a19eaf7bb6264",
+      "scripts/wiki_recipient_chains.py": "5b1402bdf9bd013356e95e84e49300971a2fdfa8c116afe2b4733b5e40e14d36",
+      "scripts/wiki_budget_episode.py": "d45156922442dece26b71614f3aa3fe959ed4dc683e8b3cc50699eb774b481d9",
+      "scripts/shared_test_wiki_episode.py": "0ae0052ae72d2b08b7e545d09c82544634d0580cfc92db361b93a28d67fc6ac5",
+      "scripts/shared_test_wiki_prompts.py": "54173e456ca4565b7bb2036ab5c3e231414aef135b1ec0e3cf52bf747de0d9f0"
+    }
+  },
+  "profile": "shared-work-published-wiki-v1",
+  "original_registration_sha256": "cb96f52bd6dc13fe52c8ca15c48c743bbe72c13d0a4745d19939eaf5ebd81b0d",
+  "scope": {
+    "models": 6,
+    "positions": 6,
+    "conditions": [
+      "empty_wiki",
+      "artifacts_only",
+      "full_wiki"
+    ],
+    "original_valid": 820,
+    "recovery_valid": 152,
+    "canonical_sessions": 972,
+    "public_core_sessions": 0,
+    "public_reference_sessions": 0
+  },
+  "checks": {
+    "canonical_schedule_and_surface_sha256": "19900bb9a2ff7f1520a8a41d0f3ba53d2825aca8f55947851fd98f64c0d97acc",
+    "original_schedule_and_surface_sha256": "19900bb9a2ff7f1520a8a41d0f3ba53d2825aca8f55947851fd98f64c0d97acc",
+    "all_972_package_successors_system_user_tools_workspace_equal": true,
+    "canonical_saved_prompt_mismatches": [],
+    "canonical_saved_workspace_manifest_mismatches": 0,
+    "initial_private_file_artifacts_verified": 978,
+    "initial_private_files_not_separately_archived": 3882,
+    "all_9_founder_delivered_file_manifests_equal": true,
+    "all_9_normalized_host_payloads_equal": true,
+    "matching_wave_orders": 36,
+    "total_wave_orders": 36
+  },
+  "per_model_surface_schedule_sha256": {
+    "deepseek-flash": "19a405dabb403bb4c803365a32669060d5da10578446c1bfab965745d984d240",
+    "gemini-flash": "7c379fb6d21cd3de47dea33fbec2e831f9e2856c7b6c14ea73385bfb2ea9cdc1",
+    "kimi": "8d2b6757875cce8a5cec77743a400460cb01bb4856b4a13f8c128ef4ba9093e0",
+    "qwen-max": "25f194b8cae1b903d1ad9aa07c2a3d63aea2ea8a569c78a1b2e64e4c7548a71e",
+    "deepseek-pro": "6f5fb9fddb214603e6e077f82ed51cfe7e1ad93738c7af6936c62508153025e1",
+    "gemini-pro": "6a48fc457543c9b2420c30cb26f06e699449057c20816b82cfbf84cc3ebd90fc"
+  },
+  "founders": {
+    "0:empty_wiki": {
+      "checkpoint_author": 0,
+      "files": {},
+      "public_payload_sha256": "9572a3eb66bd8346e0d381ba03f562bc3ee8b9a68261d3d109dc1616cc92ec25",
+      "original_payload_sha256": "eb4e7c2b9051beec4e5af827733f9bcb0e02cf97a2e10dc0cc0869a6103a0f3b"
+    },
+    "0:artifacts_only": {
+      "checkpoint_author": 0,
+      "files": {
+        "shared/wiki/cases.json": "ded49b9422656f1234c3bd28a3661382dac2f1ac7c4916384ebc21050c209741",
+        "shared/wiki/recover.py": "c69e467f6c4515e95f063aaa4d4b454e976efe3b6439683bc998c9f56ad81d75"
+      },
+      "public_payload_sha256": "4d0636c5f13d85f9bb1c6eb5f83809ca0633e687015f6ed252aa443d64e7de96",
+      "original_payload_sha256": "ff1b12e485fb3e0824f74143692f929600082a600eebd017058ae05c100b1adc"
+    },
+    "0:full_wiki": {
+      "checkpoint_author": 0,
+      "files": {
+        "shared/wiki/NOTES.md": "80cc9f022d361563f5870daebc3edb4044af7dcd428e3c53c252e8286d636117",
+        "shared/wiki/cases.json": "ded49b9422656f1234c3bd28a3661382dac2f1ac7c4916384ebc21050c209741",
+        "shared/wiki/recover.py": "c69e467f6c4515e95f063aaa4d4b454e976efe3b6439683bc998c9f56ad81d75"
+      },
+      "public_payload_sha256": "8ba72d2b928ee0351fbe2744482a2331cdaa1425e8693c41cfe2dbbbc8b2bc00",
+      "original_payload_sha256": "797e62bcef04c98c32dcdfb2c66cdd5cbaa0bb54ec54a8e3c33e5abb8432d59c"
+    },
+    "1:empty_wiki": {
+      "checkpoint_author": 0,
+      "files": {},
+      "public_payload_sha256": "c14a4c3117ddebf3bebe73bc2357f19bab3234d230fd8437212a04098b974042",
+      "original_payload_sha256": "a7f1f2dc733c9af40bfc49ad651a20cf2718b0b774cd50dbe809cdc8955f82f0"
+    },
+    "1:artifacts_only": {
+      "checkpoint_author": 0,
+      "files": {
+        "shared/wiki/cases.json": "c5d58d616ac07831f3359755900f275ad496afce28fb15b50557e72e3174a920",
+        "shared/wiki/harvest.py": "3bcbc89ee41ee7b33be1b7742941079ae45e3a44dc3774ad224b1ed48cde7b3f",
+        "shared/wiki/query.py": "549f10b44e3c8d83d11729ec71c3c6ed9633b2a9e1d8f4391633bf149af9c913",
+        "shared/wiki/raw_responses.jsonl": "3c7dab513c3f10122507e7a713f2976b5bd4c4f1ede2fe1c8fe2e7818658c5ac"
+      },
+      "public_payload_sha256": "bc2eb31856d4f40e702e0bf026370a874dff8ba4e1853d2485529f53dd75f0ef",
+      "original_payload_sha256": "30524afd4d3a5c8f392e648c674a8d2fc36d570a78b094523a9c4813fc22668f"
+    },
+    "1:full_wiki": {
+      "checkpoint_author": 0,
+      "files": {
+        "shared/wiki/NOTES.md": "3b974e6bed09ccc40497b1e82261dc14e3588b7e98d10c7b0d95d76f7d1e3d67",
+        "shared/wiki/cases.json": "c5d58d616ac07831f3359755900f275ad496afce28fb15b50557e72e3174a920",
+        "shared/wiki/harvest.py": "3bcbc89ee41ee7b33be1b7742941079ae45e3a44dc3774ad224b1ed48cde7b3f",
+        "shared/wiki/query.py": "549f10b44e3c8d83d11729ec71c3c6ed9633b2a9e1d8f4391633bf149af9c913",
+        "shared/wiki/raw_responses.jsonl": "3c7dab513c3f10122507e7a713f2976b5bd4c4f1ede2fe1c8fe2e7818658c5ac"
+      },
+      "public_payload_sha256": "e65ca1886e12404655a7d6610d6f97667fc244c04f45ef83e1c06e514b108fab",
+      "original_payload_sha256": "284fa5d653798a05641a540db80f3558d4ec5d5c20f16225453b2cc2d004496e"
+    },
+    "2:empty_wiki": {
+      "checkpoint_author": 0,
+      "files": {},
+      "public_payload_sha256": "40b20e2701ee95455df8241263aecca31f18c830300fbbdc33c721dd6eca22a3",
+      "original_payload_sha256": "07bfdd102b30986d399586813362c22967731425895864c0ee231e7b26f58ee8"
+    },
+    "2:artifacts_only": {
+      "checkpoint_author": 0,
+      "files": {
+        "shared/wiki/build.py": "2986623117c3fc8298939672036501cde4fd58a7eb07b7109dae2d2c417ad51c",
+        "shared/wiki/cases.json": "95e468cb1efc3f593ef0b21ce5664c86b62bc2a44079cd8ddd151fa6b8de0b76",
+        "shared/wiki/fetch.py": "6a69c0fa0ea04e51e8a842522e6762d3c998b5ca4755e0f70774a2cc7c91bec3",
+        "shared/wiki/raw.jsonl": "4bb1c5836c32c1a8fda01e9bf756f403e49fcfb50511e841d885310086207e9d"
+      },
+      "public_payload_sha256": "31ad166588e123ca90835b47af179efab424c1082f37baada262a94e20376081",
+      "original_payload_sha256": "4b5822df274b74d26b37a2cb23261c5f0de0f5208f1b92407431ef0fbeab8a57"
+    },
+    "2:full_wiki": {
+      "checkpoint_author": 0,
+      "files": {
+        "shared/wiki/build.py": "2986623117c3fc8298939672036501cde4fd58a7eb07b7109dae2d2c417ad51c",
+        "shared/wiki/cases.json": "95e468cb1efc3f593ef0b21ce5664c86b62bc2a44079cd8ddd151fa6b8de0b76",
+        "shared/wiki/fetch.py": "6a69c0fa0ea04e51e8a842522e6762d3c998b5ca4755e0f70774a2cc7c91bec3",
+        "shared/wiki/raw.jsonl": "4bb1c5836c32c1a8fda01e9bf756f403e49fcfb50511e841d885310086207e9d"
+      },
+      "public_payload_sha256": "85a71a20a6f3d145807e37417cbf1d756168c022f9a879e154dc41ebe44425d6",
+      "original_payload_sha256": "98e6f0249be87760d2f367bdae1bd6a4532562f2a01f78c9756cc629d423c291"
+    }
+  },
+  "waves": {
+    "wiki-deepseek-flash-p0": {
+      "public_sha256": "2cb907f827716d6d212fb28e7717d80626114cecfb6ae5f4d4dbe6a0cac1abc0",
+      "original_sha256": "2cb907f827716d6d212fb28e7717d80626114cecfb6ae5f4d4dbe6a0cac1abc0"
+    },
+    "wiki-deepseek-flash-p1": {
+      "public_sha256": "bb444b6233a5a458b1344c291b9a8e0b5e549bf4578f30f95e171cc8bfce4c32",
+      "original_sha256": "bb444b6233a5a458b1344c291b9a8e0b5e549bf4578f30f95e171cc8bfce4c32"
+    },
+    "wiki-deepseek-flash-p2": {
+      "public_sha256": "23c727011bf16f65eb3cda668e22b4732439add015b8a888946542d80ec856d8",
+      "original_sha256": "23c727011bf16f65eb3cda668e22b4732439add015b8a888946542d80ec856d8"
+    },
+    "wiki-deepseek-flash-p3": {
+      "public_sha256": "137ad97ac0f2395810afb8a400283bf3216641961b93e426b22926b3f549cecf",
+      "original_sha256": "137ad97ac0f2395810afb8a400283bf3216641961b93e426b22926b3f549cecf"
+    },
+    "wiki-deepseek-flash-p4": {
+      "public_sha256": "58c45fd72fa11330482c4e7802c48cfb786f9199592f2c33bbe2db74a2d3fbc8",
+      "original_sha256": "58c45fd72fa11330482c4e7802c48cfb786f9199592f2c33bbe2db74a2d3fbc8"
+    },
+    "wiki-deepseek-flash-p5": {
+      "public_sha256": "6a57bf98da9387efab3eabc9a97a7b8d6abb419c255a189c1394c205db5d727d",
+      "original_sha256": "6a57bf98da9387efab3eabc9a97a7b8d6abb419c255a189c1394c205db5d727d"
+    },
+    "wiki-gemini-flash-p0": {
+      "public_sha256": "4c5f73a04bdbec080a93732ccdbbb79eaf9f8a18c2e262a80c106d87cd6693b1",
+      "original_sha256": "4c5f73a04bdbec080a93732ccdbbb79eaf9f8a18c2e262a80c106d87cd6693b1"
+    },
+    "wiki-gemini-flash-p1": {
+      "public_sha256": "61a84ac8bd0ea0eb2b6313d0c4b4f57c8704ee5061d8d508cae9185db9e0068d",
+      "original_sha256": "61a84ac8bd0ea0eb2b6313d0c4b4f57c8704ee5061d8d508cae9185db9e0068d"
+    },
+    "wiki-gemini-flash-p2": {
+      "public_sha256": "92e795d75f2880a0322830d24f9cca0d925ee7e62d55a122f4d53b65ed9b85f2",
+      "original_sha256": "92e795d75f2880a0322830d24f9cca0d925ee7e62d55a122f4d53b65ed9b85f2"
+    },
+    "wiki-gemini-flash-p3": {
+      "public_sha256": "288b413d25d3c772e6912c1539c098382b84a2fd3117130f127663a14d3c3194",
+      "original_sha256": "288b413d25d3c772e6912c1539c098382b84a2fd3117130f127663a14d3c3194"
+    },
+    "wiki-gemini-flash-p4": {
+      "public_sha256": "c304e461052684f042254552b770dbe0b294ffc5920254cc7848eba3694054c5",
+      "original_sha256": "c304e461052684f042254552b770dbe0b294ffc5920254cc7848eba3694054c5"
+    },
+    "wiki-gemini-flash-p5": {
+      "public_sha256": "11050c43ad78a54d91be42d42afe90864f3c4ab4282fca0cfe153ca7d0944d92",
+      "original_sha256": "11050c43ad78a54d91be42d42afe90864f3c4ab4282fca0cfe153ca7d0944d92"
+    },
+    "wiki-kimi-p0": {
+      "public_sha256": "b0d47ef2df00105311b09bf1cbac193a7b39dd51a91c0e6e86096e9496e45910",
+      "original_sha256": "b0d47ef2df00105311b09bf1cbac193a7b39dd51a91c0e6e86096e9496e45910"
+    },
+    "wiki-kimi-p1": {
+      "public_sha256": "504dc4d51f75b1761d7794784dce22e061aad7de370cb13188fd8a64015651af",
+      "original_sha256": "504dc4d51f75b1761d7794784dce22e061aad7de370cb13188fd8a64015651af"
+    },
+    "wiki-kimi-p2": {
+      "public_sha256": "69bceb5b638da139dcb48e997195fef4bb45b0984d5eb63964fbeba616ea8aea",
+      "original_sha256": "69bceb5b638da139dcb48e997195fef4bb45b0984d5eb63964fbeba616ea8aea"
+    },
+    "wiki-kimi-p3": {
+      "public_sha256": "93fa96a25c2afe4f79fef31b2572d6e33641215e66ce5780b35f986ecc854eda",
+      "original_sha256": "93fa96a25c2afe4f79fef31b2572d6e33641215e66ce5780b35f986ecc854eda"
+    },
+    "wiki-kimi-p4": {
+      "public_sha256": "38e118b5d91b460ad466ba24eb0aad9a64b8b1a837dd0f50ae480325338f1789",
+      "original_sha256": "38e118b5d91b460ad466ba24eb0aad9a64b8b1a837dd0f50ae480325338f1789"
+    },
+    "wiki-kimi-p5": {
+      "public_sha256": "b313978735b23debee21d0c46b3d143419f29859284a8e402eaab2faf35f544d",
+      "original_sha256": "b313978735b23debee21d0c46b3d143419f29859284a8e402eaab2faf35f544d"
+    },
+    "wiki-qwen-max-p0": {
+      "public_sha256": "76f844c4df7a5f886bbc48199f74723b10e5f58a49433bf7948514f50e23147c",
+      "original_sha256": "76f844c4df7a5f886bbc48199f74723b10e5f58a49433bf7948514f50e23147c"
+    },
+    "wiki-qwen-max-p1": {
+      "public_sha256": "c0414e5be0e67f80af1c8f79df1d3eb6301db525e5938aaaf34de8a5b634f4a3",
+      "original_sha256": "c0414e5be0e67f80af1c8f79df1d3eb6301db525e5938aaaf34de8a5b634f4a3"
+    },
+    "wiki-qwen-max-p2": {
+      "public_sha256": "520304a19d4af40496a5c9e39c137e637af92d97baa2de3da1e98bbe205b92f2",
+      "original_sha256": "520304a19d4af40496a5c9e39c137e637af92d97baa2de3da1e98bbe205b92f2"
+    },
+    "wiki-qwen-max-p3": {
+      "public_sha256": "6c286e5fca29459aa6f8c9bd65e13089be3d0858f321268e304dce193eb752cf",
+      "original_sha256": "6c286e5fca29459aa6f8c9bd65e13089be3d0858f321268e304dce193eb752cf"
+    },
+    "wiki-qwen-max-p4": {
+      "public_sha256": "294c48454ed0382ad8621666c953bdd25da16836b6483ba64e8ff2a47b4078be",
+      "original_sha256": "294c48454ed0382ad8621666c953bdd25da16836b6483ba64e8ff2a47b4078be"
+    },
+    "wiki-qwen-max-p5": {
+      "public_sha256": "644d82bf8c030a2e38ae0f0ef1ac9bd10dd96203939ee0e870a32428044f576c",
+      "original_sha256": "644d82bf8c030a2e38ae0f0ef1ac9bd10dd96203939ee0e870a32428044f576c"
+    },
+    "wiki-deepseek-pro-p0": {
+      "public_sha256": "05b6fdc29cf1abf11ce526babd8ed9965ac7ef7b1716c66b059b21e64985b9b9",
+      "original_sha256": "05b6fdc29cf1abf11ce526babd8ed9965ac7ef7b1716c66b059b21e64985b9b9"
+    },
+    "wiki-deepseek-pro-p1": {
+      "public_sha256": "03374e0ab8e9faed4493a7510f652755d4979c28c31c1e00ee87f088ccb4d5f1",
+      "original_sha256": "03374e0ab8e9faed4493a7510f652755d4979c28c31c1e00ee87f088ccb4d5f1"
+    },
+    "wiki-deepseek-pro-p2": {
+      "public_sha256": "496e0c2d256f65a6efb2e293a42f42d838051baa8bd8402a7a4f3440e51eabfe",
+      "original_sha256": "496e0c2d256f65a6efb2e293a42f42d838051baa8bd8402a7a4f3440e51eabfe"
+    },
+    "wiki-deepseek-pro-p3": {
+      "public_sha256": "d36b4de7f9da851f1e038948c685a7b7aa280dd40625ec2283a131a2a176b026",
+      "original_sha256": "d36b4de7f9da851f1e038948c685a7b7aa280dd40625ec2283a131a2a176b026"
+    },
+    "wiki-deepseek-pro-p4": {
+      "public_sha256": "ca07e549df90e00fc95d1a9ce8affbcbea24f544b4b247a4c3ccdf1ab9cf9673",
+      "original_sha256": "ca07e549df90e00fc95d1a9ce8affbcbea24f544b4b247a4c3ccdf1ab9cf9673"
+    },
+    "wiki-deepseek-pro-p5": {
+      "public_sha256": "355e3282817e36a096ca6208fda66155423d0c38c097a95ef26165621d0add55",
+      "original_sha256": "355e3282817e36a096ca6208fda66155423d0c38c097a95ef26165621d0add55"
+    },
+    "wiki-gemini-pro-p0": {
+      "public_sha256": "89d44924a377e738c2daf6e6a8a19ccf47b30e12b9022b3caa7e8c84aff75dd7",
+      "original_sha256": "89d44924a377e738c2daf6e6a8a19ccf47b30e12b9022b3caa7e8c84aff75dd7"
+    },
+    "wiki-gemini-pro-p1": {
+      "public_sha256": "d8c35e3b9d74e7560b4a8c418ef0ae2378aa9d3bfac3c8607ce0f0619b34dc09",
+      "original_sha256": "d8c35e3b9d74e7560b4a8c418ef0ae2378aa9d3bfac3c8607ce0f0619b34dc09"
+    },
+    "wiki-gemini-pro-p2": {
+      "public_sha256": "adf6cb6d6e850a958a4792de784ebef6a9a27d01092171d87a24844450f9a9e9",
+      "original_sha256": "adf6cb6d6e850a958a4792de784ebef6a9a27d01092171d87a24844450f9a9e9"
+    },
+    "wiki-gemini-pro-p3": {
+      "public_sha256": "a05bb06b58a44c4ed3eccccfe367d127f7041970006637c330be6a0ed56c575d",
+      "original_sha256": "a05bb06b58a44c4ed3eccccfe367d127f7041970006637c330be6a0ed56c575d"
+    },
+    "wiki-gemini-pro-p4": {
+      "public_sha256": "dbdd7d1dc084529f7f6a55ba7312ffd8a3ac0c88b0856413a995286cde5f173a",
+      "original_sha256": "dbdd7d1dc084529f7f6a55ba7312ffd8a3ac0c88b0856413a995286cde5f173a"
+    },
+    "wiki-gemini-pro-p5": {
+      "public_sha256": "c7ac0787d0088b075b6ec6eedb99ddd3b0159a393f0ab8bb94da55d1c471b112",
+      "original_sha256": "c7ac0787d0088b075b6ec6eedb99ddd3b0159a393f0ab8bb94da55d1c471b112"
+    }
+  },
+  "differences": {
+    "payload_metadata": "Original additionally includes source_case_availability, final_source_case_availability, delivered_case_availability; these host-only fields are omitted in the public payload. All remaining fields and delivered bytes match.",
+    "wave_order": "No published-profile difference: both sort (score, condition, block), then shuffle with Random(20261019 + position). All 36 exact mapped sequences match; no model-specific seed. Legacy/default profiles retain their prior insertion order.",
+    "execution": "Original uses six concurrent model pipelines and four workers per model. The public benchmark runner iterates waves/chains serially for Wiki; declared worker limits are ceilings, not achieved concurrency.",
+    "deadline": "Original assigns a fresh 24-hour per-session deadline at claim. Public benchmark requires one caller-supplied overall deadline.",
+    "identity": "Public actor/chain names and phase benchmark_development differ from original recipient names/phase; matched identity here is (model, score, condition, block, position).",
+    "grading": "Canonical recovery uses qualified one-container-per-candidate/fresh-interpreter-per-case stage grading. Public grading uses one fresh container per case. Scoring semantics are retained; isolation and artifacts are not claimed byte-identical.",
+    "deployment": "Public model configuration paths, deployment endpoints, credentials and local immutable image must be supplied and bound afresh; this check does not assert identical new provider behavior or conversations."
+  },
+  "no_new_sessions": true
+}

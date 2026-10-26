@@ -1,0 +1,65 @@
+import re
+
+def solve(value):
+    # Step 1: Deduplication
+    valid_ids_last_pos = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != "":
+                valid_ids_last_pos[id_val] = i
+    
+    groups = {}
+    for i, record in enumerate(value):
+        # Apply deduplication
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != "":
+                if valid_ids_last_pos[id_val] != i:
+                    continue
+        
+        # Rule 2: Skip non-object records and records whose 'active' is false
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+            
+        # Rule 3: Read 'path', falling back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            path_val = record['path']
+        elif 'route' in record:
+            path_val = record['route']
+        else:
+            continue
+            
+        if not isinstance(path_val, str):
+            continue
+        path_val = path_val.strip()
+        if path_val == "":
+            continue
+            
+        # Rule 4: Read 'bytes', defaulting to 1 only when absent.
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            raw_bytes = record['bytes']
+            if type(raw_bytes) is int:
+                bytes_val = raw_bytes
+            elif isinstance(raw_bytes, str):
+                s_bytes = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s_bytes):
+                    bytes_val = int(s_bytes)
+                else:
+                    continue
+            else:
+                continue
+                
+        # Group
+        if path_val not in groups:
+            groups[path_val] = {'path': path_val, 'total': 0, 'count': 0}
+        groups[path_val]['total'] += bytes_val
+        groups[path_val]['count'] += 1
+        
+    result = list(groups.values())
+    result.sort(key=lambda x: x['path'])
+    return result

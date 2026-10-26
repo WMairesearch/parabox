@@ -1,0 +1,54 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    records = value if isinstance(value, list) else []
+
+    # Deduplicate before all other rules: retain only the last occurrence of
+    # each nonempty string 'id'; records without such an id stay independent.
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_position[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if (isinstance(identifier, str) and identifier != ''
+                    and last_position.get(identifier) != position):
+                continue
+        else:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record.get('sku')
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        number = record.get('delta', 1)
+        if type(number) is int:
+            delta = number
+        elif isinstance(number, str):
+            text = number.strip()
+            if not _DELTA_PATTERN.match(text):
+                continue
+            delta = int(text, 10)
+        else:
+            continue
+
+        totals[name] = totals.get(name, 0) + delta
+
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

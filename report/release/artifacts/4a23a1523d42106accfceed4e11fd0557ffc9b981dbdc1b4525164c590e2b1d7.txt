@@ -1,0 +1,75 @@
+"""Inventory grouping specification -- see PROBLEM.md.
+
+Rules implemented:
+  * keep only the LAST occurrence of each nonempty string 'id' (dedupe first,
+    before every other rule); records without such an id stay independent;
+  * skip non-object records and records whose 'active' is exactly false;
+  * group key = 'sku', falling back to 'item' only when the 'sku' KEY is absent
+    (present-but-null does NOT fall back); must be a string and nonempty after
+    stripping surrounding whitespace;
+  * number = 'delta', defaulting to 1 only when the KEY is absent; accepts ints
+    (never bools) and strings fullmatching [+-]?[0-9]+ after stripping;
+    everything else (null, floats, lists, dicts, malformed strings) skips the record;
+  * output {'sku', 'total'} per group, sorted lexicographically by 'sku';
+  * the input is never modified.
+"""
+
+import re
+
+_INTEGER_TEXT = re.compile(r'[+-]?[0-9]+')
+
+
+def _group_number(raw):
+    """Return the integer value of a raw 'delta', or None when it is invalid."""
+    if type(raw) is int:            # bools are excluded on purpose
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INTEGER_TEXT.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def _group_key(record):
+    """Return the stripped 'sku' (or 'item' fallback), or None when unusable."""
+    if 'sku' in record:
+        name = record['sku']
+    else:
+        name = record.get('item')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Pass 1: last occurrence wins for every nonempty string id.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    # Pass 2: filter, then accumulate sums per normalized sku.
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = _group_key(record)
+        if name is None:
+            continue
+        number = _group_number(record['delta'] if 'delta' in record else 1)
+        if number is None:
+            continue
+        totals[name] = totals.get(name, 0) + number
+
+    return [{'sku': sku, 'total': totals[sku]} for sku in sorted(totals)]

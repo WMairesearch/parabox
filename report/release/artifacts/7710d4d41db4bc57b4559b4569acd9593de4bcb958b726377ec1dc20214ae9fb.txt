@@ -1,0 +1,72 @@
+"""Inventory grouping.
+
+Rules (per PROBLEM.md):
+  * Keep only the last occurrence of each nonempty string 'id'; records without
+    such an id stay independent.  Deduplication happens before every other rule.
+  * Skip non-object records and records whose 'active' is false.
+  * Grouping key comes from 'sku', falling back to 'item' only when 'sku' is
+    absent.  Non-string or blank-after-stripping keys are skipped; keys are
+    stripped of surrounding whitespace.
+  * 'delta' defaults to 1 only when absent.  Integers (never booleans) and
+    strings matching [+-]?[0-9]+ after stripping are accepted; anything else
+    (including null) skips the record.
+  * Output objects hold 'sku' and the summed 'total', sorted by 'sku'.
+  * The input is never mutated.
+"""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if isinstance(value, tuple):
+        value = list(value)
+    if not isinstance(value, list):
+        return []
+
+    # --- 1. de-duplicate by 'id' (last occurrence wins) --------------------
+    retained = []
+    positions = {}
+    for record in value:
+        if isinstance(record, dict):
+            identity = record.get('id')
+            if isinstance(identity, str) and identity != '':
+                earlier = positions.get(identity)
+                if earlier is not None:
+                    retained[earlier] = None
+                positions[identity] = len(retained)
+        retained.append(record)
+
+    # --- 2. filter, normalize and accumulate ------------------------------
+    totals = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        key = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        if 'delta' in record:
+            amount = record['delta']
+            if type(amount) is int:
+                pass
+            elif isinstance(amount, str):
+                text = amount.strip()
+                if _INTEGER.fullmatch(text) is None:
+                    continue
+                amount = int(text)
+            else:
+                continue
+        else:
+            amount = 1
+
+        totals[key] = totals.get(key, 0) + amount
+
+    return [{'sku': sku, 'total': totals[sku]} for sku in sorted(totals)]

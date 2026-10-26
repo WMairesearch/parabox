@@ -1,0 +1,70 @@
+import re
+
+def solve(value):
+    # 1. Deduplicate by last occurrence of nonempty string 'id'
+    last_occurrences = {}
+    for i in range(len(value) - 1, -1, -1):
+        record = value[i]
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != '':
+                if id_val not in last_occurrences:
+                    last_occurrences[id_val] = i
+
+    groups = {}
+    
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != '':
+                if last_occurrences[id_val] != i:
+                    continue
+        
+        # Skip non-object records
+        if not isinstance(record, dict):
+            continue
+            
+        # Skip records whose 'active' is false
+        if record.get('active') is False:
+            continue
+            
+        # Read 'path', falling back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            key_val = record['path']
+        elif 'route' in record:
+            key_val = record['route']
+        else:
+            continue
+            
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace
+        if not isinstance(key_val, str):
+            continue
+        key_val = key_val.strip()
+        if not key_val:
+            continue
+            
+        # Read 'bytes', defaulting to 1 only when absent.
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            raw_bytes = record['bytes']
+            if type(raw_bytes) is int:
+                bytes_val = raw_bytes
+            elif type(raw_bytes) is str:
+                s = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    bytes_val = int(s)
+                else:
+                    continue
+            else:
+                continue
+                
+        # Group retained records
+        total, count = groups.get(key_val, (0, 0))
+        groups[key_val] = (total + bytes_val, count + 1)
+        
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'path': name, 'total': groups[name][0], 'count': groups[name][1]})
+    return result
+

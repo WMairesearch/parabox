@@ -1,0 +1,60 @@
+"""events: group active records by normalized category, keeping max priority.
+
+Rules implemented from PROBLEM.md:
+  * deduplicate first: only the last occurrence of each nonempty string 'id'
+    survives; records without such an id stay independent
+  * skip non-object records and records whose 'active' is exactly False
+  * 'category' is used, falling back to 'kind' only when 'category' is absent;
+    non-string / blank-after-strip values are skipped, kept values are stripped
+  * 'priority' defaults to 1 only when absent; ints (never bools) and strings
+    fully matching [+-]?[0-9]+ after stripping are accepted, everything else is
+    skipped
+  * group by category, emit {'category', 'maximum'}, sorted lexicographically
+    by category; [] when nothing remains; the input is never mutated
+"""
+
+import re
+
+_INTEGER_TEXT = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    last_index = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_index[identifier] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and last_index[identifier] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        category = record.get('category', record.get('kind'))
+        if not isinstance(category, str):
+            continue
+        category = category.strip()
+        if not category:
+            continue
+        priority = record.get('priority', 1)
+        if isinstance(priority, str):
+            text = priority.strip()
+            if _INTEGER_TEXT.fullmatch(text) is None:
+                continue
+            priority = int(text)
+        if type(priority) is not int:
+            continue
+        if category not in groups or priority > groups[category]:
+            groups[category] = priority
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

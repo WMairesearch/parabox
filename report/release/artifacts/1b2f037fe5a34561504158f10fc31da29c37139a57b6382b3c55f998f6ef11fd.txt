@@ -1,0 +1,52 @@
+import re
+
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate by id before applying any other rule.
+    # Only the last occurrence of each nonempty string id is retained.
+    # Records without a nonempty string id are kept independently.
+    latest_by_id = {}
+    independent = []
+    for record in value:
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                latest_by_id[record_id] = record
+                continue
+        independent.append(record)
+
+    groups = {}
+    for record in list(latest_by_id.values()) + independent:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read sku, falling back to item only when sku is absent.
+        if 'sku' in record:
+            key = record['sku']
+        else:
+            key = record.get('item')
+
+        if not isinstance(key, str) or not key.strip():
+            continue
+        sku = key.strip()
+
+        # Read delta, defaulting to 1 only when the key is absent.
+        if 'delta' in record:
+            delta = record['delta']
+            if isinstance(delta, str):
+                stripped = delta.strip()
+                if _DELTA_PATTERN.fullmatch(stripped):
+                    delta = int(stripped)
+            if type(delta) is not int:
+                continue
+        else:
+            delta = 1
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

@@ -1,0 +1,77 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _priority_of(record):
+    """Return the parsed priority, or None when the record must be skipped."""
+    if 'priority' in record:
+        raw = record['priority']
+    else:
+        return 1
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.fullmatch(text) is not None:
+            return int(text)
+    return None
+
+
+def _category_of(record):
+    """Return the normalized category, or None when the record must be skipped."""
+    if 'category' in record:
+        key = record['category']
+    else:
+        key = record.get('kind')
+    if not isinstance(key, str):
+        return None
+    key = key.strip()
+    if not key:
+        return None
+    return key
+
+
+def _record_id(record):
+    if isinstance(record, dict):
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '':
+            return rid
+    return None
+
+
+def solve(value):
+    if value is None:
+        return []
+    try:
+        total = len(value)
+    except TypeError:
+        return []
+
+    last_index = {}
+    for index in range(total):
+        rid = _record_id(value[index])
+        if rid is not None:
+            last_index[rid] = index
+
+    groups = {}
+    for index in range(total):
+        record = value[index]
+        if not isinstance(record, dict):
+            continue
+        rid = _record_id(record)
+        if rid is not None and last_index[rid] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        category = _category_of(record)
+        if category is None:
+            continue
+        priority = _priority_of(record)
+        if priority is None:
+            continue
+        current = groups.get(category)
+        if current is None or priority > current:
+            groups[category] = priority
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

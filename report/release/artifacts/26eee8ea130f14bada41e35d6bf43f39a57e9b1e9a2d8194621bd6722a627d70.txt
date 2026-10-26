@@ -1,0 +1,70 @@
+"""Events specification implementation (PUBLIC: solve)."""
+
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+_ABSENT = object()
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: retain only the last occurrence of each non-empty string id.
+    # Records without such an id stay independent. Do this before all else.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_position.get(identifier) != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        # category, falling back to kind only when category is absent
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # priority, defaulting to 1 only when absent
+        raw = record['priority'] if 'priority' in record else _ABSENT
+        if raw is _ABSENT:
+            number = 1
+        elif isinstance(raw, bool):
+            continue
+        elif isinstance(raw, int):
+            number = raw
+        elif isinstance(raw, str):
+            text = raw.strip()
+            if _NUMBER.fullmatch(text) is None:
+                continue
+            number = int(text, 10)
+        else:
+            continue
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

@@ -1,0 +1,45 @@
+import re
+import sys
+
+try:
+    sys.set_int_max_str_digits(0)
+except AttributeError:
+    pass
+
+_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record.get('category', record.get('kind'))
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        number = record.get('priority', 1)
+        if isinstance(number, str):
+            text = number.strip()
+            if not _PATTERN.fullmatch(text):
+                continue
+            number = int(text, 10)
+        if type(number) is not int:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

@@ -1,0 +1,72 @@
+import re
+
+def solve(value):
+    last_idx = {}
+    for i, rec in enumerate(value):
+        if isinstance(rec, dict):
+            if 'id' in rec:
+                r_id = rec['id']
+                if type(r_id) is str and r_id != "":
+                    last_idx[r_id] = i
+                    
+    retained = []
+    for i, rec in enumerate(value):
+        if isinstance(rec, dict):
+            if 'id' in rec:
+                r_id = rec['id']
+                if type(r_id) is str and r_id != "":
+                    if last_idx[r_id] != i:
+                        continue
+        retained.append(rec)
+        
+    groups = {}
+    for rec in retained:
+        if not isinstance(rec, dict):
+            continue
+            
+        if rec.get('active') is False:
+            continue
+            
+        if 'path' in rec:
+            raw_key = rec['path']
+        elif 'route' in rec:
+            raw_key = rec['route']
+        else:
+            continue
+            
+        if type(raw_key) is not str:
+            continue
+            
+        key = raw_key.strip()
+        if not key:
+            continue
+            
+        if 'bytes' not in rec:
+            b_val = 1
+        else:
+            raw_bytes = rec['bytes']
+            if type(raw_bytes) is int:
+                b_val = raw_bytes
+            elif type(raw_bytes) is str:
+                s_bytes = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s_bytes):
+                    b_val = int(s_bytes)
+                else:
+                    continue
+            else:
+                continue
+                
+        if key not in groups:
+            groups[key] = [0, 0]
+        groups[key][0] += b_val
+        groups[key][1] += 1
+        
+    result = []
+    for key in sorted(groups.keys()):
+        result.append({
+            'path': key,
+            'total': groups[key][0],
+            'count': groups[key][1]
+        })
+        
+    return result

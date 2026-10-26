@@ -1,0 +1,59 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group retained inventory records by normalized sku and sum deltas."""
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            key = record['sku']
+        else:
+            key = record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        if 'delta' in record:
+            number = record['delta']
+        else:
+            number = 1
+        if isinstance(number, str):
+            text = number.strip()
+            if not _DELTA_PATTERN.fullmatch(text):
+                continue
+            try:
+                number = int(text, 10)
+            except ValueError:
+                continue
+        elif type(number) is not int:
+            continue
+
+        totals[key] = totals.get(key, 0) + number
+
+    return [{'sku': key, 'total': totals[key]} for key in sorted(totals)]

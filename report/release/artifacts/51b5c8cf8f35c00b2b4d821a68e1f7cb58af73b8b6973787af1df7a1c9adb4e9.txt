@@ -1,0 +1,49 @@
+import re
+
+_INT_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Pass 1: remember the last position of every nonempty string id.
+    # De-duplication happens before all other rules.
+    last_seen = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_seen[rid] = index
+
+    maxima = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last_seen[rid] != index:
+            continue  # superseded by a later record with the same id
+        if record.get('active') is False:
+            continue
+        name = record['category'] if 'category' in record else record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == '':
+            continue
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                text = number.strip()
+                if _INT_PATTERN.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+        current = maxima.get(name)
+        if current is None or number > current:
+            maxima[name] = number
+
+    return [{'category': name, 'maximum': maxima[name]} for name in sorted(maxima)]

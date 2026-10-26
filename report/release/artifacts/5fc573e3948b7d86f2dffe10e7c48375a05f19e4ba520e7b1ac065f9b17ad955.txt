@@ -1,0 +1,58 @@
+import re
+
+_BYTES_PATTERN = re.compile(r"[+-]?[0-9]+")
+
+
+def _normalize_bytes(raw):
+    if type(raw) is int:            # bool excluded on purpose
+        return raw
+    if type(raw) is str:
+        text = raw.strip()
+        if _BYTES_PATTERN.fullmatch(text):
+            return int(text)
+    return None
+
+
+def solve(value):
+    if isinstance(value, (list, tuple)):
+        items = value
+    elif isinstance(value, (str, bytes, bytearray, dict)) or value is None:
+        return []
+    else:
+        try:
+            items = list(value)
+        except TypeError:
+            return []
+
+    # Retain only the LAST occurrence of each nonempty string id.
+    last_position = {}
+    for position, record in enumerate(items):
+        if isinstance(record, dict):
+            identifier = record.get("id")
+            if isinstance(identifier, str) and identifier != "":
+                last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(items):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get("id")
+        if isinstance(identifier, str) and identifier != "" \
+                and last_position.get(identifier) != position:
+            continue                                # deduped away
+        if record.get("active") is False:
+            continue                                # only JSON false skips
+        name = record.get("path") if "path" in record else record.get("route")
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == "":
+            continue
+        size = _normalize_bytes(record.get("bytes", 1))
+        if size is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + size, count + 1)
+
+    return [{"path": n, "total": groups[n][0], "count": groups[n][1]}
+            for n in sorted(groups)]

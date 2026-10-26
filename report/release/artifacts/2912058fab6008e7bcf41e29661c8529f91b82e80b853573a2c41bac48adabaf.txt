@@ -1,0 +1,66 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: keep only the last occurrence of
+    # each nonempty string 'id'.  Records without such an id stay independent.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            last_positions[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        record_id = record.get('id')
+        if (isinstance(record_id, str) and record_id != ''
+                and last_positions[record_id] != position):
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            raw_category = record['category']
+        else:
+            raw_category = record.get('kind')
+
+        if not isinstance(raw_category, str):
+            continue
+        category = raw_category.strip()
+        if not category:
+            continue
+
+        if 'priority' in record:
+            raw_priority = record['priority']
+            if type(raw_priority) is int:
+                priority = raw_priority
+            elif isinstance(raw_priority, str):
+                stripped = raw_priority.strip()
+                if _PRIORITY_RE.fullmatch(stripped):
+                    priority = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            priority = 1
+
+        if category in groups:
+            if priority > groups[category]:
+                groups[category] = priority
+        else:
+            groups[category] = priority
+
+    return [{'category': category, 'maximum': groups[category]}
+            for category in sorted(groups)]

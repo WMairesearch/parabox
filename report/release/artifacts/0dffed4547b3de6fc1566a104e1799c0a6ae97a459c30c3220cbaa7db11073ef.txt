@@ -1,0 +1,55 @@
+import re
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Dedup first: keep only the last occurrence of each nonempty string 'id'.
+    last_by_id = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_by_id[rid] = position
+    keep = set(last_by_id.values())
+
+    groups = {}
+    for position, record in enumerate(value):
+        if position in last_by_id.values() and position not in keep:
+            pass
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '' and position != last_by_id[rid]:
+                continue
+        else:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if not _BYTES_RE.fullmatch(stripped):
+                    continue
+                number = int(stripped)
+            elif type(number) is int:
+                pass
+            else:
+                continue
+        else:
+            number = 1
+        entry = groups.get(name)
+        if entry is None:
+            groups[name] = [number, 1]
+        else:
+            entry[0] += number
+            entry[1] += 1
+    return [{'path': n, 'total': groups[n][0], 'count': groups[n][1]}
+            for n in sorted(groups)]

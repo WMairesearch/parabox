@@ -1,0 +1,71 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _delta_of(record):
+    """Return the parsed delta, or None when the record must be skipped."""
+    if 'delta' in record:
+        raw = record['delta']
+    else:
+        return 1
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def _sku_of(record):
+    """Return the normalized sku, or None when the record must be skipped."""
+    key = record['sku'] if 'sku' in record else record.get('item')
+    if not isinstance(key, str):
+        return None
+    key = key.strip()
+    if not key:
+        return None
+    return key
+
+
+def _record_id(record):
+    rid = record.get('id')
+    if isinstance(rid, str) and rid != '':
+        return rid
+    return None
+
+
+def solve(value):
+    if isinstance(value, (str, bytes, bytearray)):
+        return []
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    last_index = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            rid = _record_id(record)
+            if rid is not None:
+                last_index[rid] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        rid = _record_id(record)
+        if rid is not None and last_index[rid] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        sku = _sku_of(record)
+        if sku is None:
+            continue
+        delta = _delta_of(record)
+        if delta is None:
+            continue
+        groups[sku] = groups.get(sku, 0) + delta
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

@@ -1,0 +1,66 @@
+"""access_logs: dedupe by id, filter, group by normalized path and sum bytes."""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Rule 1: keep only the last occurrence of each nonempty string 'id'.
+    # This happens before every other rule, so a later (even otherwise
+    # invalid) occurrence still shadows earlier ones.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if last_position[identifier] != position:
+                continue
+
+        # Only a literal boolean false deactivates a record.
+        if record.get('active') is False:
+            continue
+
+        # 'path' wins; 'route' is used only when 'path' is absent.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # 'bytes' defaults to 1 only when the key is absent.
+        number = record['bytes'] if 'bytes' in record else 1
+        if isinstance(number, str):
+            text = number.strip()
+            if not _INT_RE.fullmatch(text):
+                continue
+            try:
+                number = int(text, 10)
+            except ValueError:  # pragma: no cover - defensive
+                continue
+        elif type(number) is not int:
+            continue
+
+        total, count = totals.get(name, (0, 0))
+        totals[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': totals[name][0], 'count': totals[name][1]}
+        for name in sorted(totals)
+    ]

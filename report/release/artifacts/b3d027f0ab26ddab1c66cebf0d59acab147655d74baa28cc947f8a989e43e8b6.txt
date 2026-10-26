@@ -1,0 +1,87 @@
+import json
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _as_records(value):
+    """Return the input as a list of candidate records without mutating it."""
+    if isinstance(value, list):
+        return value
+    if isinstance(value, tuple):
+        return list(value)
+    if isinstance(value, (str, bytes, bytearray)):
+        try:
+            data = json.loads(value)
+        except Exception:
+            return []
+        if isinstance(data, list):
+            return data
+        return []
+    return []
+
+
+def _key_of(record):
+    """Normalized group key ('path', falling back to 'route' only when absent)."""
+    name = record['path'] if 'path' in record else record.get('route')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if not name:
+        return None
+    return name
+
+
+_MISSING = object()
+
+
+def _bytes_of(record):
+    """Byte amount for a record, or None when the record must be skipped."""
+    raw = record.get('bytes', _MISSING)
+    if raw is _MISSING:
+        return 1
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _NUMBER.match(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    records = _as_records(value)
+
+    # Keep only the last occurrence of every nonempty string 'id'; records
+    # without such an id stay independent.  Done before every other rule.
+    last = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            marker = record.get('id')
+            if isinstance(marker, str) and marker != '':
+                last[marker] = index
+
+    totals = {}
+    counts = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        marker = record.get('id')
+        if isinstance(marker, str) and marker != '' and last[marker] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        key = _key_of(record)
+        if key is None:
+            continue
+        amount = _bytes_of(record)
+        if amount is None:
+            continue
+        totals[key] = totals.get(key, 0) + amount
+        counts[key] = counts.get(key, 0) + 1
+
+    return [{'path': key, 'total': totals[key], 'count': counts[key]}
+            for key in sorted(totals)]

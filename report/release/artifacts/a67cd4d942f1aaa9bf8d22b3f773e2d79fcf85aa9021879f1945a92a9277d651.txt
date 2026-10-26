@@ -1,0 +1,71 @@
+"""Group event records, as specified in PROBLEM.md."""
+
+import re
+
+_PRIORITY = re.compile(r"[+-]?[0-9]+\Z")
+
+
+def solve(value):
+    """Group retained event records by category, returning max priority per group."""
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: only the last occurrence of each nonempty string id survives.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get("id")
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get("id")
+        if isinstance(identifier, str) and identifier:
+            if last_position[identifier] != position:
+                continue
+
+        if record.get("active") is False:
+            continue
+
+        # 'category' wins whenever the key is present; 'kind' is only a fallback.
+        if "category" in record:
+            raw_name = record["category"]
+        else:
+            raw_name = record.get("kind")
+        if not isinstance(raw_name, str):
+            continue
+        name = raw_name.strip()
+        if not name:
+            continue
+
+        # 'priority' defaults to 1 only when the key is absent.
+        if "priority" in record:
+            raw_priority = record["priority"]
+        else:
+            raw_priority = 1
+        if isinstance(raw_priority, str):
+            text = raw_priority.strip()
+            if not _PRIORITY.match(text):
+                continue
+            number = int(text, 10)
+        elif isinstance(raw_priority, bool):
+            continue
+        elif isinstance(raw_priority, int):
+            number = raw_priority
+        else:
+            continue
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [
+        {"category": name, "maximum": groups[name]}
+        for name in sorted(groups)
+    ]

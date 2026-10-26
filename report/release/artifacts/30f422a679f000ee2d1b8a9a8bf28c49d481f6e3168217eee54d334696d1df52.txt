@@ -1,0 +1,39 @@
+import re
+
+
+def solve(value):
+    # Rule 1 (first): keep only the last occurrence of each nonempty string id.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id:
+                last_positions[record_id] = position
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if (isinstance(record_id, str) and record_id
+                and last_positions[record_id] != position):
+            continue
+        if record.get('active') is False:
+            continue
+        name = record.get('category', record.get('kind'))
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        number = record.get('priority', 1)
+        if isinstance(number, str):
+            stripped = number.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                number = int(stripped, 10)
+        if type(number) is not int:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

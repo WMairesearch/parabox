@@ -1,0 +1,40 @@
+import re
+
+
+def solve(value):
+    # Pass 1: dedupe by nonempty string 'id', keeping only the last
+    # occurrence. Records without such an id remain independent.
+    # This happens before all other rules: even if the last occurrence
+    # is later skipped, earlier records with the same id are dropped.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        # 'item' fallback only when 'sku' key is absent (sku:null does not fall back).
+        if 'sku' in record:
+            name = record.get('sku')
+        else:
+            name = record.get('item')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        # 'delta' defaults to 1 only when absent; null present => skip.
+        number = record['delta'] if 'delta' in record else 1
+        if isinstance(number, str) and re.fullmatch(r'[+-]?[0-9]+', number.strip()):
+            number = int(number.strip(), 10)
+        if type(number) is not int:  # excludes bool, float, None, other
+            continue
+        groups[name] = groups.get(name, 0) + number
+    # Sort results lexicographically by 'sku'.
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

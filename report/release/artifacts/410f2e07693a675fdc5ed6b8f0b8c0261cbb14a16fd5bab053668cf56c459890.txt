@@ -1,0 +1,104 @@
+"""Group access-log records by normalized path.
+
+Rules implemented (see PROBLEM.md):
+  * Deduplicate first: keep only the last occurrence of each nonempty string 'id'.
+    Records without such an id stay independent.
+  * Skip non-object records and records whose 'active' is false.
+  * Key comes from 'path', falling back to 'route' only when 'path' is absent;
+    it must be a string that is nonempty after stripping; strip surrounding space.
+  * 'bytes' defaults to 1 when absent; accepts ints (never bools) and strings
+    matching [+-]?[0-9]+ after stripping; every other value (incl. null) skips
+    the record.
+  * Group by normalized path, summing bytes as 'total' and counting as 'count'.
+  * Sort lexicographically by 'path'; return [] when nothing remains.
+  * The input is never modified.
+"""
+
+import re
+
+_BYTES = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _records(value):
+    """Return an iterable-safe snapshot of the incoming records."""
+    if isinstance(value, (list, tuple)):
+        return list(value)
+    if value is None or isinstance(value, (bool, int, float, str, bytes, dict)):
+        return []
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def _dedup_key(record):
+    if isinstance(record, dict):
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            return identifier
+    return None
+
+
+def _deduplicate(records):
+    """Retain only the last occurrence of each nonempty string id."""
+    last_seen = {}
+    for position, record in enumerate(records):
+        key = _dedup_key(record)
+        if key is not None:
+            last_seen[key] = position
+    kept = []
+    for position, record in enumerate(records):
+        key = _dedup_key(record)
+        if key is None or last_seen.get(key) == position:
+            kept.append(record)
+    return kept
+
+
+def _path_key(record):
+    """Normalized path/route string, or None when the record must be skipped."""
+    if 'path' in record:
+        raw = record['path']
+    else:
+        raw = record.get('route')
+    if not isinstance(raw, str):
+        return None
+    normalized = raw.strip()
+    if not normalized:
+        return None
+    return normalized
+
+
+def _bytes_value(record):
+    """Accepted byte count as an int, or None when the record must be skipped."""
+    if 'bytes' in record:
+        raw = record['bytes']
+    else:
+        raw = 1
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _BYTES.match(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    groups = {}
+    for record in _deduplicate(_records(value)):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        key = _path_key(record)
+        if key is None:
+            continue
+        number = _bytes_value(record)
+        if number is None:
+            continue
+        total, count = groups.get(key, (0, 0))
+        groups[key] = (total + number, count + 1)
+    return [{'path': key, 'total': groups[key][0], 'count': groups[key][1]}
+            for key in sorted(groups)]

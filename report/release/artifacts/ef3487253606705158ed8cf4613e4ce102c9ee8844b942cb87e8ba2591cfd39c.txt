@@ -1,0 +1,82 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _bytes_of(record):
+    """Return the parsed byte count, or None when the record must be skipped."""
+    if 'bytes' in record:
+        raw = record['bytes']
+    else:
+        return 1
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def _path_of(record):
+    """Return the normalized path, or None when the record must be skipped."""
+    if 'path' in record:
+        key = record['path']
+    else:
+        key = record.get('route')
+    if not isinstance(key, str):
+        return None
+    key = key.strip()
+    if not key:
+        return None
+    return key
+
+
+def _record_id(record):
+    rid = record.get('id')
+    if isinstance(rid, str) and rid != '':
+        return rid
+    return None
+
+
+def _records(value):
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def solve(value):
+    records = _records(value)
+
+    last_index = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            rid = _record_id(record)
+            if rid is not None:
+                last_index[rid] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        rid = _record_id(record)
+        if rid is not None and last_index[rid] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        path = _path_of(record)
+        if path is None:
+            continue
+        size = _bytes_of(record)
+        if size is None:
+            continue
+        entry = groups.get(path)
+        if entry is None:
+            groups[path] = [size, 1]
+        else:
+            entry[0] += size
+            entry[1] += 1
+
+    return [{'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+            for name in sorted(groups)]

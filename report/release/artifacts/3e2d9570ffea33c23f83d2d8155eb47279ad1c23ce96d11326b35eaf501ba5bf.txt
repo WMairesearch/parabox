@@ -1,0 +1,49 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # Deduplicate first: keep only the LAST occurrence of each nonempty string id.
+    last = {}
+    for pos, rec in enumerate(records):
+        if isinstance(rec, dict):
+            ident = rec.get('id')
+            if isinstance(ident, str) and ident:
+                last[ident] = pos
+
+    best = {}
+    for pos, rec in enumerate(records):
+        if not isinstance(rec, dict):
+            continue
+        ident = rec.get('id')
+        if isinstance(ident, str) and ident and last.get(ident) != pos:
+            continue
+        if rec.get('active') is False:
+            continue
+        name = rec['category'] if 'category' in rec else rec.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'priority' in rec:
+            number = rec['priority']
+            if isinstance(number, str):
+                text = number.strip()
+                if not _INT_RE.fullmatch(text):
+                    continue
+                number = int(text)
+            if type(number) is not int:
+                continue
+        else:
+            number = 1
+        if name not in best or number > best[name]:
+            best[name] = number
+
+    return [{'category': n, 'maximum': best[n]} for n in sorted(best)]

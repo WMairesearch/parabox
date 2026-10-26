@@ -1,0 +1,73 @@
+import re
+
+_INT_RE = re.compile(r"[+-]?[0-9]+")
+
+
+def _record_id(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    if isinstance(record, dict):
+        rid = record.get("id")
+        if isinstance(rid, str) and rid != "":
+            return rid
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: keep only the last occurrence of each nonempty string id.
+    last_position = {}
+    for position, record in enumerate(value):
+        rid = _record_id(record)
+        if rid is not None:
+            last_position[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # Skip non-object records.
+        if not isinstance(record, dict):
+            continue
+
+        # Deduplicate on id (the last occurrence wins; earlier ones are dropped).
+        rid = _record_id(record)
+        if rid is not None and last_position[rid] != position:
+            continue
+
+        # Skip explicitly inactive records.
+        if record.get("active") is False:
+            continue
+
+        # 'path' wins when the key is present; 'route' is only a fallback.
+        if "path" in record:
+            name = record["path"]
+        else:
+            name = record.get("route")
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Bytes: default 1 only when the key is absent.
+        if "bytes" in record:
+            number = record["bytes"]
+            if isinstance(number, str):
+                text = number.strip()
+                if not _INT_RE.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            elif type(number) is int:
+                pass
+            else:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {"path": path, "total": groups[path][0], "count": groups[path][1]}
+        for path in sorted(groups)
+    ]

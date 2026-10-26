@@ -1,0 +1,16 @@
+{
+  "models": {
+    "deepseek-flash": "configs/model-deepseek.json",
+    "deepseek-pro": "configs/model-deepseek-v4-pro.json",
+    "gemini-flash": "configs/model-gemini-3-8-flash.json",
+    "gemini-pro": "configs/model-gemini.json",
+    "kimi": "configs/model-bailian-kimi-k3.json",
+    "qwen-max": "configs/model-bailian-qwen3-8-max.json"
+  },
+  "image": "sha256:f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+  "seed": 311681134383369942404476000178309190974,
+  "seats": 1,
+  "protocol": "repeated",
+  "profile": "historical-v1",
+  "transport_profile": "json-900-v1"
+}

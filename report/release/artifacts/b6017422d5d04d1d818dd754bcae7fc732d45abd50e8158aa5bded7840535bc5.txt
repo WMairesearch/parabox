@@ -1,0 +1,80 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Step 1: Deduplication by 'id'
+    last_indices = {}
+    for idx, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                last_indices[rec_id] = idx
+
+    retained = []
+    for idx, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                if last_indices[rec_id] != idx:
+                    continue
+        retained.append(record)
+
+    groups = {}
+
+    for record in retained:
+        # Step 2: Skip non-object records and records whose 'active' is false
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Step 3: Read 'path', falling back to 'route' only when 'path' is absent
+        if 'path' in record:
+            raw_path = record['path']
+        elif 'route' in record:
+            raw_path = record['route']
+        else:
+            continue
+
+        if not isinstance(raw_path, str):
+            continue
+        path = raw_path.strip()
+        if not path:
+            continue
+
+        # Step 4: Read 'bytes', defaulting to 1 only when absent
+        if 'bytes' not in record:
+            num_bytes = 1
+        else:
+            raw_bytes = record['bytes']
+            if isinstance(raw_bytes, bool):
+                continue
+            elif isinstance(raw_bytes, int):
+                num_bytes = raw_bytes
+            elif isinstance(raw_bytes, str):
+                s = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    num_bytes = int(s, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        # Step 5: Group retained records by normalized 'path'
+        if path not in groups:
+            groups[path] = [0, 0]
+        groups[path][0] += num_bytes
+        groups[path][1] += 1
+
+    # Step 6: Build result sorted lexicographically by 'path'
+    result = []
+    for path in sorted(groups.keys()):
+        result.append({
+            'path': path,
+            'total': groups[path][0],
+            'count': groups[path][1]
+        })
+    return result

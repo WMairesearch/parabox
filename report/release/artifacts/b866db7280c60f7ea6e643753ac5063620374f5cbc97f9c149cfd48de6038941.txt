@@ -1,0 +1,65 @@
+"""Inventory aggregation: group deltas by normalized sku."""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _is_dedup_key(record):
+    """True when the record carries a nonempty string 'id' (compared literally)."""
+    if not isinstance(record, dict):
+        return False
+    ident = record.get('id')
+    return isinstance(ident, str) and ident != ''
+
+
+def _parse_delta(raw):
+    """Return an int for accepted values, else None."""
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # 1. Deduplicate first: keep only the last occurrence of each nonempty
+    #    string 'id'.  Records without such an id stay independent.
+    last_index = {}
+    for position, record in enumerate(records):
+        if _is_dedup_key(record):
+            last_index[record['id']] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        if _is_dedup_key(record) and last_index.get(record['id']) != position:
+            continue
+        # 2. Skip inactive records (strict identity with boolean False).
+        if record.get('active') is False:
+            continue
+        # 3. Key: 'sku', falling back to 'item' only when 'sku' is absent.
+        key = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+        # 4. Value: 'delta', defaulting to 1 only when absent.
+        delta = _parse_delta(record['delta']) if 'delta' in record else 1
+        if delta is None:
+            continue
+        groups[key] = groups.get(key, 0) + delta
+
+    # 5. Emit sorted, freshly built objects; never mutate the input.
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

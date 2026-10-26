@@ -1,0 +1,58 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group retained event records by category and report max priority."""
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string id.  Records without such an id are independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        # Fall back to 'kind' only when 'category' is absent.
+        name = record.get('category', record.get('kind'))
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Default is used only when the key is absent.
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                text = number.strip()
+                if not _INTEGER.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            elif type(number) is not int:  # excludes bool and all non-ints
+                continue
+        else:
+            number = 1
+
+        previous = groups.get(name)
+        if previous is None or number > previous:
+            groups[name] = number
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

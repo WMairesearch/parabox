@@ -1,0 +1,51 @@
+import re
+
+
+def solve(value):
+    # Dedup: retain only the last occurrence of each nonempty string 'id'.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record.get('category')
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record.get('priority', 1)
+        if isinstance(number, bool):
+            continue
+        if isinstance(number, int):
+            pass
+        elif isinstance(number, str):
+            stripped = number.strip()
+            if not re.fullmatch(r'[+-]?[0-9]+', stripped):
+                continue
+            number = int(stripped, 10)
+        else:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    result = [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]
+    return result

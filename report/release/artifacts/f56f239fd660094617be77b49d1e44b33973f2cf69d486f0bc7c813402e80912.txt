@@ -1,0 +1,79 @@
+"""Aggregate access-log records according to the access_logs specification."""
+
+import re
+
+
+# ASCII digits only, as required by the specification.
+_BYTES_RE = re.compile(r"[+-]?[0-9]+")
+
+
+def solve(value):
+    """Return grouped access-log totals for the records in *value*.
+
+    The input is never modified.  Deduplication by a nonempty string ``id``
+    happens first; all remaining filtering and normalization is performed
+    afterwards.
+    """
+    records = list(value)
+
+    # Deduplication must happen before every other rule.  Determine the final
+    # occurrence of each nonempty string id, while leaving records without
+    # such an id independent.
+    last_occurrence = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get("id")
+            if isinstance(identifier, str) and identifier != "":
+                last_occurrence[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        # Skip anything that is not an object.
+        if not isinstance(record, dict):
+            continue
+
+        # A retained record is discarded if it was superseded by a later
+        # occurrence of its nonempty string id.
+        identifier = record.get("id")
+        if isinstance(identifier, str) and identifier != "":
+            if last_occurrence[identifier] != position:
+                continue
+
+        # Only the JSON boolean false suppresses a record.
+        if record.get("active") is False:
+            continue
+
+        # 'route' is a fallback only when 'path' is entirely absent.
+        if "path" in record:
+            raw_path = record["path"]
+        else:
+            raw_path = record.get("route")
+        if not isinstance(raw_path, str):
+            continue
+        path = raw_path.strip()
+        if not path:
+            continue
+
+        # Default only when the key is absent.  A present but invalid value
+        # (including null) causes this record to be skipped.
+        if "bytes" in record:
+            raw_bytes = record["bytes"]
+            if type(raw_bytes) is int:
+                amount = raw_bytes
+            elif isinstance(raw_bytes, str):
+                text = raw_bytes.strip()
+                if _BYTES_RE.fullmatch(text) is None:
+                    continue
+                amount = int(text, 10)
+            else:
+                continue
+        else:
+            amount = 1
+
+        total, count = groups.get(path, (0, 0))
+        groups[path] = (total + amount, count + 1)
+
+    return [
+        {"path": path, "total": groups[path][0], "count": groups[path][1]}
+        for path in sorted(groups)
+    ]

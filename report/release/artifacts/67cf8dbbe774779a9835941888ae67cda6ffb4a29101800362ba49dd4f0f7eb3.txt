@@ -1,0 +1,62 @@
+import re
+
+def solve(value):
+    seen_ids = set()
+    retained = []
+    for record in reversed(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and len(rec_id) > 0:
+                if rec_id in seen_ids:
+                    continue
+                seen_ids.add(rec_id)
+        retained.append(record)
+    
+    retained.reverse()
+
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        
+        if 'path' in record:
+            path_val = record['path']
+        elif 'route' in record:
+            path_val = record['route']
+        else:
+            continue
+            
+        if not isinstance(path_val, str):
+            continue
+            
+        path_val = path_val.strip()
+        if not path_val:
+            continue
+            
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            bytes_val = record['bytes']
+            
+        if type(bytes_val) is int:
+            num = bytes_val
+        elif isinstance(bytes_val, str):
+            s = bytes_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', s):
+                num = int(s)
+            else:
+                continue
+        else:
+            continue
+            
+        if path_val not in groups:
+            groups[path_val] = {'path': path_val, 'total': 0, 'count': 0}
+            
+        groups[path_val]['total'] += num
+        groups[path_val]['count'] += 1
+        
+    result = list(groups.values())
+    result.sort(key=lambda x: x['path'])
+    return result

@@ -1,0 +1,51 @@
+import re
+
+_DIGITS = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    """Group inventory deltas by normalized SKU per the specification."""
+    if not isinstance(value, list):
+        return []
+
+    # --- Deduplication stage: keep only the last record for each nonempty
+    # string id.  Records without such an id are independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_position[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_position.get(identifier) != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        key = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        delta = record['delta'] if 'delta' in record else 1
+        if isinstance(delta, str):
+            stripped = delta.strip()
+            if not _DIGITS.match(stripped):
+                continue
+            delta = int(stripped, 10)
+        elif type(delta) is not int:
+            continue
+
+        totals[key] = totals.get(key, 0) + delta
+
+    return [{'sku': sku, 'total': totals[sku]} for sku in sorted(totals)]

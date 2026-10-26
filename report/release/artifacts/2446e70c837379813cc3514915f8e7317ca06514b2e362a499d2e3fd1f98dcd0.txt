@@ -1,0 +1,64 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group inventory records as described in PROBLEM.md."""
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last record for each nonempty
+    # string id.  Records without such an id are left untouched.
+    last_index = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            last_index[identifier] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        # Drop earlier occurrences of a repeated id.
+        identifier = record.get('id')
+        if (isinstance(identifier, str) and identifier != ''
+                and last_index.get(identifier) != index):
+            continue
+
+        # Skip explicitly inactive records (JSON false, not merely falsy).
+        if record.get('active') is False:
+            continue
+
+        # Prefer 'sku'; fall back to 'item' only if 'sku' is absent.
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Default delta to 1 only when the key is absent.
+        if 'delta' not in record:
+            number = 1
+        else:
+            number = record['delta']
+            if isinstance(number, str):
+                text = number.strip()
+                if _DELTA_RE.fullmatch(text):
+                    number = int(text, 10)
+                else:
+                    continue
+            elif type(number) is not int:  # excludes bool, float, None, ...
+                continue
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]}
+            for name in sorted(groups)]

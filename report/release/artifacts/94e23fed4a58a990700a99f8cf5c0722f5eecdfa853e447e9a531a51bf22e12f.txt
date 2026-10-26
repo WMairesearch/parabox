@@ -1,0 +1,47 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Deduplicate before all other rules: retain only the last occurrence of
+    # each nonempty string 'id'. Records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record.get('category', record.get('kind'))
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record.get('priority', 1)
+        if isinstance(number, str):
+            text = number.strip()
+            if not _INT_RE.fullmatch(text):
+                continue
+            number = int(text, 10)
+        if type(number) is not int:
+            continue
+        previous = groups.get(name)
+        if previous is None or number > previous:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': maximum}
+            for name, maximum in sorted(groups.items())]

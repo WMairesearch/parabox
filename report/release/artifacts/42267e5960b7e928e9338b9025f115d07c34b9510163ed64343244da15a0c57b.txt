@@ -1,0 +1,65 @@
+import re
+
+_DIGITS = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group access-log records per PROBLEM.md and return sorted results."""
+    if not isinstance(value, list):
+        return []
+
+    # Rule 0: deduplicate first -- keep only the last occurrence of each
+    # nonempty string 'id'.  Records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        # Deduplicate (must happen before every other rule).
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest.get(identifier) != position:
+                continue
+
+        # Skip explicitly inactive records.
+        if record.get('active') is False:
+            continue
+
+        # 'path' wins; fall back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # 'bytes' defaults to 1 only when the key is absent.
+        if 'bytes' not in record:
+            number = 1
+        else:
+            number = record['bytes']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if not _DIGITS.fullmatch(stripped):
+                    continue
+                number = int(stripped, 10)
+            elif type(number) is not int:
+                continue
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

@@ -1,0 +1,65 @@
+import re
+
+PRIORITY_RE = re.compile(r'^[+-]?[0-9]+$')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    last_id_indices = {}
+    for idx, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                last_id_indices[rec_id] = idx
+
+    groups = {}
+    for idx, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        rec_id = record.get('id')
+        if isinstance(rec_id, str) and rec_id:
+            if last_id_indices[rec_id] != idx:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            raw_cat = record['category']
+        elif 'kind' in record:
+            raw_cat = record['kind']
+        else:
+            continue
+
+        if not isinstance(raw_cat, str):
+            continue
+
+        norm_cat = raw_cat.strip()
+        if not norm_cat:
+            continue
+
+        if 'priority' not in record:
+            priority = 1
+        else:
+            raw_p = record['priority']
+            if type(raw_p) is int:
+                priority = raw_p
+            elif isinstance(raw_p, str):
+                stripped_p = raw_p.strip()
+                if PRIORITY_RE.fullmatch(stripped_p):
+                    priority = int(stripped_p, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        if norm_cat not in groups or priority > groups[norm_cat]:
+            groups[norm_cat] = priority
+
+    result = []
+    for cat in sorted(groups):
+        result.append({'category': cat, 'maximum': groups[cat]})
+    return result

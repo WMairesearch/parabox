@@ -1,0 +1,72 @@
+import json
+import re
+
+def solve(value):
+    records = json.loads(value)
+    
+    seen_ids = set()
+    retained_records = []
+    
+    for record in reversed(records):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                if rec_id in seen_ids:
+                    continue
+                else:
+                    seen_ids.add(rec_id)
+        
+        retained_records.append(record)
+        
+    retained_records.reverse()
+    
+    groups = {}
+    
+    for record in retained_records:
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'path' in record:
+            path = record['path']
+        elif 'route' in record:
+            path = record['route']
+        else:
+            continue
+            
+        if not isinstance(path, str):
+            continue
+            
+        path = path.strip()
+        if path == '':
+            continue
+            
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            b = record['bytes']
+            if isinstance(b, bool):
+                continue
+            elif isinstance(b, int):
+                bytes_val = b
+            elif isinstance(b, str):
+                b_str = b.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', b_str):
+                    bytes_val = int(b_str)
+                else:
+                    continue
+            else:
+                continue
+                
+        if path not in groups:
+            groups[path] = {'path': path, 'total': 0, 'count': 0}
+        
+        groups[path]['total'] += bytes_val
+        groups[path]['count'] += 1
+        
+    result = list(groups.values())
+    result.sort(key=lambda x: x['path'])
+    
+    return json.dumps(result)

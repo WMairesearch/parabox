@@ -1,0 +1,71 @@
+import re
+import sys
+
+try:
+    sys.set_int_max_str_digits(1000000)
+except Exception:
+    pass
+
+BYTES_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _record_id(record):
+    if isinstance(record, dict):
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '':
+            return rid
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    last_occurrence = {}
+    for index, record in enumerate(value):
+        rid = _record_id(record)
+        if rid is not None:
+            last_occurrence[rid] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        rid = _record_id(record)
+        if rid is not None and last_occurrence[rid] != index:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'bytes' in record:
+            number = record['bytes']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if not BYTES_PATTERN.fullmatch(text):
+                    continue
+                number = int(text)
+            else:
+                continue
+        else:
+            number = 1
+        entry = groups.get(name)
+        if entry is None:
+            groups[name] = [number, 1]
+        else:
+            entry[0] += number
+            entry[1] += 1
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

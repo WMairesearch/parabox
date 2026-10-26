@@ -1,0 +1,71 @@
+import re
+
+
+def solve(value):
+    # First, retain only the last occurrence of each nonempty string id.
+    # Records without such an id remain independent.
+    keep = set()
+    last_id_index = {}
+
+    def nonempty_id(record):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                return identifier
+        return None
+
+    for index, record in enumerate(value):
+        identifier = nonempty_id(record)
+        if identifier is None:
+            keep.add(index)
+        else:
+            previous = last_id_index.get(identifier)
+            if previous is not None:
+                keep.discard(previous)
+            last_id_index[identifier] = index
+            keep.add(index)
+
+    groups = {}
+
+    for index in keep:
+        record = value[index]
+        if not isinstance(record, dict):
+            continue
+
+        # Skip records explicitly marked active false.
+        if record.get('active') is False:
+            continue
+
+        # sku, falling back to item only when sku is absent.
+        if 'sku' in record:
+            sku = record['sku']
+        else:
+            sku = record.get('item')
+
+        if not isinstance(sku, str) or not sku.strip():
+            continue
+        sku = sku.strip()
+
+        # delta defaults to 1 only when absent.
+        if 'delta' not in record:
+            number = 1
+        else:
+            delta = record['delta']
+            if type(delta) is int:
+                number = delta
+            elif isinstance(delta, str):
+                stripped = delta.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + number
+
+    result = [
+        {'sku': sku, 'total': groups[sku]}
+        for sku in sorted(groups)
+    ]
+    return result

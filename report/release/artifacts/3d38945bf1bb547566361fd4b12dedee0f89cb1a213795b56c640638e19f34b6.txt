@@ -1,0 +1,49 @@
+"""Inventory grouping per PROBLEM.md (spec-literal implementation)."""
+import re
+
+_DELTA = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Pass 1: dedupe -- record the last position of each nonempty string 'id'.
+    # Records without such an id (absent, non-string, or empty) stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # Skip non-object records.
+        if not isinstance(record, dict):
+            continue
+        # Dedupe before all other rules: drop superseded earlier occurrences.
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        # Skip records whose 'active' is false (JSON boolean literal).
+        if record.get('active') is False:
+            continue
+        # 'sku', falling back to 'item' only when the 'sku' key is absent.
+        name = record.get('sku', record.get('item'))
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:  # empty after stripping
+            continue
+        # 'delta': default 1 only when absent; ints (not bools) and digit strings.
+        number = record.get('delta', 1)
+        if isinstance(number, str):
+            text = number.strip()
+            if not _DELTA.fullmatch(text):
+                continue
+            number = int(text)
+        elif type(number) is not int:
+            # bool, float, null, list, dict, ... -> skip
+            continue
+        groups[name] = groups.get(name, 0) + number
+
+    # Sort results lexicographically by 'sku'; [] when nothing remains.
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

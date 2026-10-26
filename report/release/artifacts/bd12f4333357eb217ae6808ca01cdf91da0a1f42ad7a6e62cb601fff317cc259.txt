@@ -1,0 +1,56 @@
+import re
+import sys
+
+try:
+    sys.set_int_max_str_digits(0)
+except (AttributeError, ValueError):
+    pass
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate: retain only the last occurrence of each nonempty string 'id'.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if (isinstance(identifier, str) and identifier
+                and latest[identifier] != position):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if not _PRIORITY_PATTERN.fullmatch(stripped):
+                    continue
+                number = int(stripped)
+            elif type(number) is not int:  # rejects booleans and others
+                continue
+        else:
+            number = 1
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

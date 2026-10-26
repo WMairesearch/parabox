@@ -1,0 +1,67 @@
+import re
+
+
+def solve(value):
+    # Deduplicate first: for each nonempty string 'id', keep only the last
+    # occurrence. Records without such an id remain independent.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_positions[identifier] = position
+
+    deduplicated = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                if last_positions[identifier] == position:
+                    deduplicated.append(record)
+            else:
+                deduplicated.append(record)
+        else:
+            deduplicated.append(record)
+
+    groups = {}
+    for record in deduplicated:
+        if not isinstance(record, dict):
+            continue
+
+        # Drop records whose 'active' member is JSON false.
+        if record.get('active') is False:
+            continue
+
+        # 'path' falls back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            raw_path = record['path']
+        else:
+            raw_path = record.get('route')
+
+        if not isinstance(raw_path, str) or not raw_path.strip():
+            continue
+        path = raw_path.strip()
+
+        # 'bytes' defaults to 1 only when the key is absent.
+        if 'bytes' in record:
+            raw_bytes = record['bytes']
+            if type(raw_bytes) is int:
+                number = raw_bytes
+            elif isinstance(raw_bytes, str):
+                stripped = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(path, (0, 0))
+        groups[path] = (total + number, count + 1)
+
+    return [
+        {'path': path, 'total': total, 'count': count}
+        for path, (total, count) in sorted(groups.items())
+    ]

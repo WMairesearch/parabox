@@ -1,0 +1,72 @@
+import re
+
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Step 1: deduplicate by nonempty string id, keeping only the last
+    # occurrence of each distinct id. Records without such an id are kept.
+    last_index_by_id = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_index_by_id[record_id] = index
+
+    records = []
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_index_by_id[record_id] != index:
+                    continue
+        records.append(record)
+
+    groups = {}
+
+    # Step 2: apply the remaining filters and aggregate.
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+
+        # 'active' equal to JSON false means the record is skipped.  A
+        # missing 'active' or any other value is not the boolean false.
+        if record.get('active') is False:
+            continue
+
+        # Path is read from 'path'; only when 'path' is absent do we fall
+        # back to 'route'.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Bytes default to 1 only when the key is absent.  Integers (but
+        # not booleans) and suitably formatted strings are accepted.
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                number = number.strip()
+                if _BYTES_RE.fullmatch(number):
+                    number = int(number)
+                else:
+                    continue
+            if type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': total, 'count': count}
+        for name, (total, count) in sorted(groups.items())
+    ]

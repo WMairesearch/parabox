@@ -1,0 +1,76 @@
+import re
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _normalized_id(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and len(ident) > 0:
+        return ident
+    return None
+
+
+def _last_positions(value):
+    """Map each nonempty-string id to the index of its final occurrence."""
+    last = {}
+    for position, record in enumerate(value):
+        ident = _normalized_id(record)
+        if ident is not None:
+            last[ident] = position
+    return last
+
+
+def _record_bytes(record):
+    """Return the byte count for a record, or None if it must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    raw = record['bytes']
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _BYTES_RE.match(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    last = _last_positions(value)
+    retained_ids = set(last.values())
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = _normalized_id(record)
+        if ident is not None and position not in retained_ids:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        amount = _record_bytes(record)
+        if amount is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + amount, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

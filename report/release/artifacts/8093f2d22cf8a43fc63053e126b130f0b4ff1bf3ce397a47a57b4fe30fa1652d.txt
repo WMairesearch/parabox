@@ -1,0 +1,91 @@
+"""Group event records by category and report the maximum priority per category.
+
+Rules (see PROBLEM.md):
+  * Deduplicate first: keep only the last occurrence of every record that has a
+    nonempty string 'id'.  Records without such an id stay independent.
+  * Skip non-object records and records whose 'active' is false.
+  * Category comes from 'category', falling back to 'kind' only when the
+    'category' key is absent.  Non-string or blank-after-strip keys are skipped;
+    otherwise surrounding whitespace is stripped.
+  * Priority defaults to 1 only when the key is absent.  Integers (never
+    booleans) and strings matching [+-]?[0-9]+ after stripping are accepted;
+    every other value (including null) causes the record to be skipped.
+  * Group by normalized category, emit {'category', 'maximum'} objects sorted
+    lexicographically by category.  The input is never modified.
+"""
+
+import re
+
+_PRIORITY_PATTERN = re.compile(r"[+-]?[0-9]+")
+
+
+def _normalize_priority(raw):
+    """Return the integer priority for *raw*, or None when it is unusable."""
+    if type(raw) is int:
+        return raw
+    if type(raw) is str:
+        text = raw.strip()
+        if _PRIORITY_PATTERN.fullmatch(text):
+            return int(text)
+    return None
+
+
+def _records(value):
+    """Yield the top-level elements of *value* without mutating anything."""
+    if isinstance(value, (list, tuple)):
+        for record in value:
+            yield record
+        return
+    if isinstance(value, (str, bytes, bytearray)):
+        return
+    try:
+        iterator = iter(value)
+    except TypeError:
+        return
+    for record in iterator:
+        yield record
+
+
+def solve(value):
+    items = list(_records(value))
+
+    # Pass 1: locate the final position of every nonempty string id.
+    last_position = {}
+    for position, record in enumerate(items):
+        if type(record) is dict or isinstance(record, dict):
+            identifier = record.get("id")
+            if isinstance(identifier, str) and identifier != "":
+                last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(items):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get("id")
+        if (
+            isinstance(identifier, str)
+            and identifier != ""
+            and last_position.get(identifier) != position
+        ):
+            continue
+        if record.get("active") is False:
+            continue
+        if "category" in record:
+            name = record.get("category")
+        else:
+            name = record.get("kind")
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == "":
+            continue
+        priority = _normalize_priority(record.get("priority", 1))
+        if priority is None:
+            continue
+        previous = groups.get(name)
+        if previous is None or priority > previous:
+            groups[name] = priority
+
+    return [
+        {"category": name, "maximum": groups[name]} for name in sorted(groups)
+    ]

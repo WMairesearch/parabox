@@ -1,0 +1,63 @@
+import re
+
+PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    # Rule 1 (before all others): keep only the last occurrence of each
+    # nonempty string 'id'; records without such an id stay independent.
+    last_by_id = {}
+    id_order = []
+    independent = []
+    for record in value:
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                if rid not in last_by_id:
+                    id_order.append(rid)
+                last_by_id[rid] = record
+                continue
+        independent.append(record)
+    records = independent + [last_by_id[rid] for rid in id_order]
+
+    groups = {}
+    for record in records:
+        # Skip non-object records.
+        if not isinstance(record, dict):
+            continue
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+        # 'category' with fallback to 'kind' only when 'category' is absent.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # 'priority': default 1 only when absent.
+        if 'priority' not in record:
+            number = 1
+        else:
+            p = record['priority']
+            if isinstance(p, bool):
+                continue
+            if isinstance(p, int):
+                number = p
+            elif isinstance(p, str):
+                s = p.strip()
+                if not PRIORITY_PATTERN.match(s):
+                    continue
+                number = int(s, 10)
+            else:
+                continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

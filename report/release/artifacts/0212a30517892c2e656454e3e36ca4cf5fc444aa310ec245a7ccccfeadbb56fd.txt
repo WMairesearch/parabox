@@ -1,0 +1,64 @@
+import re
+
+
+def solve(value):
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string 'id'; records without such an id remain independent.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_positions[identifier] = position
+
+    groups = {}
+
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                if position != last_positions[identifier]:
+                    continue
+
+        if not isinstance(record, dict):
+            continue
+
+        # Skip records explicitly marked inactive.
+        if record.get('active') is False:
+            continue
+
+        # 'path' takes precedence; fall back to 'route' only when the
+        # 'path' key is entirely absent.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        # Bytes default to 1 only when the key is absent.  Booleans are
+        # not accepted as integers.
+        if 'bytes' in record:
+            number = record['bytes']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

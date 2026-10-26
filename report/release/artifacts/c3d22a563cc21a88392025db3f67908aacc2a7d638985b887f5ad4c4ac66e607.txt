@@ -1,0 +1,76 @@
+import re
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+        
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            record_id = record['id']
+            if isinstance(record_id, str) and record_id != "":
+                last_occurrence[record_id] = i
+
+    retained_indices = set(last_occurrence.values())
+
+    grouped = {}
+
+    for i, record in enumerate(value):
+        is_valid_id = False
+        if isinstance(record, dict) and 'id' in record:
+             record_id = record['id']
+             if isinstance(record_id, str) and record_id != "":
+                 is_valid_id = True
+        
+        if is_valid_id and i not in retained_indices:
+            continue
+            
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'path' in record:
+            raw_key = record['path']
+        elif 'route' in record:
+            raw_key = record['route']
+        else:
+            continue
+            
+        if not isinstance(raw_key, str):
+            continue
+            
+        key = raw_key.strip()
+        if key == "":
+            continue
+            
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            raw_bytes = record['bytes']
+            if isinstance(raw_bytes, int) and not isinstance(raw_bytes, bool):
+                bytes_val = raw_bytes
+            elif isinstance(raw_bytes, str):
+                stripped_bytes = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_bytes):
+                    bytes_val = int(stripped_bytes)
+                else:
+                    continue
+            else:
+                continue
+                
+        if key not in grouped:
+            grouped[key] = {'total': 0, 'count': 0}
+        grouped[key]['total'] += bytes_val
+        grouped[key]['count'] += 1
+
+    result = []
+    for key in sorted(grouped.keys()):
+        result.append({
+            'path': key,
+            'total': grouped[key]['total'],
+            'count': grouped[key]['count']
+        })
+        
+    return result

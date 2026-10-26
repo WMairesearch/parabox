@@ -1,0 +1,73 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _records(value):
+    """Yield the records of value without mutating it; tolerate odd inputs."""
+    if value is None:
+        return []
+    if isinstance(value, (list, tuple)):
+        return list(value)
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def solve(value):
+    records = _records(value)
+
+    # Rule 1: deduplicate FIRST, keeping only the last occurrence of each
+    # nonempty string 'id' (raw, unstripped). Records without such an id are
+    # independent. Computed over every object record, before other filtering.
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        # Rule 2: skip non-object records and inactive ones (strict False).
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+
+        # Rule 3: key from 'path' when present, else 'route'.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Rule 4: 'bytes' defaults to 1 only when absent.
+        if 'bytes' in record:
+            number = record['bytes']
+        else:
+            number = 1
+        if isinstance(number, str):
+            text = number.strip()
+            if not _INTEGER.fullmatch(text):
+                continue
+            number = int(text)
+        if type(number) is not int:
+            continue
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    # Rule 5: sorted lexicographically by path.
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

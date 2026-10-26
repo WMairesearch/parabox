@@ -1,0 +1,70 @@
+import re
+
+def solve(value):
+    seen_ids = set()
+    retained_records = []
+    
+    for record in reversed(value):
+        has_id = False
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if type(rec_id) is str and rec_id != "":
+                has_id = True
+                
+        if has_id:
+            if rec_id in seen_ids:
+                continue
+            seen_ids.add(rec_id)
+        
+        retained_records.append(record)
+        
+    retained_records.reverse()
+    
+    groups = {}
+    for record in retained_records:
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'category' in record:
+            cat_raw = record['category']
+        elif 'kind' in record:
+            cat_raw = record['kind']
+        else:
+            continue
+            
+        if type(cat_raw) is not str:
+            continue
+            
+        cat = cat_raw.strip()
+        if not cat:
+            continue
+            
+        if 'priority' not in record:
+            pri = 1
+        else:
+            p_raw = record['priority']
+            if type(p_raw) is int:
+                pri = p_raw
+            elif type(p_raw) is str:
+                s = p_raw.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    pri = int(s)
+                else:
+                    continue
+            else:
+                continue
+                
+        if cat not in groups:
+            groups[cat] = pri
+        else:
+            if pri > groups[cat]:
+                groups[cat] = pri
+                
+    result = []
+    for cat in sorted(groups.keys()):
+        result.append({"category": cat, "maximum": groups[cat]})
+        
+    return result

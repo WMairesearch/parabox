@@ -1,0 +1,40 @@
+import re
+
+
+def solve(value):
+    # Pass 1: locate the last occurrence of each nonempty string 'id'.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+    # Pass 2: apply remaining rules to retained records.
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record['delta'] if 'delta' in record else 1
+        if isinstance(number, str):
+            stripped = number.strip()
+            if not re.fullmatch(r'[+-]?[0-9]+', stripped):
+                continue
+            number = int(stripped)
+        if type(number) is not int:
+            continue
+        groups[name] = groups.get(name, 0) + number
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

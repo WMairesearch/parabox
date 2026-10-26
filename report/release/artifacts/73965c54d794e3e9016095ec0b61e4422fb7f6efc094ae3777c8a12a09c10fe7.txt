@@ -1,0 +1,64 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group inventory records by a normalised sku and sum their deltas."""
+    if not isinstance(value, list):
+        return []
+
+    # Pass 1: locate the last occurrence of every nonempty string id.
+    last_position = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            last_position[record_id] = position
+
+    # Pass 2: filter, normalise and aggregate.
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            if last_position.get(record_id) != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            raw_key = record['sku']
+        elif 'item' in record:
+            raw_key = record['item']
+        else:
+            continue
+        if not isinstance(raw_key, str):
+            continue
+        key = raw_key.strip()
+        if not key:
+            continue
+
+        if 'delta' in record:
+            raw_delta = record['delta']
+        else:
+            raw_delta = 1
+        if isinstance(raw_delta, bool):
+            continue
+        if isinstance(raw_delta, int):
+            delta = raw_delta
+        elif isinstance(raw_delta, str):
+            text = raw_delta.strip()
+            if _INT_RE.fullmatch(text) is None:
+                continue
+            delta = int(text, 10)
+        else:
+            continue
+
+        groups[key] = groups.get(key, 0) + delta
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

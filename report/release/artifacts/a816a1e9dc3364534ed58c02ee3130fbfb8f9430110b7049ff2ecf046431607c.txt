@@ -1,0 +1,49 @@
+import re
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # Dedup FIRST: last occurrence of each nonempty string id (raw, unstripped).
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if not re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    continue
+                number = int(stripped)
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

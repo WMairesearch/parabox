@@ -1,0 +1,66 @@
+import re
+
+def solve(value):
+    last_idx = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != "":
+                last_idx[id_val] = i
+                
+    grouped = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != "":
+                if last_idx[id_val] != i:
+                    continue
+                    
+        if not isinstance(record, dict):
+            continue
+            
+        if 'active' in record and record['active'] is False:
+            continue
+            
+        if 'category' in record:
+            cat_val = record['category']
+        elif 'kind' in record:
+            cat_val = record['kind']
+        else:
+            continue
+            
+        if not isinstance(cat_val, str):
+            continue
+            
+        cat_val = cat_val.strip()
+        if cat_val == "":
+            continue
+            
+        if 'priority' not in record:
+            priority = 1
+        else:
+            pri_val = record['priority']
+            if isinstance(pri_val, bool):
+                continue
+            elif isinstance(pri_val, int):
+                priority = pri_val
+            elif isinstance(pri_val, str):
+                pri_val_stripped = pri_val.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', pri_val_stripped):
+                    priority = int(pri_val_stripped)
+                else:
+                    continue
+            else:
+                continue
+                
+        if cat_val not in grouped:
+            grouped[cat_val] = priority
+        else:
+            if priority > grouped[cat_val]:
+                grouped[cat_val] = priority
+                
+    result = []
+    for cat in sorted(grouped.keys()):
+        result.append({'category': cat, 'maximum': grouped[cat]})
+        
+    return result

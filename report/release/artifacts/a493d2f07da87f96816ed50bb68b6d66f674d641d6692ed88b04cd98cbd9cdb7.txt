@@ -1,0 +1,61 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate first: keep only the last occurrence of each
+    # nonempty string 'id'. Records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+
+        # 'category' wins when present; 'kind' is only a fallback.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                text = number.strip()
+                if _INTEGER.fullmatch(text):
+                    number = int(text, 10)
+                else:
+                    continue
+            elif type(number) is int:
+                pass
+            else:
+                continue
+        else:
+            number = 1
+        if type(number) is not int:
+            continue
+
+        if name not in groups or number > groups[name]:
+            groups[name] = number
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

@@ -1,0 +1,66 @@
+"""Inventory aggregation per PROBLEM.md.
+
+solve(value) takes a JSON list of records and returns a JSON list of
+{"sku": ..., "total": ...} objects sorted lexicographically by "sku".
+The input is never mutated.
+"""
+
+import re
+
+_INT = re.compile(r'[+-]?[0-9]+')
+_MISSING = object()
+
+
+def _as_int(value):
+    """Return an int for an accepted delta value, else None."""
+    if type(value) is int:          # booleans are excluded by the type check
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INT.fullmatch(text):
+            return int(text)        # base-10 conversion
+    return None
+
+
+def solve(value):
+    records = value if isinstance(value, (list, tuple)) else []
+    count = len(records)
+
+    # Rule 1 (before everything else): keep only the last occurrence of each
+    # nonempty string id.  Records without such an id stay independent.
+    last_seen = {}
+    for index in range(count):
+        record = records[index]
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                last_seen[ident] = index
+
+    totals = {}
+    for index in range(count):
+        record = records[index]
+        if not isinstance(record, dict):
+            continue
+        ident = record.get('id')
+        if isinstance(ident, str) and ident != '' and last_seen.get(ident) != index:
+            continue
+        if record.get('active') is False:
+            continue
+
+        # 'item' is a fallback only when the 'sku' key is absent.
+        key = record['sku'] if 'sku' in record else record.get('item', _MISSING)
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        # 'delta' defaults to 1 only when the key is absent.
+        delta = record['delta'] if 'delta' in record else 1
+        number = _as_int(delta)
+        if number is None:
+            continue
+
+        totals[key] = totals.get(key, 0) + number
+
+    return [{'sku': sku, 'total': totals[sku]} for sku in sorted(totals)]

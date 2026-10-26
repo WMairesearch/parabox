@@ -1,0 +1,47 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record['bytes'] if 'bytes' in record else 1
+        if isinstance(number, str):
+            text = number.strip()
+            if not _NUMBER.fullmatch(text):
+                continue
+            number = int(text, 10)
+        elif type(number) is not int:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [{'path': path, 'total': total, 'count': count}
+            for path, (total, count) in sorted(groups.items())]

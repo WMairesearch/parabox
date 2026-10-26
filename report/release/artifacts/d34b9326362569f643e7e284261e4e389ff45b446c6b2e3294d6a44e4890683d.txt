@@ -1,0 +1,70 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _last_ids(value):
+    """Return set of positions to drop so only the last occurrence of each
+    nonempty string id remains."""
+    last = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                last[ident] = position
+    drop = set()
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                if last[ident] != position:
+                    drop.add(position)
+    return drop
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    drop = _last_ids(value)
+
+    groups = {}
+    for position, record in enumerate(value):
+        if position in drop:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        if 'priority' in record:
+            number = record['priority']
+        else:
+            number = 1
+        if isinstance(number, str):
+            text = number.strip()
+            if _PRIORITY_RE.fullmatch(text):
+                number = int(text, 10)
+            else:
+                continue
+        elif type(number) is not int:
+            continue
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    result = []
+    for name in sorted(groups):
+        result.append({'category': name, 'maximum': groups[name]})
+    return result

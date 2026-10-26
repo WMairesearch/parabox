@@ -1,0 +1,93 @@
+"""access_logs: group retained log records by normalized path.
+
+Spec (PROBLEM.md):
+  * Deduplicate FIRST: for every object record whose 'id' is a nonempty string,
+    keep only the LAST occurrence; records without such an id stay independent.
+  * Skip non-object records and records whose 'active' is false.
+  * Key: 'path', falling back to 'route' only when 'path' is ABSENT.
+    Skip non-string keys; strip surrounding whitespace; skip empty results.
+  * 'bytes': default 1 only when ABSENT.  Accept ints (not bools) and strings
+    full-matching [+-]?[0-9]+ after stripping; anything else (null, floats,
+    lists, ...) skips the record.
+  * Group by normalized path -> {'path', 'total' (sum), 'count'}; sorted by path.
+  * Never mutate the input.
+"""
+
+import re
+
+_INTEGER = re.compile(r"[+-]?[0-9]+")
+
+
+def _deduplicate(records):
+    """Keep only the last occurrence of each nonempty string 'id'."""
+    last = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            ident = record.get("id")
+            if isinstance(ident, str) and ident != "":
+                last[ident] = position
+    kept = []
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            ident = record.get("id")
+            if isinstance(ident, str) and ident != "" and last[ident] != position:
+                continue
+        kept.append(record)
+    return kept
+
+
+def _key_of(record):
+    if "path" in record:
+        candidate = record["path"]
+    else:
+        candidate = record.get("route")
+    if not isinstance(candidate, str):
+        return None
+    candidate = candidate.strip()
+    if not candidate:
+        return None
+    return candidate
+
+
+def _bytes_of(record):
+    if "bytes" in record:
+        number = record["bytes"]
+    else:
+        number = 1
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _INTEGER.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if isinstance(value, (list, tuple)):
+        records = list(value)
+    else:
+        return []
+
+    groups = {}
+    for record in _deduplicate(records):
+        if not isinstance(record, dict):
+            continue
+        if record.get("active") is False:
+            continue
+        key = _key_of(record)
+        if key is None:
+            continue
+        amount = _bytes_of(record)
+        if amount is None:
+            continue
+        total, count = groups.get(key, (0, 0))
+        groups[key] = (total + amount, count + 1)
+
+    return [
+        {"path": path, "total": pair[0], "count": pair[1]}
+        for path, pair in sorted(groups.items())
+    ]

@@ -1,0 +1,67 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    # Deduplicate before all other rules: keep only the last occurrence of
+    # each nonempty string 'id'.  Records without such an id stay untouched.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_position[record_id] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_position[record_id] != position:
+                    continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        # Category is used when present; otherwise fall back to kind.
+        if 'category' in record:
+            category = record['category']
+        else:
+            category = record.get('kind')
+
+        if not isinstance(category, str) or not category.strip():
+            continue
+        category = category.strip()
+
+        if 'priority' in record:
+            priority = record['priority']
+            if type(priority) is int:
+                number = priority
+            elif isinstance(priority, str):
+                priority_text = priority.strip()
+                if _PRIORITY_RE.fullmatch(priority_text):
+                    number = int(priority_text)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        if category in groups:
+            if number > groups[category]:
+                groups[category] = number
+        else:
+            groups[category] = number
+
+    return [
+        {'category': category, 'maximum': groups[category]}
+        for category in sorted(groups)
+    ]

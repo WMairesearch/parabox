@@ -1,0 +1,38 @@
+import re
+
+
+def solve(value):
+    # Deduplicate first: retain only the last occurrence of each nonempty
+    # string 'id'; records without such an id remain independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        # 'route' is a fallback only when 'path' is absent.
+        name = record.get('path', record.get('route'))
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        # 'bytes' defaults to 1 only when absent.
+        number = record.get('bytes', 1)
+        if isinstance(number, str) and re.fullmatch(r'[+-]?[0-9]+', number.strip()):
+            number = int(number.strip())
+        if type(number) is not int:  # excludes booleans and everything else
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

@@ -1,0 +1,66 @@
+"""Inventory aggregation: solve(value) -> list of {'sku': str, 'total': int}."""
+
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _deduped(records):
+    """Keep only the last occurrence of each nonempty string 'id'."""
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key != '':
+                last_position[key] = position
+    kept = []
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key != '':
+                if last_position[key] != position:
+                    continue
+        kept.append(record)
+    return kept
+
+
+def _delta(record):
+    """Return the integer delta, or None when the record must be skipped."""
+    if 'delta' in record:
+        raw = record['delta']
+    else:
+        return 1
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _DELTA_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+    totals = {}
+    for record in _deduped(records):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = _delta(record)
+        if number is None:
+            continue
+        totals[name] = totals.get(name, 0) + number
+    return [{'sku': sku, 'total': totals[sku]} for sku in sorted(totals)]

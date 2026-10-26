@@ -1,0 +1,70 @@
+import re
+
+def solve(value):
+    # 1. Deduplicate
+    last_idx = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            if 'id' in record:
+                rec_id = record['id']
+                if isinstance(rec_id, str) and rec_id != "":
+                    last_idx[rec_id] = i
+                    
+    deduped = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != "":
+                if last_idx[rec_id] != i:
+                    continue
+        deduped.append(record)
+        
+    # 2. Process rules
+    groups = {}
+    for record in deduped:
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'category' in record:
+            key_val = record['category']
+        elif 'kind' in record:
+            key_val = record['kind']
+        else:
+            continue
+            
+        if not isinstance(key_val, str):
+            continue
+            
+        key_val = key_val.strip()
+        if not key_val:
+            continue
+            
+        if 'priority' not in record:
+            priority = 1
+        else:
+            raw_priority = record['priority']
+            if type(raw_priority) is bool:
+                continue
+            elif type(raw_priority) is int:
+                priority = raw_priority
+            elif isinstance(raw_priority, str):
+                s = raw_priority.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    priority = int(s)
+                else:
+                    continue
+            else:
+                continue
+                
+        if key_val in groups:
+            if priority > groups[key_val]:
+                groups[key_val] = priority
+        else:
+            groups[key_val] = priority
+        
+    result = [{"category": k, "maximum": v} for k, v in groups.items()]
+    result.sort(key=lambda x: x["category"])
+    return result

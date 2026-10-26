@@ -1,0 +1,76 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _clean_key(record):
+    if 'sku' in record:
+        raw = record['sku']
+    elif 'item' in record:
+        raw = record['item']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    if not key:
+        return None
+    return key
+
+
+def _clean_delta(record):
+    """Return (ok, delta)."""
+    if 'delta' not in record:
+        return True, 1
+    raw = record['delta']
+    if isinstance(raw, bool):
+        return False, None
+    if isinstance(raw, int):
+        return True, raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _DELTA_RE.fullmatch(text):
+            try:
+                return True, int(text, 10)
+            except ValueError:
+                return False, None
+    return False, None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: keep only the last occurrence of each nonempty string id.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != "":
+                last_index[ident] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != "":
+                if last_index.get(ident) != position:
+                    continue
+        retained.append(record)
+
+    # Step 2: filter and group.
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        key = _clean_key(record)
+        if key is None:
+            continue
+        ok, delta = _clean_delta(record)
+        if not ok:
+            continue
+        groups[key] = groups.get(key, 0) + delta
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

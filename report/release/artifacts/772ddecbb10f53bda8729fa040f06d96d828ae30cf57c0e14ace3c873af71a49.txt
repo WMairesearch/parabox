@@ -1,0 +1,73 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier:
+        return identifier
+    return None
+
+
+def _delta(record):
+    if 'delta' in record:
+        number = record['delta']
+    else:
+        number = 1
+    if isinstance(number, str):
+        text = number.strip()
+        if _DELTA_PATTERN.fullmatch(text):
+            try:
+                return int(text, 10)
+            except ValueError:
+                # Guard against interpreter digit limits on very long inputs.
+                sign = -1 if text.startswith('-') else 1
+                digits = text.lstrip('+-')
+                total = 0
+                for character in digits:
+                    total = total * 10 + (ord(character) - 48)
+                return sign * total
+        return None
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = _valid_id(record)
+            if identifier is not None:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = _valid_id(record)
+        if identifier is not None and latest.get(identifier) != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        amount = _delta(record)
+        if amount is None:
+            continue
+        groups[name] = groups.get(name, 0) + amount
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

@@ -1,0 +1,86 @@
+"""Inventory grouping.
+
+Reads a JSON list of records and returns a JSON list of per-sku totals.
+Implements the specification in PROBLEM.md using only the standard library.
+"""
+
+import re
+
+# A delta string is an optional sign followed by one or more ASCII digits.
+_DELTA_RE = re.compile(r"[+-]?[0-9]+")
+
+
+def _dedupe_by_id(value):
+    """Retain only the last occurrence of each nonempty string 'id'.
+
+    Records without such an id are independent and always retained.
+    """
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get("id")
+            if isinstance(identifier, str) and identifier != "":
+                last_position[identifier] = position
+    kept = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get("id")
+            if (
+                isinstance(identifier, str)
+                and identifier != ""
+                and last_position[identifier] != position
+            ):
+                continue
+        kept.append(record)
+    return kept
+
+
+def _sku_key(record):
+    """Return the normalized sku, or None when the record must be skipped."""
+    # 'item' is a fallback only when the 'sku' key is absent entirely.
+    if "sku" in record:
+        raw = record["sku"]
+    else:
+        raw = record.get("item")
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    if key == "":
+        return None
+    return key
+
+
+def _delta_value(record):
+    """Return the delta as an int, or None when the record must be skipped."""
+    if "delta" not in record:
+        return 1  # default only when absent
+    raw = record["delta"]
+    # Booleans are not integers for our purposes.
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _DELTA_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+    totals = {}
+    for record in _dedupe_by_id(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get("active", True) is False:
+            continue
+        key = _sku_key(record)
+        if key is None:
+            continue
+        delta = _delta_value(record)
+        if delta is None:
+            continue
+        totals[key] = totals.get(key, 0) + delta
+    return [{"sku": key, "total": totals[key]} for key in sorted(totals)]

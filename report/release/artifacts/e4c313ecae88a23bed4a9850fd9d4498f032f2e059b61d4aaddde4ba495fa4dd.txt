@@ -1,0 +1,63 @@
+import re
+
+def solve(value):
+    last_occurrence_idx = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != '':
+                last_occurrence_idx[id_val] = i
+                
+    groups = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != '':
+                if last_occurrence_idx[id_val] != i:
+                    continue
+        
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'category' in record:
+            key = record['category']
+        elif 'kind' in record:
+            key = record['kind']
+        else:
+            continue
+            
+        if not isinstance(key, str):
+            continue
+            
+        key_stripped = key.strip()
+        if not key_stripped:
+            continue
+            
+        if 'priority' not in record:
+            priority_val = 1
+        else:
+            priority_val = record['priority']
+            
+        if type(priority_val) is int:
+            priority_num = priority_val
+        elif isinstance(priority_val, str):
+            p_stripped = priority_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', p_stripped):
+                priority_num = int(p_stripped)
+            else:
+                continue
+        else:
+            continue
+            
+        if key_stripped not in groups:
+            groups[key_stripped] = priority_num
+        else:
+            groups[key_stripped] = max(groups[key_stripped], priority_num)
+            
+    result = []
+    for k in sorted(groups.keys()):
+        result.append({'category': k, 'maximum': groups[k]})
+    return result

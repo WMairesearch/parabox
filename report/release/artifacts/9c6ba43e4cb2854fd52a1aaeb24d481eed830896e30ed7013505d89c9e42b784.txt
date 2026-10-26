@@ -1,0 +1,74 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    """Return the record's dedup id if it is a nonempty string, else None."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _key(record):
+    """Normalized grouping key, or None when the record has no usable key."""
+    if 'path' in record:
+        name = record['path']
+    else:
+        name = record.get('route')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if not name:
+        return None
+    return name
+
+
+def _bytes(record):
+    """Byte count for the record, or None when the value is unacceptable."""
+    if 'bytes' not in record:
+        return 1
+    number = record['bytes']
+    if isinstance(number, str):
+        text = number.strip()
+        if _INT_RE.fullmatch(text):
+            return int(text, 10)
+        return None
+    if isinstance(number, int) and not isinstance(number, bool):
+        return number
+    return None
+
+
+def solve(value):
+    # Rule 1: keep only the last occurrence of each nonempty string id.
+    last = {}
+    for position, record in enumerate(value):
+        ident = _valid_id(record)
+        if ident is not None:
+            last[ident] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = _valid_id(record)
+        if ident is not None and last[ident] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = _key(record)
+        if name is None:
+            continue
+        number = _bytes(record)
+        if number is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

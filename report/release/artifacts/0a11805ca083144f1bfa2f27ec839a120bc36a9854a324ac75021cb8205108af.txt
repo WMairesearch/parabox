@@ -1,0 +1,58 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedupe_key(record):
+    if isinstance(record, dict):
+        ident = record.get('id')
+        if isinstance(ident, str) and ident != '':
+            return ident
+    return None
+
+
+def solve(value):
+    records = value if isinstance(value, list) else []
+
+    # Deduplicate first: retain only the last occurrence of each nonempty
+    # string 'id'; records without such an id remain independent.
+    last_index = {}
+    for index, record in enumerate(records):
+        key = _dedupe_key(record)
+        if key is not None:
+            last_index[key] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = _dedupe_key(record)
+        if key is not None and last_index[key] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'delta' in record:
+            number = record['delta']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if _DELTA_PATTERN.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

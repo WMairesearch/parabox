@@ -1,0 +1,88 @@
+"""Inventory grouping.
+
+Rules implemented exactly as described in PROBLEM.md:
+
+1. De-duplicate by ``id`` first: for every record that carries a nonempty
+   string ``id`` only the *last* such occurrence is retained; records without
+   such an id stay independent.  This happens before every other rule (so a
+   superseded active record is dropped even if the survivor is inactive).
+2. Skip non-object records and records whose ``active`` is ``False``.
+3. Read ``sku``, falling back to ``item`` only when ``sku`` is absent.  Skip
+   non-string keys and keys that are empty after stripping; strip the key.
+4. Read ``delta``, defaulting to 1 only when absent.  Accept ints (never
+   bools) and strings matching ``[+-]?[0-9]+`` after stripping whitespace
+   (base 10).  Everything else -- including ``null`` -- skips the record.
+5. Group by normalized sku, sum deltas into ``total``, sort by sku, return [].
+
+The input is never mutated.
+"""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _iterable(value):
+    """Return the records as a list without mutating ``value``."""
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def solve(value):
+    records = _iterable(value)
+
+    # Step 1: index of the last occurrence of each nonempty string id.
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_position[record_id] = position
+
+    totals = {}
+    for position, record in enumerate(records):
+        # Step 2: only object records survive.
+        if not isinstance(record, dict):
+            continue
+
+        # Step 1 (applied): drop every id occurrence but the last one.
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            if last_position[record_id] != position:
+                continue
+
+        # Step 2: inactive records are skipped.
+        if record.get('active') is False:
+            continue
+
+        # Step 3: normalized grouping key.
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Step 4: delta, defaulting to 1 only when absent.
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, str):
+                text = number.strip()
+                if not _INTEGER.fullmatch(text):
+                    continue
+                number = int(text)
+            elif type(number) is not int:
+                # bools, floats, None, lists, dicts, ...
+                continue
+        else:
+            number = 1
+
+        totals[name] = totals.get(name, 0) + number
+
+    # Step 5: lexicographic ordering by sku.
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

@@ -1,0 +1,80 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _has_real_id(record):
+    """True when the record is a dict carrying a nonempty string 'id'."""
+    if not isinstance(record, dict):
+        return False
+    ident = record.get('id')
+    return isinstance(ident, str) and ident != ''
+
+
+def _dedupe_last(records):
+    """Keep only the last occurrence of each nonempty string id.
+
+    Records without such an id are independent and therefore always kept.
+    """
+    last_position = {}
+    for position, record in enumerate(records):
+        if _has_real_id(record):
+            last_position[record['id']] = position
+    kept = []
+    for position, record in enumerate(records):
+        if _has_real_id(record) and last_position[record['id']] != position:
+            continue
+        kept.append(record)
+    return kept
+
+
+def _normalized_sku(record):
+    """Return the stripped sku, falling back to 'item' only if 'sku' is absent."""
+    if 'sku' in record:
+        raw = record['sku']
+    else:
+        raw = record.get('item')
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip()
+    if not name:
+        return None
+    return name
+
+
+def _delta(record):
+    """Return the integer delta, or None when the record must be skipped."""
+    if 'delta' in record:
+        raw = record['delta']
+    else:
+        return 1
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.match(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    groups = {}
+    for record in _dedupe_last(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        name = _normalized_sku(record)
+        if name is None:
+            continue
+        amount = _delta(record)
+        if amount is None:
+            continue
+        groups[name] = groups.get(name, 0) + amount
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

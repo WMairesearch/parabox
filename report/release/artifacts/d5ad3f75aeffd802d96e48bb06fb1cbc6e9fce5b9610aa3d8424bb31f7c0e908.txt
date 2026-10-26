@@ -1,0 +1,20 @@
+import re
+
+
+def solve(value):
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        name = record.get('path')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        number = record.get('bytes', 0)
+        if type(number) is not int:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+    result = []
+    for name in groups:
+        result.append({'path': name, 'total': groups[name][0], 'count': groups[name][1]})
+    return result

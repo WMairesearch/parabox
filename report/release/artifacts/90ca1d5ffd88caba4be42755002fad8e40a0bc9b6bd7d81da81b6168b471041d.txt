@@ -1,0 +1,45 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # Deduplicate first: only the last occurrence of each nonempty string id survives.
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record.get('sku', record.get('item'))
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        number = record.get('delta', 1)
+        if isinstance(number, str):
+            text = number.strip()
+            if _DELTA_RE.fullmatch(text):
+                number = int(text, 10)
+            else:
+                continue
+        if type(number) is not int:
+            continue
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': sku, 'total': total}
+            for sku, total in sorted(groups.items())]

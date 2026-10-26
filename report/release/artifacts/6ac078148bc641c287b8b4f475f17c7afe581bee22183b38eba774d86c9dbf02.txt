@@ -1,0 +1,71 @@
+import re
+
+def solve(value):
+    # 1. Deduplicate by last occurrence of nonempty string 'id'
+    last_id_indices = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            r_id = record.get('id')
+            if isinstance(r_id, str) and r_id != "":
+                last_id_indices[r_id] = i
+
+    groups = {}
+    
+    for i, record in enumerate(value):
+        # Deduplication check
+        if isinstance(record, dict):
+            r_id = record.get('id')
+            if isinstance(r_id, str) and r_id != "":
+                if last_id_indices[r_id] != i:
+                    continue
+        
+        # Skip non-objects
+        if not isinstance(record, dict):
+            continue
+            
+        # Skip active == False
+        if record.get('active') is False:
+            continue
+            
+        # Read category/kind
+        if 'category' in record:
+            key = record['category']
+        elif 'kind' in record:
+            key = record['kind']
+        else:
+            continue
+            
+        if type(key) is not str:
+            continue
+            
+        stripped_key = key.strip()
+        if not stripped_key:
+            continue
+            
+        # Read priority
+        if 'priority' not in record:
+            priority = 1
+        else:
+            p_val = record['priority']
+            if type(p_val) is int:
+                priority = p_val
+            elif type(p_val) is str:
+                stripped_p = p_val.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_p):
+                    priority = int(stripped_p)
+                else:
+                    continue
+            else:
+                continue
+                
+        if stripped_key in groups:
+            if priority > groups[stripped_key]:
+                groups[stripped_key] = priority
+        else:
+            groups[stripped_key] = priority
+
+    result = []
+    for category in sorted(groups.keys()):
+        result.append({'category': category, 'maximum': groups[category]})
+        
+    return result

@@ -1,0 +1,79 @@
+"""access_logs: group retained access-log records by normalized path."""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _key_of(record):
+    """Normalized group key: 'path' when present, else 'route'."""
+    if 'path' in record:
+        raw = record['path']
+    else:
+        raw = record.get('route')
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    return key or None
+
+
+def _bytes_of(record):
+    """Byte count: default 1 only when absent; ints / decimal strings only."""
+    if 'bytes' not in record:
+        return 1
+    raw = record['bytes']
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str) and _INTEGER.fullmatch(raw.strip()):
+        return int(raw.strip(), 10)
+    return None
+
+
+def _identity(record):
+    """Dedup key: a nonempty string 'id', or None when the record is independent."""
+    if not isinstance(record, dict):
+        return None
+    raw = record.get('id')
+    if isinstance(raw, str) and raw != '':
+        return raw
+    return None
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # Deduplicate first, before every other rule: keep only the last
+    # occurrence of each nonempty string id.
+    winners = {}
+    for position, record in enumerate(records):
+        identity = _identity(record)
+        if identity is not None:
+            winners[identity] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identity = _identity(record)
+        if identity is not None and winners[identity] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        key = _key_of(record)
+        if key is None:
+            continue
+        amount = _bytes_of(record)
+        if amount is None:
+            continue
+        total, count = groups.get(key, (0, 0))
+        groups[key] = (total + amount, count + 1)
+
+    return [
+        {'path': key, 'total': groups[key][0], 'count': groups[key][1]}
+        for key in sorted(groups)
+    ]

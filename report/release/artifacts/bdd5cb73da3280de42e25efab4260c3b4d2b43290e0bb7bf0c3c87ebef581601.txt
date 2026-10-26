@@ -1,0 +1,61 @@
+import re
+
+def solve(value):
+    last_occurrences = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val != '':
+                last_occurrences[id_val] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+            
+        id_val = record.get('id')
+        if isinstance(id_val, str) and id_val != '':
+            if last_occurrences[id_val] != i:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            cat = record['category']
+        elif 'kind' in record:
+            cat = record['kind']
+        else:
+            continue
+
+        if not isinstance(cat, str):
+            continue
+        
+        cat = cat.strip()
+        if not cat:
+            continue
+
+        if 'priority' not in record:
+            prio = 1
+        else:
+            p = record['priority']
+            if type(p) is int:
+                prio = p
+            elif isinstance(p, str):
+                p_str = p.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', p_str):
+                    prio = int(p_str)
+                else:
+                    continue
+            else:
+                continue
+
+        if cat not in groups:
+            groups[cat] = prio
+        else:
+            groups[cat] = max(groups[cat], prio)
+
+    result = []
+    for cat in sorted(groups.keys()):
+        result.append({'category': cat, 'maximum': groups[cat]})
+    return result

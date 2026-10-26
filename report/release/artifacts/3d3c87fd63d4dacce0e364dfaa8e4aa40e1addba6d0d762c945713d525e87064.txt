@@ -1,0 +1,60 @@
+"""Group event records by category and report the maximum priority."""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _has_id(record):
+    ident = record.get('id')
+    return isinstance(ident, str) and ident != ''
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: only the last occurrence of each nonempty string id
+    # is retained; records without such an id stay independent.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict) and _has_id(record):
+            last_index[record['id']] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        if _has_id(record) and last_index[record['id']] != position:
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            priority = record['priority']
+            if isinstance(priority, str):
+                text = priority.strip()
+                if _INTEGER.fullmatch(text) is None:
+                    continue
+                priority = int(text, 10)
+            elif type(priority) is not int:
+                continue
+        else:
+            priority = 1
+
+        previous = groups.get(name)
+        if previous is None or priority > previous:
+            groups[name] = priority
+
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

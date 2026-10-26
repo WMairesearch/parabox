@@ -1,0 +1,108 @@
+"""access_logs: group access-log records by normalized path.
+
+Pipeline (order matters):
+  1. Deduplicate FIRST: among object records carrying a nonempty string 'id',
+     only the last occurrence (by original position) is retained; every earlier
+     occurrence is dropped even if the survivor is later rejected by other rules.
+     Records without such an id (non-objects, missing id, non-string id, "")
+     stay independent.
+  2. Skip non-object records and records whose 'active' is exactly False.
+  3. Key comes from 'path'; fall back to 'route' ONLY when 'path' is absent.
+     It must be a string that is nonempty after stripping; the stripped text is
+     the group key.
+  4. 'bytes' defaults to 1 only when the key is absent.  Accept ints (never
+     bools) and strings matching [+-]?[0-9]+ after stripping whitespace; any
+     other value (None, float, "2.5", "0x10", "", list, dict, bool) skips the
+     record.
+  5. Emit {'path', 'total', 'count'} per group sorted lexicographically by path.
+"""
+
+import re
+
+_INTEGER = re.compile(r"[+-]?[0-9]+\Z")
+
+_MISSING = object()
+
+
+def _records(value):
+    """Yield (position, record) pairs without touching the input."""
+    if isinstance(value, list):
+        return list(enumerate(value))
+    if isinstance(value, tuple):
+        return list(enumerate(value))
+    return []
+
+
+def _dropped_positions(rows):
+    """Positions of duplicate ids that lose to a later occurrence."""
+    seen = {}
+    for position, record in rows:
+        if not isinstance(record, dict):
+            continue
+        ident = record.get("id", _MISSING)
+        if isinstance(ident, str) and ident != "":
+            seen.setdefault(ident, []).append(position)
+    dropped = set()
+    for positions in seen.values():
+        if len(positions) > 1:
+            dropped.update(positions[:-1])
+    return dropped
+
+
+def _bytes_of(record):
+    """Return the byte amount, or None when the record must be skipped."""
+    if "bytes" not in record:
+        return 1
+    raw = record["bytes"]
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INTEGER.match(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def _path_of(record):
+    """Return the normalized group key, or None when unusable."""
+    if "path" in record:
+        raw = record["path"]
+    elif "route" in record:
+        raw = record["route"]
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    return key or None
+
+
+def solve(value):
+    rows = _records(value)
+    dropped = _dropped_positions(rows)
+
+    totals = {}
+    counts = {}
+    for position, record in rows:
+        if position in dropped:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get("active", _MISSING) is False:
+            continue
+        key = _path_of(record)
+        if key is None:
+            continue
+        amount = _bytes_of(record)
+        if amount is None:
+            continue
+        totals[key] = totals.get(key, 0) + amount
+        counts[key] = counts.get(key, 0) + 1
+
+    return [
+        {"path": key, "total": totals[key], "count": counts[key]}
+        for key in sorted(totals)
+    ]

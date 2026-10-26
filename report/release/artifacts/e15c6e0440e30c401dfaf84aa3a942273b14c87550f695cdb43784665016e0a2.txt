@@ -1,0 +1,68 @@
+import re
+
+def solve(value):
+    seen_ids = set()
+    retained = []
+    
+    # 1. Deduplicate
+    for record in reversed(value):
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != '':
+                if rec_id in seen_ids:
+                    continue
+                seen_ids.add(rec_id)
+        retained.append(record)
+    
+    retained.reverse()
+    
+    groups = {}
+    
+    # 2-4. Process records
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+            
+        if 'sku' in record:
+            sku_val = record['sku']
+        elif 'item' in record:
+            sku_val = record['item']
+        else:
+            continue
+            
+        if not isinstance(sku_val, str):
+            continue
+            
+        sku_val = sku_val.strip()
+        if not sku_val:
+            continue
+            
+        if 'delta' not in record:
+            delta_val = 1
+        else:
+            delta_val = record['delta']
+            
+        if isinstance(delta_val, bool):
+            continue
+        elif isinstance(delta_val, int):
+            delta_int = delta_val
+        elif isinstance(delta_val, str):
+            delta_str = delta_val.strip()
+            if re.match(r'^[+-]?[0-9]+$', delta_str):
+                delta_int = int(delta_str)
+            else:
+                continue
+        else:
+            continue
+            
+        if sku_val not in groups:
+            groups[sku_val] = 0
+        groups[sku_val] += delta_int
+        
+    result = []
+    for sku in sorted(groups.keys()):
+        result.append({'sku': sku, 'total': groups[sku]})
+        
+    return result

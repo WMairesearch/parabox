@@ -1,0 +1,74 @@
+"""Inventory aggregation.
+
+Implements solve(value) per PROBLEM.md:
+  * de-duplicate by last occurrence of a nonempty string 'id' (first, before
+    every other rule); records without such an id stay independent,
+  * skip non-object records and records whose 'active' is false,
+  * key = 'sku', falling back to 'item' only when 'sku' is absent; skip
+    non-string or blank-after-stripping keys, otherwise strip them,
+  * delta = 'delta', defaulting to 1 only when the key is absent; accept ints
+    (never bools) and strings matching [+-]?[0-9]+ after stripping; skip the
+    record for every other value (including null),
+  * group by normalized sku, sum deltas, sort lexicographically by sku.
+The input is never mutated.
+"""
+
+import re
+
+_INTEGER = re.compile(r"[+-]?[0-9]+")
+
+
+def _has_id(record):
+    return isinstance(record, dict) and isinstance(record.get("id"), str) and record["id"] != ""
+
+
+def _deduplicate(value):
+    last = {}
+    for position, record in enumerate(value):
+        if _has_id(record):
+            last[record["id"]] = position
+    kept = []
+    for position, record in enumerate(value):
+        if _has_id(record) and last[record["id"]] != position:
+            continue
+        kept.append(record)
+    return kept
+
+
+def _delta(record):
+    """Return the record's delta, or None when the record must be skipped."""
+    if "delta" not in record:
+        return 1
+    delta = record["delta"]
+    if isinstance(delta, bool):
+        return None
+    if isinstance(delta, int):
+        return delta
+    if isinstance(delta, str):
+        text = delta.strip()
+        if not _INTEGER.fullmatch(text):
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+    totals = {}
+    for record in _deduplicate(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get("active") is False:
+            continue
+        key = record["sku"] if "sku" in record else record.get("item")
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+        delta = _delta(record)
+        if delta is None:
+            continue
+        totals[key] = totals.get(key, 0) + delta
+    return [{"sku": sku, "total": totals[sku]} for sku in sorted(totals)]

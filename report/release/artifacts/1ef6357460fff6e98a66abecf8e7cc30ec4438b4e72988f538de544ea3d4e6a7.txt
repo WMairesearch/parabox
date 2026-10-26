@@ -1,0 +1,69 @@
+"""events: group retained records by normalized category and report the maximum priority."""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _category(record):
+    """Normalized category ('kind' only when 'category' is absent), or None to skip."""
+    if 'category' in record:
+        raw = record['category']
+    elif 'kind' in record:
+        raw = record['kind']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    return key or None
+
+
+def _priority(record):
+    """Priority (default 1 only when absent), or None to skip the record."""
+    if 'priority' not in record:
+        return 1
+    raw = record['priority']
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if isinstance(value, (str, bytes)) or not isinstance(value, (list, tuple)):
+        return []
+    records = list(value)
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                last[ident] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        ident = record.get('id')
+        if isinstance(ident, str) and ident != '' and last.get(ident) != index:
+            continue
+        if record.get('active') is False:
+            continue
+        key = _category(record)
+        if key is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        if key not in groups or number > groups[key]:
+            groups[key] = number
+
+    return [{'category': key, 'maximum': groups[key]} for key in sorted(groups)]

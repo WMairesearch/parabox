@@ -1,0 +1,67 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _last_id_positions(records):
+    last = {}
+    for i, record in enumerate(records):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last[rid] = i
+    return last
+
+
+def _category(record):
+    if 'category' in record:
+        raw = record['category']
+    elif 'kind' in record:
+        raw = record['kind']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    stripped = raw.strip()
+    return stripped or None
+
+
+def _priority(record):
+    if 'priority' not in record:
+        return 1
+    raw = record['priority']
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        stripped = raw.strip()
+        if _INT_RE.fullmatch(stripped) is not None:
+            return int(stripped, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+    records = list(value)
+    last = _last_id_positions(records)
+    maxima = {}
+    for i, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last.get(rid) != i:
+            continue
+        if record.get('active') is False:
+            continue
+        key = _category(record)
+        if key is None:
+            continue
+        amount = _priority(record)
+        if amount is None:
+            continue
+        if key in maxima:
+            if amount > maxima[key]:
+                maxima[key] = amount
+        else:
+            maxima[key] = amount
+    return [{'category': key, 'maximum': maxima[key]} for key in sorted(maxima)]

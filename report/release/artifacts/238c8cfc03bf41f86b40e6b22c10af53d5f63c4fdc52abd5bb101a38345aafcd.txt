@@ -1,0 +1,64 @@
+import re
+import sys
+
+try:
+    sys.set_int_max_str_digits(0)
+except AttributeError:
+    pass
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1 (before all others): keep only the LAST occurrence of each
+    # nonempty string 'id'. Records without such an id stay independent.
+    last = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last[identifier] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if (isinstance(identifier, str) and identifier != ''
+                and last[identifier] != index):
+            continue  # superseded by a later record with the same id
+        if record.get('active') is False:
+            continue
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'bytes' in record:
+            number = record['bytes']
+            if type(number) is int:  # excludes booleans
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if not _INTEGER.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        entry = groups.get(name)
+        if entry is None:
+            groups[name] = [number, 1]
+        else:
+            entry[0] += number
+            entry[1] += 1
+
+    result = [{'path': name, 'total': pair[0], 'count': pair[1]}
+              for name, pair in groups.items()]
+    result.sort(key=lambda item: item['path'])
+    return result

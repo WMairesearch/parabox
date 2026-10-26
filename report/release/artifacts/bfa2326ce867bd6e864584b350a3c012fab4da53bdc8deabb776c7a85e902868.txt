@@ -1,0 +1,72 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    if not isinstance(record, dict):
+        return None
+    rid = record.get('id')
+    if isinstance(rid, str) and rid != '':
+        return rid
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        value = []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string 'id'.  Records without such an id stay independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        rid = _valid_id(record)
+        if rid is not None:
+            last_position[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = _valid_id(record)
+        if rid is not None and last_position[rid] != position:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if _INT_RE.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

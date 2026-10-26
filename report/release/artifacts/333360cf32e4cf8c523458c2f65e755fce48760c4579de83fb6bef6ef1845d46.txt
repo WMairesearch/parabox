@@ -1,0 +1,68 @@
+import re
+
+_DIGITS = re.compile(r'[+-]?[0-9]+')
+_MISSING = object()
+
+
+def _valid_id(record):
+    rid = record.get('id', _MISSING)
+    if isinstance(rid, str) and rid != '':
+        return rid
+    return _MISSING
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: retain only the last occurrence of each nonempty string id.
+    last = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = _valid_id(record)
+            if rid is not _MISSING:
+                last[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        rid = _valid_id(record)
+        if rid is not _MISSING and last[rid] != position:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record['sku']
+        elif 'item' in record:
+            name = record['item']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' in record:
+            raw = record['delta']
+            if isinstance(raw, bool):
+                continue
+            if isinstance(raw, int):
+                num = raw
+            elif isinstance(raw, str):
+                text = raw.strip()
+                if _DIGITS.fullmatch(text) is None:
+                    continue
+                num = int(text, 10)
+            else:
+                continue
+        else:
+            num = 1
+
+        groups[name] = groups.get(name, 0) + num
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

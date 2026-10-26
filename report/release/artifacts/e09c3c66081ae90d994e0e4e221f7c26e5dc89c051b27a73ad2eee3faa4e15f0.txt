@@ -1,0 +1,67 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    records = list(value)
+
+    # Rule 1: de-duplicate by 'id' FIRST (before every other rule).
+    # Only nonempty *string* ids participate; keep the last occurrence.
+    last_seen = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_seen[rid] = index
+
+    totals = {}
+    counts = {}
+
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last_seen.get(rid) != index:
+            continue  # superseded by a later record with the same id
+
+        # Rule 2: skip inactive records ('active' is boolean false).
+        if record.get('active') is False:
+            continue
+
+        # Rule 3: key = 'path', falling back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            key = record['path']
+        else:
+            key = record.get('route')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if key == '':
+            continue
+
+        # Rule 4: 'bytes' defaults to 1 only when absent.
+        raw = record['bytes'] if 'bytes' in record else 1
+        if isinstance(raw, bool):
+            continue
+        if isinstance(raw, int):
+            amount = raw
+        elif isinstance(raw, str):
+            text = raw.strip()
+            if _INT_RE.fullmatch(text) is None:
+                continue
+            amount = int(text, 10)
+        else:
+            continue
+
+        totals[key] = totals.get(key, 0) + amount
+        counts[key] = counts.get(key, 0) + 1
+
+    return [
+        {'path': key, 'total': totals[key], 'count': counts[key]}
+        for key in sorted(totals)
+    ]

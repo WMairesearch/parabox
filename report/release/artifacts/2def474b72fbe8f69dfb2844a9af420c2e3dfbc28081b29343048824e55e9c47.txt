@@ -1,0 +1,97 @@
+"""Events grouping per PROBLEM.md.
+
+Pipeline:
+  1. Deduplicate first: for every record (object) carrying a nonempty string
+     'id', keep only the LAST occurrence; records without such an id stay
+     independent.  This happens before every other rule, so a later duplicate
+     that is itself skipped still removes the earlier one.
+  2. Skip non-object records and records whose 'active' is false.
+  3. Category: 'category', falling back to 'kind' only when 'category' is
+     absent.  Skip non-strings and strings that are empty after stripping;
+     otherwise use the stripped text as the grouping key.
+  4. Priority: 'priority', defaulting to 1 only when the key is absent.
+     Accept ints (never bools) and strings matching [+-]?[0-9]+ after
+     stripping, converted with base 10.  Everything else (floats, null, ...)
+     is skipped.
+  5. Group by normalized category, keep the maximum priority, emit
+     {'category': ..., 'maximum': ...} sorted lexicographically by category.
+
+The input is never mutated.
+"""
+
+import re
+
+_NUMBER = re.compile(r"[+-]?[0-9]+")
+
+
+def _priority(raw):
+    """Return the integer priority for `raw`, or None when it must be skipped."""
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _NUMBER.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def _identifier(record):
+    """Nonempty string 'id' of an object record, else None."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get("id")
+    if isinstance(ident, str) and ident != "":
+        return ident
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # --- 1. deduplication (before all other rules) -------------------------
+    latest = {}
+    for position, record in enumerate(value):
+        ident = _identifier(record)
+        if ident is not None:
+            latest[ident] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        ident = _identifier(record)
+        if ident is not None and latest[ident] != position:
+            continue  # an earlier occurrence of a repeated id
+
+        # --- 2. non-objects and inactive records --------------------------
+        if not isinstance(record, dict):
+            continue
+        if record.get("active") is False:
+            continue
+
+        # --- 3. category (fallback 'kind' only when 'category' absent) ----
+        if "category" in record:
+            name = record["category"]
+        else:
+            name = record.get("kind")
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == "":
+            continue
+
+        # --- 4. priority (default 1 only when absent) ---------------------
+        number = _priority(record["priority"] if "priority" in record else 1)
+        if number is None:
+            continue
+
+        # --- 5. group ----------------------------------------------------
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{"category": key, "maximum": groups[key]} for key in sorted(groups)]

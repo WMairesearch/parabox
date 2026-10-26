@@ -1,0 +1,87 @@
+import re
+
+
+_BYTES_PATTERN = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _deduplicate(value):
+    """Return the records to process after id deduplication.
+
+    For each nonempty string id, only the last occurrence in the original
+    sequence is kept.  Records without such an id are left untouched.
+    """
+    last_index = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_index[record_id] = index
+
+    if not last_index:
+        return value
+
+    deduplicated = []
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_index[record_id] != index:
+                    continue
+        deduplicated.append(record)
+    return deduplicated
+
+
+def _normalized_key(record):
+    if 'path' in record:
+        key = record['path']
+    elif 'route' in record:
+        key = record['route']
+    else:
+        return None
+
+    if not isinstance(key, str):
+        return None
+    key = key.strip()
+    if not key:
+        return None
+    return key
+
+
+def _parse_bytes(record):
+    if 'bytes' not in record:
+        return 1
+
+    value = record['bytes']
+    if type(value) is int:
+        return value
+    if isinstance(value, str):
+        stripped = value.strip()
+        if _BYTES_PATTERN.match(stripped):
+            return int(stripped, 10)
+    return None
+
+
+def solve(value):
+    groups = {}
+
+    for record in _deduplicate(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        name = _normalized_key(record)
+        if name is None:
+            continue
+
+        number = _parse_bytes(record)
+        if number is None:
+            continue
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

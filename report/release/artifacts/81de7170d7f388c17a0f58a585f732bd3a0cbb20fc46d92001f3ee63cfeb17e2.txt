@@ -1,0 +1,71 @@
+"""Inventory aggregation per PROBLEM.md."""
+
+import re
+
+_INT_RE = re.compile(r"[+-]?[0-9]+", re.ASCII)
+
+
+def _valid_id(record):
+    ident = record.get("id")
+    return isinstance(ident, str) and ident != ""
+
+
+def _dedupe_last(value):
+    """Keep only the last occurrence of each nonempty string id."""
+    last = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict) and _valid_id(record):
+            last[record["id"]] = position
+    keep_at = set(last.values())
+    retained = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict) and _valid_id(record):
+            if position in keep_at:
+                retained.append(record)
+        else:
+            retained.append(record)
+    return retained
+
+
+def _delta(record):
+    """Return the integer delta, or None if the record must be skipped."""
+    if "delta" not in record:
+        return 1
+    number = record["delta"]
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        stripped = number.strip()
+        if _INT_RE.fullmatch(stripped):
+            try:
+                return int(stripped, 10)
+            except ValueError:
+                return None
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+    groups = {}
+    for record in _dedupe_last(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get("active") is False:
+            continue
+        if "sku" in record:
+            name = record["sku"]
+        else:
+            name = record.get("item")
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = _delta(record)
+        if number is None:
+            continue
+        groups[name] = groups.get(name, 0) + number
+    return [{"sku": name, "total": groups[name]} for name in sorted(groups)]

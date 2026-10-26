@@ -1,0 +1,58 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string 'id'.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_positions[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            if last_positions.get(record_id) != position:
+                continue
+
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+
+        # Read sku, falling back to item only when sku is absent.
+        if 'sku' in record:
+            sku = record['sku']
+        else:
+            sku = record.get('item')
+
+        if not isinstance(sku, str) or not sku.strip():
+            continue
+        sku = sku.strip()
+
+        # Read delta, defaulting to 1 only when the key is absent.
+        if 'delta' not in record:
+            delta = 1
+        else:
+            raw_delta = record['delta']
+            if isinstance(raw_delta, str):
+                stripped = raw_delta.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    delta = int(stripped)
+                else:
+                    continue
+            elif type(raw_delta) is int:
+                delta = raw_delta
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    return [{'sku': sku, 'total': total} for sku, total in sorted(groups.items())]

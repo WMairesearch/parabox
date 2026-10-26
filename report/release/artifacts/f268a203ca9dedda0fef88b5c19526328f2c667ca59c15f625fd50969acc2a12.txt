@@ -1,0 +1,48 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+    # Retain only the last occurrence of each nonempty string 'id'.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record['bytes'] if 'bytes' in record else 1
+        if isinstance(number, bool):
+            continue
+        if isinstance(number, str):
+            text = number.strip()
+            if not re.fullmatch(r'[+-]?[0-9]+', text):
+                continue
+            try:
+                number = int(text, 10)
+            except ValueError:
+                continue
+        if not isinstance(number, int):
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+    result = []
+    for name in sorted(groups):
+        total, count = groups[name]
+        result.append({'path': name, 'total': total, 'count': count})
+    return result

@@ -1,0 +1,59 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group records by normalized category, returning the maximum priority per category."""
+    if isinstance(value, (str, bytes, bytearray)):
+        return []
+    if isinstance(value, dict):
+        value = list(value)
+    elif not isinstance(value, (list, tuple)):
+        try:
+            value = list(value)
+        except TypeError:
+            return []
+
+    # Rule 1: deduplicate on the last occurrence of each nonempty string id,
+    # computed over every dict record before any other filtering.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record['priority'] if 'priority' in record else 1
+        if isinstance(number, str):
+            stripped = number.strip()
+            if not _INT_RE.fullmatch(stripped):
+                continue
+            number = int(stripped)
+        if type(number) is not int:
+            continue
+        current = groups.get(name)
+        if current is None or number > current:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

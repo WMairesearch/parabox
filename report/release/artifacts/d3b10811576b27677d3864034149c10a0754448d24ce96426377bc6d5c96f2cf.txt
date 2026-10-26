@@ -1,0 +1,58 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _delta_of(record):
+    """Return the integer delta for a record, or None when the record must be skipped."""
+    if 'delta' not in record:
+        return 1
+    number = record['delta']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _DELTA_PATTERN.fullmatch(text):
+            return int(text, 10)
+        return None
+    return None
+
+
+def solve(value):
+    # Deduplicate first: keep only the last occurrence of each nonempty string 'id'.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_index[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if (isinstance(record_id, str) and record_id != ''
+                and last_index.get(record_id) != position):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        elif 'item' in record:
+            name = record['item']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        key = name.strip()
+        if not key:
+            continue
+        delta = _delta_of(record)
+        if delta is None:
+            continue
+        groups[key] = groups.get(key, 0) + delta
+
+    return [{'sku': key, 'total': groups[key]} for key in sorted(groups)]

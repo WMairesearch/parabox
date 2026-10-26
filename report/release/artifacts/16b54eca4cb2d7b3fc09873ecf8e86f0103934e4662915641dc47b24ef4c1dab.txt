@@ -1,0 +1,74 @@
+"""access_logs: group retained log records by normalized path.
+
+PROBLEM.md rules, in order:
+  * Dedup FIRST: keep only the last occurrence of each nonempty string 'id';
+    records without such an id remain independent.
+  * Skip non-object records and records whose 'active' is exactly false.
+  * Key = 'path', falling back to 'route' ONLY when the 'path' key is absent.
+    Skip non-string keys and keys that are empty after stripping; strip them.
+  * 'bytes' defaults to 1 only when the key is absent.  Accept integers (never
+    booleans) and strings fully matching [+-]?[0-9]+ after stripping whitespace
+    (converted to base-10 ints).  Skip every other value, including null.
+  * Group by normalized path: {'path', 'total' (sum of bytes), 'count' (rows)}.
+  * Sort lexicographically by 'path'; [] when nothing remains; never mutate input.
+"""
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _bytes_of(record):
+    """Return the integer byte count, or None when the record must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    raw = record['bytes']
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INTEGER.fullmatch(text) is not None:
+            return int(text)
+    return None
+
+
+def solve(value):
+    records = value if isinstance(value, (list, tuple)) else []
+
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    totals = {}
+    counts = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = _bytes_of(record)
+        if number is None:
+            continue
+        if name in totals:
+            totals[name] += number
+            counts[name] += 1
+        else:
+            totals[name] = number
+            counts[name] = 1
+
+    return [{'path': name, 'total': totals[name], 'count': counts[name]}
+            for name in sorted(totals)]

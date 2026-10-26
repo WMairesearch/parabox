@@ -1,0 +1,55 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group event records by normalized category, keeping the highest priority."""
+    # --- First pass: locate the last occurrence of every nonempty string id. ---
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    # --- Second pass: apply the remaining rules to the retained records. ---
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest.get(identifier) != position:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        name = record['category'] if 'category' in record else record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        number = record['priority'] if 'priority' in record else 1
+        if isinstance(number, str):
+            text = number.strip()
+            if not _NUMBER.fullmatch(text):
+                continue
+            try:
+                number = int(text, 10)
+            except ValueError:
+                continue
+        if type(number) is not int:
+            continue
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

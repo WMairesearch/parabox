@@ -1,0 +1,45 @@
+import re
+
+
+def solve(value):
+    # First rule: keep only the last occurrence of each nonempty string 'id'.
+    # Records without such an id (including non-objects) remain independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # Second rule: skip non-object records and records whose active is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+
+        # Third rule: read sku, falling back to item only when sku is absent.
+        name = record.get('sku', record.get('item'))
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        # Fourth rule: read delta, defaulting to 1 only when absent.
+        number = record.get('delta', 1)
+        if isinstance(number, str) and re.fullmatch(r'[+-]?[0-9]+', number.strip()):
+            number = int(number.strip())
+        if type(number) is not int:
+            continue
+
+        groups[name] = groups.get(name, 0) + number
+
+    # Fifth and sixth rules: output one object per normalized sku and sort.
+    result = []
+    for name in sorted(groups):
+        result.append({'sku': name, 'total': groups[name]})
+    return result

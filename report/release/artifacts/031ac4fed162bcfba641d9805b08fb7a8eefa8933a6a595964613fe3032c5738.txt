@@ -1,0 +1,55 @@
+import re
+
+def solve(value):
+    seen_ids = set()
+    retained = []
+    for record in reversed(value):
+        if isinstance(record, dict) and 'id' in record and isinstance(record['id'], str) and record['id'] != '':
+            if record['id'] in seen_ids:
+                continue
+            seen_ids.add(record['id'])
+        retained.append(record)
+    retained.reverse()
+
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        
+        if 'sku' in record:
+            key_val = record['sku']
+        elif 'item' in record:
+            key_val = record['item']
+        else:
+            continue
+            
+        if not isinstance(key_val, str):
+            continue
+        key_val = key_val.strip()
+        if not key_val:
+            continue
+            
+        if 'delta' not in record:
+            delta_val = 1
+        else:
+            delta_val = record['delta']
+            
+        if type(delta_val) is int:
+            parsed_delta = delta_val
+        elif isinstance(delta_val, str):
+            stripped_delta = delta_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped_delta):
+                parsed_delta = int(stripped_delta, 10)
+            else:
+                continue
+        else:
+            continue
+            
+        groups[key_val] = groups.get(key_val, 0) + parsed_delta
+        
+    result = []
+    for sku in sorted(groups.keys()):
+        result.append({'sku': sku, 'total': groups[sku]})
+    return result

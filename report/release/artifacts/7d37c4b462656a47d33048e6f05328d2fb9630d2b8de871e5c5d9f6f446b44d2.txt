@@ -1,0 +1,74 @@
+import re
+
+def solve(value):
+    seen_ids = set()
+    retained = []
+    # Deduplicate before all other rules.
+    # First retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent.
+    for record in reversed(value):
+        if isinstance(record, dict) and isinstance(record.get('id'), str) and record['id'] != '':
+            if record['id'] in seen_ids:
+                continue
+            seen_ids.add(record['id'])
+        retained.append(record)
+    
+    retained.reverse()
+
+    groups = {}
+    for record in retained:
+        # Skip non-object records
+        if not isinstance(record, dict):
+            continue
+            
+        # and records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+            
+        # Read 'category', falling back to 'kind' only when 'category' is absent.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+            
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if not isinstance(name, str):
+            continue
+            
+        name = name.strip()
+        if not name:
+            continue
+            
+        # Read 'priority', defaulting to 1 only when absent.
+        if 'priority' not in record:
+            priority = 1
+        else:
+            priority = record['priority']
+            
+        # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace;
+        # convert strings to base-10 integers. Skip all other values, including null.
+        if type(priority) is int:
+            pass
+        elif type(priority) is str:
+            priority_str = priority.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', priority_str):
+                priority = int(priority_str)
+            else:
+                continue
+        else:
+            continue
+            
+        # Group retained records by normalized 'category'.
+        if name in groups:
+            groups[name] = max(groups[name], priority)
+        else:
+            groups[name] = priority
+
+    # Each output object contains 'category' and the maximum priority as 'maximum'.
+    # Sort results lexicographically by 'category'.
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'category': name, 'maximum': groups[name]})
+        
+    # Return [] when no records remain.
+    return result

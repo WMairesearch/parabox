@@ -1,0 +1,71 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _priority(record):
+    """Return the record's priority as an int, or None when it must be skipped."""
+    if 'priority' not in record:
+        return 1
+    value = record['priority']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _NUMBER.fullmatch(text):
+            try:
+                return int(text, 10)
+            except ValueError:
+                return None
+    return None
+
+
+def _category(record):
+    """Return the normalized category key, or None when the record is skipped."""
+    if 'category' in record:
+        name = record['category']
+    else:
+        name = record.get('kind')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if not name:
+        return None
+    return name
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # First: keep only the last occurrence of each nonempty string 'id'.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_index[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_index.get(identifier) != position:
+                continue
+        if record.get('active') is False:
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        known = groups.get(name)
+        groups[name] = number if known is None else max(known, number)
+
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

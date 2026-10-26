@@ -1,0 +1,62 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: keep only the last occurrence of each nonempty string 'id'.
+    keep = [True] * len(value)
+    seen_ids = set()
+    for index in range(len(value) - 1, -1, -1):
+        record = value[index]
+        if not isinstance(record, dict):
+            continue
+        ident = record.get('id')
+        if isinstance(ident, str) and ident:
+            if ident in seen_ids:
+                keep[index] = False
+            else:
+                seen_ids.add(ident)
+
+    groups = {}
+    for index, record in enumerate(value):
+        if not keep[index]:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        elif 'route' in record:
+            name = record['route']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'bytes' in record:
+            raw = record['bytes']
+            if type(raw) is int:
+                number = raw
+            elif isinstance(raw, str):
+                text = raw.strip()
+                if not _INT_RE.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

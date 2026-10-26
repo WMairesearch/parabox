@@ -1,0 +1,70 @@
+import re
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _string_to_int(text):
+    """Convert a [+-]?[0-9]+ string to an int without digit-count limits."""
+    sign = 1
+    if text[0] == '-':
+        sign = -1
+        text = text[1:]
+    elif text[0] == '+':
+        text = text[1:]
+    number = 0
+    for character in text:
+        number = number * 10 + (ord(character) - 48)
+    return sign * number
+
+
+def solve(value):
+    # Dedup first: retain only the last occurrence of each nonempty string id.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        # 'kind' is a fallback only when 'category' is absent entirely.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # Priority defaults to 1 only when absent.
+        if 'priority' in record:
+            number = record['priority']
+        else:
+            number = 1
+        if isinstance(number, bool):
+            continue
+        if isinstance(number, int):
+            pass
+        elif isinstance(number, str):
+            stripped = number.strip()
+            if not _PRIORITY_PATTERN.fullmatch(stripped):
+                continue
+            number = _string_to_int(stripped)
+        else:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

@@ -1,0 +1,19 @@
+import re
+
+
+def solve(value):
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        name = record.get('sku')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        number = record.get('delta', 0)
+        if type(number) is not int:
+            continue
+        groups[name] = groups.get(name, 0) + number
+    result = []
+    for name in groups:
+        result.append({'sku': name, 'total': groups[name]})
+    return result

@@ -1,0 +1,68 @@
+"""access_logs: group retained log records by normalized path.
+
+Rules (per PROBLEM.md):
+  * Deduplicate first: keep only the last occurrence of every record carrying a
+    nonempty string 'id'; records without such an id stay independent.
+  * Skip non-object records and records whose 'active' is false.
+  * Key = 'path', falling back to 'route' only when 'path' is absent; skip
+    non-string keys and keys that are empty after stripping; strip whitespace.
+  * 'bytes' defaults to 1 only when the key is absent.  Accept ints (never
+    bools) and strings matching [+-]?[0-9]+ after stripping; everything else
+    (floats, null, ...) skips the record.
+  * Output {'path', 'total', 'count'} per group, sorted lexicographically.
+  * The input is never mutated.
+"""
+
+import re
+
+_INT = re.compile(r'[+-]?[0-9]+')
+
+
+def _parse_bytes(raw):
+    """Return the integer value for `raw`, or None when the record is skipped."""
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Pass 1: locate the last occurrence of every nonempty string id.
+    last = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key:
+                last[key] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        key = record.get('id')
+        if isinstance(key, str) and key and last[key] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = _parse_bytes(record['bytes'] if 'bytes' in record else 1)
+        if number is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [{'path': path, 'total': total, 'count': count}
+            for path, (total, count) in sorted(groups.items())]

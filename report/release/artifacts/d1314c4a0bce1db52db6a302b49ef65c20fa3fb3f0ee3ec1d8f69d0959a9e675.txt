@@ -1,0 +1,84 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # First retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent. Deduplicate before all other rules.
+    last_seen = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                last_seen[rec_id] = i
+
+    retained = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                if last_seen[rec_id] != i:
+                    continue
+        retained.append(record)
+
+    # Skip non-object records and records whose 'active' is false.
+    # Read 'path', falling back to 'route' only when 'path' is absent.
+    # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+    # Read 'bytes', defaulting to 1 only when absent.
+    # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace;
+    # convert strings to base-10 integers. Skip all other values, including null.
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            raw_path = record['path']
+        elif 'route' in record:
+            raw_path = record['route']
+        else:
+            continue
+
+        if not isinstance(raw_path, str):
+            continue
+        path = raw_path.strip()
+        if not path:
+            continue
+
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            raw_bytes = record['bytes']
+            if isinstance(raw_bytes, bool):
+                continue
+            elif isinstance(raw_bytes, int):
+                bytes_val = raw_bytes
+            elif isinstance(raw_bytes, str):
+                s = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    bytes_val = int(s, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        if path not in groups:
+            groups[path] = [0, 0]
+        groups[path][0] += bytes_val
+        groups[path][1] += 1
+
+    # Group retained records by normalized 'path'. Each output object contains 'path'
+    # and the sum of bytes as 'total' and the number of retained records as 'count'.
+    # Sort results lexicographically by 'path'. Return [] when no records remain.
+    result = []
+    for p in sorted(groups.keys()):
+        result.append({
+            'path': p,
+            'total': groups[p][0],
+            'count': groups[p][1]
+        })
+    return result

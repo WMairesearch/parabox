@@ -1,0 +1,69 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _valid_id(record):
+    rid = record.get('id')
+    return rid if isinstance(rid, str) and rid != '' else None
+
+
+def _record_key(record):
+    """Return normalized sku or None when the record has no usable key."""
+    if 'sku' in record:
+        raw = record['sku']
+    elif 'item' in record:
+        raw = record['item']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    return key if key else None
+
+
+def _record_delta(record):
+    """Return integer delta or None when the value is not acceptable."""
+    if 'delta' not in record:
+        return 1
+    value = record['delta']
+    if type(value) is int:
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _DELTA_RE.match(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string 'id'.  Records without such an id stay independent.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = _valid_id(record)
+            if rid is not None:
+                last_index[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = _valid_id(record)
+        if rid is not None and last_index[rid] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        sku = _record_key(record)
+        if sku is None:
+            continue
+        delta = _record_delta(record)
+        if delta is None:
+            continue
+        groups[sku] = groups.get(sku, 0) + delta
+
+    return [{'sku': sku, 'total': total} for sku, total in sorted(groups.items())]

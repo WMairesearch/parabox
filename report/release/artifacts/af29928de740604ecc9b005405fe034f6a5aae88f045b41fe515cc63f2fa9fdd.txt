@@ -1,0 +1,63 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Rule 1 (before all others): retain only the last occurrence of each
+    # nonempty string 'id'. Records without such an id remain independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_position[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # Deduplication: drop earlier occurrences of a repeated id.
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if (isinstance(record_id, str) and record_id != ''
+                    and last_position[record_id] != position):
+                continue
+        else:
+            # Skip non-object records.
+            continue
+
+        # Skip records whose 'active' is false (the JSON boolean false).
+        if record.get('active') is False:
+            continue
+
+        # Read 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            name = record['sku']
+        elif 'item' in record:
+            name = record['item']
+        else:
+            continue
+        if not isinstance(name, str) or not name.strip():
+            continue
+        key = name.strip()
+
+        # Read 'delta', defaulting to 1 only when absent.
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                delta = number
+            elif isinstance(number, str):
+                text = number.strip()
+                if _DELTA_PATTERN.fullmatch(text) is None:
+                    continue
+                delta = int(text, 10)
+            else:
+                # Skip all other values, including null.
+                continue
+        else:
+            delta = 1
+
+        groups[key] = groups.get(key, 0) + delta
+
+    return [{'sku': key, 'total': groups[key]} for key in sorted(groups)]

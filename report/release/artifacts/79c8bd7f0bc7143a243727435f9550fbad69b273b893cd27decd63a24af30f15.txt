@@ -1,0 +1,56 @@
+import re
+
+_PRIORITY = re.compile(r'[+-]?[0-9]+')
+
+
+def _priority_of(record):
+    """Return the integer priority of a record, or None when unusable."""
+    if 'priority' in record:
+        raw = record['priority']
+    else:
+        return 1                      # default only when the key is absent
+    if isinstance(raw, bool):
+        return None                   # booleans are not integers here
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _PRIORITY.fullmatch(text):
+            return int(text, 10)
+    return None                       # floats, None, lists, bad strings, ...
+
+
+def solve(value):
+    records = value if isinstance(value, list) else []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if (isinstance(identifier, str) and identifier
+                and last_position[identifier] != position):
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['category'] if 'category' in record else record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = _priority_of(record)
+        if number is None:
+            continue
+        current = groups.get(name)
+        groups[name] = number if current is None or number > current else current
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

@@ -1,0 +1,55 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _parse_delta(raw):
+    # Accept true integers (booleans excluded) and plain decimal strings.
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _DELTA_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: retain only the last occurrence of each
+    # nonempty string id; records without such an id stay independent.
+    last_seen = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_seen[rid] = index
+
+    totals = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last_seen.get(rid) != index:
+            continue
+        if record.get('active') is False:
+            continue
+        # 'sku' with fallback to 'item' only when 'sku' is absent.
+        key = record.get('sku') if 'sku' in record else record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+        # 'delta' defaults to 1 only when absent.
+        if 'delta' in record:
+            delta = _parse_delta(record.get('delta'))
+            if delta is None:
+                continue
+        else:
+            delta = 1
+        totals[key] = totals.get(key, 0) + delta
+
+    return [{'sku': sku, 'total': totals[sku]} for sku in sorted(totals)]

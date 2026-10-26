@@ -1,0 +1,64 @@
+import re
+
+_BYTES_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _normalized_path(record):
+    if 'path' in record:
+        name = record['path']
+    else:
+        name = record.get('route')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if not name:
+        return None
+    return name
+
+
+def _bytes_value(record):
+    if 'bytes' not in record:
+        return 1
+    number = record['bytes']
+    if type(number) is int:
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _BYTES_PATTERN.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string 'id'. Records without such an id remain independent.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_positions[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_positions.get(identifier) != position:
+                continue
+        if record.get('active') is False:
+            continue
+        name = _normalized_path(record)
+        if name is None:
+            continue
+        number = _bytes_value(record)
+        if number is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': total, 'count': count}
+        for name, (total, count) in sorted(groups.items())
+    ]

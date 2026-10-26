@@ -1,0 +1,60 @@
+import re
+
+
+def solve(value):
+    # Deduplicate by id before any other rule: keep only the last occurrence
+    # of each nonempty-string id. Records without such an id remain independent.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_id_position[record_id] = position
+
+    kept_records = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if position == last_id_position[record_id]:
+                    kept_records.append(record)
+                continue
+        kept_records.append(record)
+
+    groups = {}
+    for record in kept_records:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            sku = record['sku']
+        else:
+            sku = record.get('item')
+
+        if not isinstance(sku, str):
+            continue
+        sku = sku.strip()
+        if not sku:
+            continue
+
+        if 'delta' in record:
+            delta = record['delta']
+        else:
+            delta = 1
+
+        if isinstance(delta, str):
+            stripped = delta.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                delta = int(stripped)
+            else:
+                continue
+
+        if type(delta) is not int:
+            continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    result = [{'sku': sku, 'total': total} for sku, total in sorted(groups.items())]
+    return result

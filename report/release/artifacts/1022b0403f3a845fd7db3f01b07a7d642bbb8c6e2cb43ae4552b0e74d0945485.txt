@@ -1,0 +1,78 @@
+"""access_logs: group retained access-log records by normalized path.
+
+Rules (from PROBLEM.md):
+  * Deduplicate first: keep only the LAST occurrence of each nonempty string
+    'id'; records without such an id stay independent.
+  * Skip non-object records and records whose 'active' is (strictly) false.
+  * Read 'path'; fall back to 'route' only when the 'path' KEY is absent.
+    Skip non-string / empty-after-strip values; strip surrounding whitespace.
+  * Read 'bytes'; default 1 only when the KEY is absent. Accept ints (bools
+    rejected) and strings matching [+-]?[0-9]+ after stripping; else skip.
+  * Group by normalized path; emit {'path', 'total', 'count'} sorted by path.
+  * Never mutate the input.
+"""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _iterable(value):
+    """Return the input as a list, or [] for non-sequence inputs."""
+    if value is None or isinstance(value, (str, bytes, bytearray, dict)):
+        return []
+    if isinstance(value, list):
+        return value
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def solve(value):
+    records = _iterable(value)
+
+    # 1. Deduplication map: id -> index of its last occurrence.
+    last = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key:
+                last[key] = index
+
+    # 2. Filter, normalize and aggregate.
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = record.get('id')
+        if isinstance(key, str) and key and last[key] != index:
+            continue
+        if record.get('active') is False:
+            continue
+
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                text = number.strip()
+                if not _INTEGER.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    # 3. Sorted output.
+    return [{'path': path, 'total': total, 'count': count}
+            for path, (total, count) in sorted(groups.items())]

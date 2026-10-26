@@ -1,0 +1,78 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def _record_id(record):
+    """Return the dedup id of a record, or None when it has no usable id."""
+    if not isinstance(record, dict):
+        return None
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier != '':
+        return identifier
+    return None
+
+
+def _bytes_value(record):
+    """Return the byte count for a record, or None when it must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    number = record['bytes']
+    if isinstance(number, str):
+        stripped = number.strip()
+        if not _NUMBER.fullmatch(stripped):
+            return None
+        return int(stripped, 10)
+    if isinstance(number, bool) or type(number) is not int:
+        return None
+    return number
+
+
+def _path_value(record):
+    """Return the normalized path, or None when the record must be skipped."""
+    if 'path' in record:
+        name = record['path']
+    else:
+        name = record.get('route')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string id.  Records without such an id stay independent.
+    last_occurrence = {}
+    for position, record in enumerate(value):
+        identifier = _record_id(record)
+        if identifier is not None:
+            last_occurrence[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        identifier = _record_id(record)
+        if identifier is not None and last_occurrence[identifier] != position:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        name = _path_value(record)
+        if name is None:
+            continue
+        number = _bytes_value(record)
+        if number is None:
+            continue
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

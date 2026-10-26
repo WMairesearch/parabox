@@ -1,0 +1,84 @@
+"""access_logs: group retained access-log records by normalized path.
+
+Rules (from PROBLEM.md):
+  * Deduplicate first: keep only the LAST occurrence of each nonempty string
+    'id'; records without such an id stay independent.
+  * Skip non-object records and records whose 'active' is JSON false.
+  * Key = 'path', falling back to 'route' only when 'path' is absent; skip
+    non-strings and blank-after-strip values; strip kept values.
+  * 'bytes' defaults to 1 only when absent; accept ints (not bools) and strings
+    matching [+-]?[0-9]+ after stripping; skip everything else.
+  * Emit {'path', 'total', 'count'} per group, sorted lexicographically by path.
+  * Never mutate the input.
+"""
+
+import json
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _key_of(record):
+    """Normalized grouping key, or None when the record must be skipped."""
+    name = record['path'] if 'path' in record else record.get('route')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def _bytes_of(record):
+    """Integer byte count, or None when the value must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    number = record['bytes']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _INTEGER.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if isinstance(value, (str, bytes, bytearray)):
+        try:
+            value = json.loads(value)
+        except Exception:
+            return []
+    records = value if isinstance(value, (list, tuple)) else []
+
+    # Pass 1: locate the last occurrence of every nonempty string id.
+    last_seen = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_seen[identifier] = position
+
+    # Pass 2: apply the remaining rules to the retained records only.
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and last_seen[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = _key_of(record)
+        if name is None:
+            continue
+        number = _bytes_of(record)
+        if number is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': total, 'count': count}
+        for name, (total, count) in sorted(groups.items())
+    ]

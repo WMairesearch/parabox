@@ -1,0 +1,70 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # First pass: deduplicate by nonempty string 'id', keeping only the last
+    # occurrence of each such id. Records without such an id are independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_position[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_position.get(record_id) != position:
+                    continue
+
+        # Skip non-object records (satisfied by the if/else below).
+        if not isinstance(record, dict):
+            continue
+
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+
+        # Read category, falling back to kind only when category is absent.
+        if 'category' in record:
+            category = record['category']
+        else:
+            category = record.get('kind')
+
+        if not isinstance(category, str):
+            continue
+        category = category.strip()
+        if not category:
+            continue
+
+        # Read priority, defaulting to 1 only when absent.
+        if 'priority' in record:
+            priority = record['priority']
+            if type(priority) is int:
+                # bool is rejected by the strict type check above.
+                number = priority
+            elif isinstance(priority, str):
+                priority_string = priority.strip()
+                if _PRIORITY_RE.fullmatch(priority_string) is None:
+                    continue
+                number = int(priority_string)
+            else:
+                continue
+        else:
+            number = 1
+
+        current = groups.get(category)
+        if current is None or number > current:
+            groups[category] = number
+
+    return [
+        {'category': category, 'maximum': groups[category]}
+        for category in sorted(groups)
+    ]

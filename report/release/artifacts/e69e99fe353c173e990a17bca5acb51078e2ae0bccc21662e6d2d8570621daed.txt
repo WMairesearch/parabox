@@ -1,0 +1,67 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _last_id_positions(records):
+    """Map each nonempty string id to the index of its LAST occurrence."""
+    last = {}
+    for i, record in enumerate(records):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last[rid] = i
+    return last
+
+
+def _key(record, primary, fallback):
+    """Category key, falling back only when the primary KEY is absent."""
+    if primary in record:
+        raw = record[primary]
+    elif fallback in record:
+        raw = record[fallback]
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    text = raw.strip()
+    return text or None
+
+
+def _priority(record, field):
+    """Priority value; None means the whole record must be skipped."""
+    if field not in record:
+        return 1
+    raw = record[field]
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+    records = list(value)
+    last = _last_id_positions(records)
+    best = {}
+    for i, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last.get(rid) != i:
+            continue
+        if record.get('active') is False:
+            continue
+        key = _key(record, 'category', 'kind')
+        if key is None:
+            continue
+        amount = _priority(record, 'priority')
+        if amount is None:
+            continue
+        if key not in best or amount > best[key]:
+            best[key] = amount
+    return [{'category': key, 'maximum': best[key]} for key in sorted(best)]

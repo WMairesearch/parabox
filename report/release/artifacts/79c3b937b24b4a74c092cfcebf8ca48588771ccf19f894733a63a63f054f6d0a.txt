@@ -1,0 +1,87 @@
+"""Group inventory records by normalized sku.
+
+Rules (see PROBLEM.md):
+  * keep only the last occurrence of each nonempty string ``id``
+    (deduplication happens before every other rule);
+  * skip non-object records and records whose ``active`` is ``False``;
+  * the grouping key is ``sku``, falling back to ``item`` only when ``sku``
+    is absent; non-string / blank-after-stripping keys are skipped;
+  * ``delta`` defaults to 1 only when absent, otherwise it must be an
+    integer (not a bool) or a string matching ``[+-]?[0-9]+`` after
+    stripping; every other value skips the record;
+  * ``total`` is the sum of the accepted deltas and the results are sorted
+    lexicographically by ``sku``.
+
+The input is never modified.
+"""
+
+import re
+
+_INTEGER = re.compile(r"[+-]?[0-9]+")
+
+
+def _identity(record):
+    """Return the deduplication key of a record, or None when it is independent."""
+    key = record.get("id")
+    if isinstance(key, str) and key:
+        return key
+    return None
+
+
+def _normalized_sku(record):
+    """Return the stripped grouping key, or None when the record is unusable."""
+    raw = record["sku"] if "sku" in record else record.get("item")
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    return key or None
+
+
+def _normalized_delta(record):
+    """Return the integer delta, or None when the record must be skipped."""
+    if "delta" not in record:
+        return 1
+    raw = record["delta"]
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INTEGER.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    records = list(value) if isinstance(value, (list, tuple)) else []
+
+    # Last occurrence of every nonempty string id wins; everything else stays.
+    survivors = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = _identity(record)
+            if key is not None:
+                survivors[key] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = _identity(record)
+        if key is not None and survivors[key] != position:
+            continue
+        if record.get("active") is False:
+            continue
+        sku = _normalized_sku(record)
+        if sku is None:
+            continue
+        number = _normalized_delta(record)
+        if number is None:
+            continue
+        groups[sku] = groups.get(sku, 0) + number
+
+    return [
+        {"sku": sku, "total": total}
+        for sku, total in sorted(groups.items())
+    ]

@@ -1,0 +1,76 @@
+import re
+
+# Matches an optional sign followed by one or more ASCII digits.
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _parse_priority(value):
+    """Return the integer priority, or None when the value must be skipped."""
+    # Booleans are a subclass of int, so reject them explicitly first.
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _PRIORITY_PATTERN.fullmatch(text):
+            return int(text, 10)
+        return None
+    # Null, floats, lists, dicts, and anything else are skipped.
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: retain only the last occurrence of
+    # each nonempty string 'id'. Records without such an id stay independent.
+    last_occurrence = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_occurrence[identifier] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        # Drop earlier duplicates of a nonempty string id.
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if last_occurrence.get(identifier) != index:
+                continue
+
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+
+        # Read 'category', falling back to 'kind' only when 'category' is absent.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Read 'priority', defaulting to 1 only when absent.
+        if 'priority' in record:
+            priority = _parse_priority(record['priority'])
+            if priority is None:
+                continue
+        else:
+            priority = 1
+
+        if name in groups:
+            if priority > groups[name]:
+                groups[name] = priority
+        else:
+            groups[name] = priority
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

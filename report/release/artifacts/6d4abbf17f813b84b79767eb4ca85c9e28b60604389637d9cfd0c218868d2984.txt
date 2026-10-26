@@ -1,0 +1,62 @@
+import re
+
+DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _normalized_delta(record):
+    """Return an int delta, or None when the record must be skipped."""
+    if 'delta' not in record:
+        return 1
+    number = record['delta']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if DELTA_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    records = list(value) if not isinstance(value, list) else value
+
+    # Rule 1: deduplicate FIRST - keep only the last occurrence of each
+    # nonempty string id. Records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        # Rule 2: skip non-objects and inactive records.
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        # Rule 3: key from 'sku', falling back to 'item' only when 'sku' absent.
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == '':
+            continue
+        # Rule 4: delta handling.
+        number = _normalized_delta(record)
+        if number is None:
+            continue
+        groups[name] = groups.get(name, 0) + number
+
+    # Rule 5: sorted lexicographically by sku.
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

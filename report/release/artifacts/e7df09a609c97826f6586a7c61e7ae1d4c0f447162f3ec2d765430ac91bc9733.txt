@@ -1,0 +1,72 @@
+"""Inventory grouping (see PROBLEM.md).
+
+Rules, in order:
+  1. Deduplicate first: for every record that is an object with a nonempty
+     string 'id', keep only its LAST occurrence; records without such an id
+     remain independent.
+  2. Skip non-object records and records whose 'active' is false.
+  3. Grouping key: 'sku', falling back to 'item' only when 'sku' is absent.
+     Non-string or blank-after-stripping keys are skipped; keys are stripped.
+  4. 'delta' defaults to 1 only when absent.  Accept integers (never booleans)
+     and strings fullmatching [+-]?[0-9]+ after stripping; skip the record for
+     every other value, null included.
+  5. Emit {'sku': key, 'total': sum} sorted lexicographically by 'sku';
+     [] when nothing remains.  The input is never mutated.
+"""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # 1. keep only the last occurrence of each nonempty string 'id'.
+    last_index = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            identity = record.get('id')
+            if isinstance(identity, str) and identity != '':
+                last_index[identity] = index
+
+    totals = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identity = record.get('id')
+        if isinstance(identity, str) and identity != '' and last_index[identity] != index:
+            continue
+        # 2. inactive records are skipped.
+        if record.get('active') is False:
+            continue
+        # 3. grouping key.
+        key = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+        # 4. delta.
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if _INT_RE.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        totals[key] = totals.get(key, 0) + number
+
+    # 5. sorted output.
+    return [{'sku': key, 'total': totals[key]} for key in sorted(totals)]

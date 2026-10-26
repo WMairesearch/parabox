@@ -1,0 +1,71 @@
+import re
+
+
+def solve(value):
+    # Deduplicate records by nonempty string 'id' before any other rule:
+    # for each such id, only the last occurrence in the input is retained.
+    last_index = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        id_value = record.get('id')
+        if isinstance(id_value, str) and id_value != '':
+            last_index[id_value] = index
+
+    retained_indices = set()
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            # Non-objects are independent during deduplication but are
+            # skipped by the object rule below.
+            continue
+        id_value = record.get('id')
+        if isinstance(id_value, str) and id_value != '':
+            if last_index[id_value] == index:
+                retained_indices.add(index)
+        else:
+            # Records without a nonempty string id remain independent.
+            retained_indices.add(index)
+
+    groups = {}
+
+    for index, record in enumerate(value):
+        if index not in retained_indices:
+            continue
+        # Non-object records have not been retained in the dedupe pass.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            if type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    result = [
+        {'path': name, 'total': total, 'count': count}
+        for name, (total, count) in sorted(groups.items())
+    ]
+    return result

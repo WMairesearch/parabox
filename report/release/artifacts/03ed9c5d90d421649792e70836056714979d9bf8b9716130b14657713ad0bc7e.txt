@@ -1,0 +1,81 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules:
+    # Retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent.
+    last_seen = {}
+    for idx, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                last_seen[rec_id] = idx
+
+    groups = {}
+    for idx, record in enumerate(value):
+        # Skip non-object records
+        if not isinstance(record, dict):
+            continue
+
+        # If record has a nonempty string id, only retain the last occurrence
+        rec_id = record.get('id')
+        if isinstance(rec_id, str) and rec_id:
+            if last_seen[rec_id] != idx:
+                continue
+
+        # Skip records whose 'active' is false
+        if record.get('active') is False:
+            continue
+
+        # Read 'path', falling back to 'route' only when 'path' is absent
+        if 'path' in record:
+            raw_path = record['path']
+        elif 'route' in record:
+            raw_path = record['route']
+        else:
+            continue
+
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace
+        if not isinstance(raw_path, str):
+            continue
+        path = raw_path.strip()
+        if not path:
+            continue
+
+        # Read 'bytes', defaulting to 1 only when absent
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            raw_bytes = record['bytes']
+            # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace
+            if isinstance(raw_bytes, bool):
+                continue
+            elif isinstance(raw_bytes, int):
+                bytes_val = raw_bytes
+            elif isinstance(raw_bytes, str):
+                stripped_bytes = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_bytes):
+                    bytes_val = int(stripped_bytes, 10)
+                else:
+                    continue
+            else:
+                # Skip all other values, including null
+                continue
+
+        if path not in groups:
+            groups[path] = {'total': 0, 'count': 0}
+        groups[path]['total'] += bytes_val
+        groups[path]['count'] += 1
+
+    results = []
+    for path in sorted(groups.keys()):
+        results.append({
+            'path': path,
+            'total': groups[path]['total'],
+            'count': groups[path]['count']
+        })
+    return results

@@ -1,0 +1,67 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: for records that have a nonempty
+    # string 'id', keep only the last occurrence; all other records remain
+    # independent.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_positions[record_id] = position
+
+    records = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_positions[record_id] != position:
+                    continue
+        records.append(record)
+
+    groups = {}
+
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            key = record['sku']
+        elif 'item' in record:
+            key = record['item']
+        else:
+            continue
+
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if key == '':
+            continue
+
+        # Read 'delta', defaulting to 1 only when absent.
+        if 'delta' not in record:
+            number = 1
+        else:
+            number = record['delta']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+
+        groups[key] = groups.get(key, 0) + number
+
+    return [{'sku': key, 'total': total} for key, total in sorted(groups.items())]

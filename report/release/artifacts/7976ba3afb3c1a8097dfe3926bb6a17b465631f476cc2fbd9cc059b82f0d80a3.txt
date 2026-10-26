@@ -1,0 +1,67 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _parse_bytes(record):
+    """Return the byte count for a record, or None when it must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    value = record['bytes']
+    # bool is a subclass of int, so require the exact int type.
+    if type(value) is int:
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INT_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    groups = {}
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: remember the last position of each nonempty string id.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != "":
+                last_position[identifier] = position
+
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != "":
+            if last_position[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+
+        # Use 'route' only when the 'path' key is entirely absent.
+        if 'path' in record:
+            name = record['path']
+        elif 'route' in record:
+            name = record['route']
+        else:
+            name = None
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        number = _parse_bytes(record)
+        if number is None:
+            continue
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': total, 'count': count}
+        for name, (total, count) in sorted(groups.items())
+    ]

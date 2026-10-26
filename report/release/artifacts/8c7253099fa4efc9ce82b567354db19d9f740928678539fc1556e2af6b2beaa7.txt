@@ -1,0 +1,59 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: deduplicate by nonempty string 'id', keeping the last occurrence.
+    # Records without such an id remain independent. Runs before all other rules.
+    last_by_id = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_by_id[rid] = index
+
+    # Step 2: filter and accumulate.
+    totals = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '':
+            if last_by_id[rid] != index:
+                continue
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            key = record.get('sku')
+        elif 'item' in record:
+            key = record.get('item')
+        else:
+            continue
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if key == '':
+            continue
+
+        if 'delta' in record:
+            raw = record.get('delta')
+            if type(raw) is int:
+                number = raw
+            elif isinstance(raw, str):
+                stripped = raw.strip()
+                if not _DELTA_RE.fullmatch(stripped):
+                    continue
+                number = int(stripped, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        totals[key] = totals.get(key, 0) + number
+
+    return [{'sku': sku, 'total': totals[sku]} for sku in sorted(totals)]

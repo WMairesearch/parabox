@@ -1,0 +1,80 @@
+"""Events grouping.
+
+Retain the last occurrence of each nonempty string 'id', drop non-objects and
+records whose 'active' is false, group by normalized 'category' (falling back to
+'kind' only when 'category' is absent) and report the maximum 'priority'.
+"""
+
+import re
+
+_PRIORITY = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedup_id(record):
+    """Return the record's de-duplication id, or None when it has none."""
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier != '':
+        return identifier
+    return None
+
+
+def _category(record):
+    """Normalized category, or None when the record has no usable key."""
+    if 'category' in record:
+        raw = record['category']
+    else:
+        raw = record.get('kind')
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip()
+    return name or None
+
+
+def _priority(record):
+    """(usable, value) for the record's priority; defaults to 1 when absent."""
+    if 'priority' not in record:
+        return True, 1
+    raw = record['priority']
+    if isinstance(raw, bool):
+        return False, None
+    if isinstance(raw, int):
+        return True, raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _PRIORITY.fullmatch(text):
+            return True, int(text, 10)
+    return False, None
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    last = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = _dedup_id(record)
+            if identifier is not None:
+                last[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = _dedup_id(record)
+        if identifier is not None and last[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        usable, number = _priority(record)
+        if not usable:
+            continue
+        if name not in groups or number > groups[name]:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

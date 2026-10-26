@@ -1,0 +1,61 @@
+import re
+
+PRIORITY_REGEX = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            raw_priority = record['priority']
+        else:
+            raw_priority = 1
+
+        if type(raw_priority) is int:
+            priority = raw_priority
+        elif isinstance(raw_priority, str):
+            stripped = raw_priority.strip()
+            if PRIORITY_REGEX.fullmatch(stripped):
+                priority = int(stripped, 10)
+            else:
+                continue
+        else:
+            continue
+
+        if name not in groups or priority > groups[name]:
+            groups[name] = priority
+
+    result = []
+    for name in sorted(groups):
+        result.append({'category': name, 'maximum': groups[name]})
+    return result

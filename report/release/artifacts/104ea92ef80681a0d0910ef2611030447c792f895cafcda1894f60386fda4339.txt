@@ -1,0 +1,61 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: keep only the last occurrence of
+    # each nonempty string 'id'.  Records without such an id are unaffected.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != "":
+                last_id_position[id_value] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != "":
+                if last_id_position.get(id_value) != position:
+                    continue
+
+        # Apply all other rules only after deduplication.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            raw_category = record['category']
+        else:
+            raw_category = record.get('kind')
+
+        if not isinstance(raw_category, str):
+            continue
+        category = raw_category.strip()
+        if not category:
+            continue
+
+        if 'priority' not in record:
+            priority = 1
+        else:
+            raw_priority = record['priority']
+            if type(raw_priority) is int:
+                priority = raw_priority
+            elif isinstance(raw_priority, str):
+                stripped_priority = raw_priority.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_priority):
+                    priority = int(stripped_priority)
+                else:
+                    continue
+            else:
+                continue
+
+        if category not in groups or priority > groups[category]:
+            groups[category] = priority
+
+    return [{'category': category, 'maximum': groups[category]}
+            for category in sorted(groups)]

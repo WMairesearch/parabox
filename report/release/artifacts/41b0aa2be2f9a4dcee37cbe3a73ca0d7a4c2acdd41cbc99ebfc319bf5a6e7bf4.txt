@@ -1,0 +1,79 @@
+import re
+
+BYTE_PATTERN = re.compile(r'^[+-]?[0-9]+$')
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # First retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent. Deduplicate before all other rules.
+    last_occurrence = {}
+    for idx, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                last_occurrence[rec_id] = idx
+
+    retained = []
+    for idx, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                if last_occurrence[rec_id] != idx:
+                    continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        # Skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read 'path', falling back to 'route' only when 'path' is absent.
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if 'path' in record:
+            raw_path = record['path']
+        elif 'route' in record:
+            raw_path = record['route']
+        else:
+            continue
+
+        if not isinstance(raw_path, str):
+            continue
+        norm_path = raw_path.strip()
+        if not norm_path:
+            continue
+
+        # Read 'bytes', defaulting to 1 only when absent.
+        # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace;
+        # convert strings to base-10 integers. Skip all other values, including null.
+        if 'bytes' not in record:
+            byte_count = 1
+        else:
+            raw_bytes = record['bytes']
+            if isinstance(raw_bytes, int) and not isinstance(raw_bytes, bool):
+                byte_count = raw_bytes
+            elif isinstance(raw_bytes, str) and BYTE_PATTERN.fullmatch(raw_bytes.strip()):
+                byte_count = int(raw_bytes.strip(), 10)
+            else:
+                continue
+
+        if norm_path not in groups:
+            groups[norm_path] = [byte_count, 1]
+        else:
+            groups[norm_path][0] += byte_count
+            groups[norm_path][1] += 1
+
+    result = []
+    for path in sorted(groups.keys()):
+        total, count = groups[path]
+        result.append({
+            'path': path,
+            'total': total,
+            'count': count
+        })
+    return result

@@ -1,0 +1,70 @@
+import re
+
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    # First, deduplicate records by nonempty string 'id': only the last
+    # occurrence of each such id is retained.  Records without such an id
+    # remain independent.  This happens before every other rule.
+    retained = []
+    id_positions = {}
+    for record in value:
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                position = id_positions.get(record_id)
+                if position is None:
+                    id_positions[record_id] = len(retained)
+                    retained.append(record)
+                else:
+                    retained[position] = record
+                continue
+        retained.append(record)
+
+    groups = {}
+
+    for record in retained:
+        # Skip non-object records and records whose 'active' is JSON false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read 'category', falling back to 'kind' only when 'category' is
+        # absent.  The key must be a string and nonempty after stripping.
+        if 'category' in record:
+            key = record['category']
+        else:
+            key = record.get('kind')
+
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        # Read 'priority', defaulting to 1 only when the key is absent.
+        if 'priority' in record:
+            priority = record['priority']
+            if type(priority) is int:
+                number = priority
+            elif isinstance(priority, str):
+                text = priority.strip()
+                if _PRIORITY_PATTERN.fullmatch(text):
+                    number = int(text, 10)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        if key not in groups or number > groups[key]:
+            groups[key] = number
+
+    return [
+        {'category': key, 'maximum': groups[key]}
+        for key in sorted(groups)
+    ]

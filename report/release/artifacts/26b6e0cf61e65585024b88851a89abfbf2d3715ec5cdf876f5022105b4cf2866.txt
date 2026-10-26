@@ -1,0 +1,57 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _string_id(record):
+    """Return the record's id if it is a nonempty string, else None."""
+    record_id = record.get('id')
+    if isinstance(record_id, str) and record_id != '':
+        return record_id
+    return None
+
+
+def solve(value):
+    # Deduplicate before all other rules: retain only the last occurrence
+    # of each nonempty string 'id'. Records without such an id stay independent.
+    last_index = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = _string_id(record)
+            if record_id is not None:
+                last_index[record_id] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = _string_id(record)
+        if record_id is not None and last_index[record_id] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'delta' in record:
+            number = record['delta']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if not _DELTA_PATTERN.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

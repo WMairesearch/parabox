@@ -1,0 +1,79 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+_MISSING = object()
+
+
+def solve(value):
+    """Group event records by normalized category and report the max priority.
+
+    Rules (in order):
+      1. Keep only the last occurrence of each nonempty string 'id'
+         (deduplication happens before every other rule).  Records whose
+         'id' is missing, not a string, or empty stay independent.
+      2. Skip non-object records and records whose 'active' is false.
+      3. Read 'category', falling back to 'kind' only when 'category' is
+         absent.  Skip non-strings and strings that are empty once stripped.
+      4. Read 'priority', defaulting to 1 only when absent.  Accept ints
+         (never bools) and strings matching [+-]?[0-9]+ after stripping.
+         Anything else (null, floats, bools, bad strings) disqualifies the
+         record.
+      5. Group by normalized category, keep the maximum priority, and sort
+         the results lexicographically by category.
+    """
+    if not isinstance(value, list):
+        return []
+
+    # Pass 1: locate the last occurrence of each usable identifier.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id', _MISSING)
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    # Pass 2: filter and aggregate.
+    maxima = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id', _MISSING)
+        if isinstance(identifier, str) and identifier:
+            if last_position.get(identifier) != position:
+                continue
+
+        if record.get('active', _MISSING) is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            name = _MISSING
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            number = record['priority']
+        else:
+            number = 1
+
+        if isinstance(number, str):
+            text = number.strip()
+            if _INT_RE.fullmatch(text) is None:
+                continue
+            number = int(text, 10)
+        elif type(number) is not int:
+            continue
+
+        if name not in maxima or number > maxima[name]:
+            maxima[name] = number
+
+    return [{'category': name, 'maximum': maxima[name]}
+            for name in sorted(maxima)]

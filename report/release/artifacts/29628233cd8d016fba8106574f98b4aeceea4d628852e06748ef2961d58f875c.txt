@@ -1,0 +1,83 @@
+"""access_logs: group retained access-log records by normalized path.
+
+Rules (per PROBLEM.md):
+  1. Deduplicate first: keep only the last occurrence of each nonempty string
+     'id'.  Records without such an id stay independent.
+  2. Skip non-object records and records whose 'active' is false.
+  3. Key = 'path', falling back to 'route' only when 'path' is absent.
+     Skip non-string or empty-after-stripping keys; strip surrounding space.
+  4. 'bytes' defaults to 1 only when the key is absent.  Accept integers
+     (not booleans) and strings matching [+-]?[0-9]+ after stripping.
+     Skip every other value, including null.
+  5. Emit {'path', 'total', 'count'} per group, sorted lexicographically.
+"""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _has_id(record):
+    """True when record carries a nonempty string 'id'."""
+    if not isinstance(record, dict):
+        return False
+    key = record.get('id')
+    return isinstance(key, str) and key != ''
+
+
+def _last_positions(records):
+    """Map every nonempty string id to the index of its last occurrence."""
+    positions = {}
+    for index, record in enumerate(records):
+        if _has_id(record):
+            positions[record['id']] = index
+    return positions
+
+
+def _amount(record):
+    """Return the byte amount for a record, or None when it must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    raw = record['bytes']
+    if type(raw) is int:                 # bool is deliberately excluded
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INTEGER.fullmatch(text):
+            return int(text)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+    records = list(value)
+    positions = _last_positions(records)
+
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        if _has_id(record) and positions[record['id']] != index:
+            continue                       # superseded duplicate
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            raw_key = record['path']
+        elif 'route' in record:
+            raw_key = record['route']
+        else:
+            continue
+        if not isinstance(raw_key, str):
+            continue
+        key = raw_key.strip()
+        if not key:
+            continue
+        amount = _amount(record)
+        if amount is None:
+            continue
+        total, count = groups.get(key, (0, 0))
+        groups[key] = (total + amount, count + 1)
+
+    return [{'path': name, 'total': total, 'count': count}
+            for name, (total, count) in sorted(groups.items())]

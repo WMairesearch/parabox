@@ -1,0 +1,46 @@
+import re
+
+
+def solve(value):
+    # Dedupe first: keep only the last occurrence of each nonempty string 'id'.
+    last = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last[rid] = i
+    groups = {}
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last[rid] != i:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str) and re.fullmatch(r'[+-]?[0-9]+', number.strip()):
+                number = int(number.strip())
+            else:
+                continue
+        else:
+            number = 1
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+    result = [{'path': n, 'total': t, 'count': c} for n, (t, c) in groups.items()]
+    result.sort(key=lambda r: r['path'])
+    return result

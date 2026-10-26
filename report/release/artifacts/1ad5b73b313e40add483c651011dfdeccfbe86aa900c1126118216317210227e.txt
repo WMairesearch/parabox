@@ -1,0 +1,76 @@
+import re
+
+def solve(value):
+    # Rule 1: Deduplicate before all other rules.
+    # First retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent.
+    last_idx_for_id = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != "":
+                last_idx_for_id[rid] = i
+                
+    groups = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != "":
+                if last_idx_for_id[rid] != i:
+                    continue
+                    
+        # Rule 3: Skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+            
+        # Rule 4: Read 'path', falling back to 'route' only when 'path' is absent.
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if 'path' in record:
+            key = record['path']
+        elif 'route' in record:
+            key = record['route']
+        else:
+            continue
+            
+        if not isinstance(key, str):
+            continue
+            
+        key = key.strip()
+        if not key:
+            continue
+            
+        # Rule 5: Read 'bytes', defaulting to 1 only when absent.
+        # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace;
+        # convert strings to base-10 integers. Skip all other values, including null.
+        if 'bytes' in record:
+            b_val = record['bytes']
+        else:
+            b_val = 1
+            
+        if type(b_val) is int:
+            b = b_val
+        elif type(b_val) is str:
+            b_str = b_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', b_str):
+                b = int(b_str)
+            else:
+                continue
+        else:
+            continue
+            
+        # Group retained records by normalized 'path'.
+        if key not in groups:
+            groups[key] = {'total': 0, 'count': 0}
+        groups[key]['total'] += b
+        groups[key]['count'] += 1
+        
+    result = []
+    for k in sorted(groups.keys()):
+        result.append({
+            'path': k,
+            'total': groups[k]['total'],
+            'count': groups[k]['count']
+        })
+    return result

@@ -1,0 +1,79 @@
+import json
+import re
+
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except (TypeError, ValueError):
+            return []
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string 'id'.  Records without such an id remain independent.
+    last_position_by_id = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_position_by_id[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # Apply the deduplication decision before any other rules.
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if position != last_position_by_id[record_id]:
+                    continue
+
+        # Skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Resolve the grouping key: 'path', falling back to 'route' only
+        # when 'path' is absent.  The key must be a nonempty string after
+        # stripping surrounding whitespace.
+        if 'path' in record:
+            key = record.get('path')
+        else:
+            key = record.get('route')
+
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        # Resolve 'bytes'.  It defaults to 1 only when absent.
+        if 'bytes' in record:
+            number = record.get('bytes')
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                stripped_number = number.strip()
+                if _BYTES_RE.fullmatch(stripped_number) is None:
+                    continue
+                number = int(stripped_number, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(key, (0, 0))
+        groups[key] = (total + number, count + 1)
+
+    result = [
+        {'path': key, 'total': groups[key][0], 'count': groups[key][1]}
+        for key in sorted(groups)
+    ]
+    return result

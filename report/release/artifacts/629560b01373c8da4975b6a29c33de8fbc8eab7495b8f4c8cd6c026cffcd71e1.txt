@@ -1,0 +1,66 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedup_key(record):
+    """Return the deduplication key of a record, or None when independent."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _priority(record):
+    """Return the integer priority, or None when the record must be skipped."""
+    if 'priority' not in record:
+        return 1
+    number = record['priority']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _INTEGER.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last = {}
+    for position, record in enumerate(value):
+        key = _dedup_key(record)
+        if key is not None:
+            last[key] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        key = _dedup_key(record)
+        if key is not None and last[key] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['category'] if 'category' in record else record.get('kind')
+        if not isinstance(name, str):
+            continue
+        category = name.strip()
+        if not category:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        if category not in groups or number > groups[category]:
+            groups[category] = number
+
+    return [{'category': category, 'maximum': maximum}
+            for category, maximum in sorted(groups.items())]

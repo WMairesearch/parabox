@@ -1,0 +1,84 @@
+"""Inventory grouping helper.
+
+See PROBLEM.md for the specification.
+"""
+
+import re
+
+# Matches an optional sign followed by ASCII digits only.
+_INTEGER_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _identity(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier != '':
+        return identifier
+    return None
+
+
+def _delta(record):
+    """Return the record's delta as an int, or None when it is not valid."""
+    if 'delta' not in record:
+        return 1
+    value = record['delta']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INTEGER_PATTERN.fullmatch(text):
+            try:
+                return int(text, 10)
+            except ValueError:  # pragma: no cover - absurdly long digit strings
+                return None
+    return None
+
+
+def _key(record):
+    """Return the normalized sku/item key, or None when it is not valid."""
+    if 'sku' in record:
+        raw = record['sku']
+    elif 'item' in record:
+        raw = record['item']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    if not key:
+        return None
+    return key
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last record per nonempty string id.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = _identity(record)
+            if identifier is not None:
+                latest[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = _identity(record)
+        if identifier is not None and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        key = _key(record)
+        if key is None:
+            continue
+        number = _delta(record)
+        if number is None:
+            continue
+        totals[key] = totals.get(key, 0) + number
+
+    return [{'sku': key, 'total': totals[key]} for key in sorted(totals)]

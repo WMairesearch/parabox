@@ -1,0 +1,64 @@
+import re
+
+def solve(value):
+    # Step 1: Deduplicate by 'id'
+    last_id_indices = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val != '':
+                last_id_indices[id_val] = i
+
+    filtered_records = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val != '':
+                if last_id_indices[id_val] != i:
+                    continue
+        filtered_records.append(record)
+
+    # Step 2: Grouping
+    groups = {}
+    for record in filtered_records:
+        if not isinstance(record, dict):
+            continue
+        
+        # 'active' check
+        if record.get('active') is False:
+            continue
+            
+        # Read 'sku', fallback to 'item'
+        if 'sku' in record:
+            sku_val = record['sku']
+        elif 'item' in record:
+            sku_val = record['item']
+        else:
+            continue
+            
+        if not isinstance(sku_val, str):
+            continue
+        sku_val = sku_val.strip()
+        if not sku_val:
+            continue
+            
+        # Read 'delta'
+        if 'delta' in record:
+            delta_val = record['delta']
+            if type(delta_val) is int:
+                delta = delta_val
+            elif type(delta_val) is str:
+                delta_str = delta_val.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', delta_str):
+                    delta = int(delta_str)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            delta = 1
+            
+        groups[sku_val] = groups.get(sku_val, 0) + delta
+        
+    result = [{'sku': k, 'total': groups[k]} for k in sorted(groups.keys())]
+    return result

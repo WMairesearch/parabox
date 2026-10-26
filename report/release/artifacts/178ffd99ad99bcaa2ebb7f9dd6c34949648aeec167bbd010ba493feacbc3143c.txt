@@ -1,0 +1,58 @@
+import re
+
+def solve(value):
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != "":
+                last_occurrence[record_id] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != "":
+            if last_occurrence[record_id] != i:
+                continue
+                
+        if record.get('active') is False:
+            continue
+            
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+            
+        if not isinstance(name, str):
+            continue
+            
+        name = name.strip()
+        if not name:
+            continue
+            
+        if 'priority' not in record:
+            number = 1
+        else:
+            number = record['priority']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                num_str = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', num_str):
+                    number = int(num_str)
+                else:
+                    continue
+            else:
+                continue
+                
+        groups[name] = max(groups[name], number) if name in groups else number
+        
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'category': name, 'maximum': groups[name]})
+    return result

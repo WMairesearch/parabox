@@ -1,0 +1,63 @@
+import re
+
+_BYTES_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _record_id(record):
+    """Return the dedup id of a record: a nonempty string 'id', else None."""
+    if isinstance(record, dict):
+        rid = record.get('id')
+        if isinstance(rid, str) and rid:
+            return rid
+    return None
+
+
+def solve(value):
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string 'id'; records without such an id remain independent.
+    last_index = {}
+    for index, record in enumerate(value):
+        rid = _record_id(record)
+        if rid is not None:
+            last_index[rid] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        rid = _record_id(record)
+        if rid is not None and last_index[rid] != index:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'bytes' in record:
+            raw = record['bytes']
+            if isinstance(raw, bool):
+                continue
+            if isinstance(raw, int):
+                number = raw
+            elif isinstance(raw, str):
+                text = raw.strip()
+                if _BYTES_PATTERN.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': totals[0], 'count': totals[1]}
+        for name, totals in sorted(groups.items())
+    ]

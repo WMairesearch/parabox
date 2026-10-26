@@ -1,0 +1,84 @@
+"""access_logs: group access-log records by normalized path.
+
+Rules (from PROBLEM.md):
+  * Deduplicate first: for every record whose 'id' is a nonempty string, keep
+    only the LAST occurrence; records without such an id stay independent.
+    Deduplication happens before all other filtering rules.
+  * Skip non-object records and records whose 'active' is false.
+  * Key: 'path', falling back to 'route' only when 'path' is absent (as a key).
+    Skip non-string keys and keys that are empty after stripping; store stripped.
+  * 'bytes': 1 only when the key is absent. Accept ints (not bools) and strings
+    matching [+-]?[0-9]+ after stripping whitespace (base 10). Skip everything
+    else, including null.
+  * Group by normalized path: {'path', 'total' (sum of bytes), 'count'}.
+    Sorted lexicographically by path. [] when nothing remains.
+  * The input is never modified.
+"""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedup_key(record):
+    """Return the 'id' dedup key for a record, or None when independent."""
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _bytes_value(record):
+    """Return the accepted byte amount, or None when the record is skipped."""
+    if 'bytes' not in record:
+        return 1
+    raw = record['bytes']
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+    records = list(value)
+
+    # Pass 1: index of the last occurrence of each nonempty string id.
+    last_seen = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = _dedup_key(record)
+            if key is not None:
+                last_seen[key] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = _dedup_key(record)
+        if key is not None and last_seen[key] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        amount = _bytes_value(record)
+        if amount is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + amount, count + 1)
+
+    return [
+        {'path': name, 'total': totals[0], 'count': totals[1]}
+        for name, totals in sorted(groups.items())
+    ]

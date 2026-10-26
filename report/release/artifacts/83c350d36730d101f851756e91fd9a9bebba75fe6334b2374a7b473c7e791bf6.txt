@@ -1,0 +1,75 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedup(value):
+    """Keep only the last occurrence of each nonempty string 'id'."""
+    last = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last[identifier] = position
+    kept = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '' and last[identifier] != position:
+                continue
+        kept.append(record)
+    return kept
+
+
+def _path_of(record):
+    """Read 'path', falling back to 'route' only when 'path' is absent."""
+    if 'path' in record:
+        name = record['path']
+    elif 'route' in record:
+        name = record['route']
+    else:
+        return None
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name if name else None
+
+
+def _bytes_of(record):
+    """Read 'bytes', defaulting to 1 only when absent."""
+    if 'bytes' not in record:
+        return 1
+    number = record['bytes']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _NUMBER.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+    records = _dedup(value)
+    groups = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        name = _path_of(record)
+        if name is None:
+            continue
+        amount = _bytes_of(record)
+        if amount is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + amount, count + 1)
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

@@ -1,0 +1,74 @@
+"""events: group retained records by normalized category, keeping max priority."""
+
+import re
+
+_INT_TEXT = re.compile(r'[+-]?[0-9]+')
+
+
+def _has_id(record):
+    """A usable id is a nonempty string (raw value, not stripped)."""
+    if not isinstance(record, dict):
+        return False
+    key = record.get('id')
+    return isinstance(key, str) and key != ''
+
+
+def _deduplicate(records):
+    """Retain only the last occurrence of each nonempty string id.
+
+    Records without such an id remain independent. Runs before all other rules.
+    """
+    last = {}
+    for position, record in enumerate(records):
+        if _has_id(record):
+            last[record['id']] = position
+    kept = []
+    for position, record in enumerate(records):
+        if _has_id(record) and last[record['id']] != position:
+            continue
+        kept.append(record)
+    return kept
+
+
+def _priority(record):
+    """Return the integer priority, or None when the record must be skipped."""
+    if 'priority' in record:
+        value = record['priority']
+    else:
+        return 1  # default only when the key is absent
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INT_TEXT.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None  # null, floats, lists, objects, ...
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+    groups = {}
+    for record in _deduplicate(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['category'] if 'category' in record else record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+    return [{'category': key, 'maximum': groups[key]} for key in sorted(groups)]

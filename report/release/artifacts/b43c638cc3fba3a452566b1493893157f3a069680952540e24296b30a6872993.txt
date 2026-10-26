@@ -1,0 +1,58 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def _records(value):
+    if value is None or isinstance(value, (str, bytes, bytearray, dict)):
+        return []
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def solve(value):
+    records = _records(value)
+
+    last = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key != '':
+                last[key] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = record.get('id')
+        if isinstance(key, str) and key != '' and last[key] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'delta' in record:
+            raw = record['delta']
+            if type(raw) is int:
+                delta = raw
+            elif isinstance(raw, str):
+                text = raw.strip()
+                if not _NUMBER.fullmatch(text):
+                    continue
+                delta = int(text, 10)
+            else:
+                continue
+        else:
+            delta = 1
+        groups[name] = groups.get(name, 0) + delta
+
+    return [{'sku': s, 'total': groups[s]} for s in sorted(groups)]

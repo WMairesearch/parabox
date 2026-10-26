@@ -1,0 +1,67 @@
+import re
+
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate by nonempty string id: keep only the last occurrence of each
+    # such id; records without such an id are independent.
+    seen_ids = set()
+    deduped = []
+    for record in reversed(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if record_id in seen_ids:
+                    continue
+                seen_ids.add(record_id)
+        deduped.append(record)
+    deduped.reverse()
+
+    groups = {}
+    for record in deduped:
+        if not isinstance(record, dict):
+            continue
+
+        # Skip records whose 'active' is exactly JSON false.
+        if record.get('active') is False:
+            continue
+
+        # 'path' takes precedence; fall back to 'route' only when 'path' is
+        # absent.  A present-but-invalid 'path' is still a skip.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # 'bytes' defaults to 1 only when absent.
+        if 'bytes' in record:
+            raw_bytes = record['bytes']
+            if isinstance(raw_bytes, str):
+                raw_bytes = raw_bytes.strip()
+                if _BYTES_RE.fullmatch(raw_bytes):
+                    number = int(raw_bytes)
+                else:
+                    continue
+            elif type(raw_bytes) is int:
+                number = raw_bytes
+            else:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    result = []
+    for name in sorted(groups):
+        total, count = groups[name]
+        result.append({'path': name, 'total': total, 'count': count})
+    return result

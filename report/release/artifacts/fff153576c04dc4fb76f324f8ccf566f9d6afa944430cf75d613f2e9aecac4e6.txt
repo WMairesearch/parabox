@@ -1,0 +1,54 @@
+import re
+
+_PRIORITY = re.compile(r'[+-]?[0-9]+')
+_MISSING = object()
+
+
+def solve(value):
+    # Rule 1: deduplicate before all other rules. Retain only the last
+    # occurrence of each nonempty string 'id'; records without such an
+    # id remain independent.
+    last = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid:
+                last[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid and last[rid] != position:
+            continue  # superseded by a later record with the same id
+        if record.get('active') is False:
+            continue
+        # 'kind' is consulted only when 'category' is absent entirely.
+        name = record.get('category', record.get('kind'))
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record.get('priority', _MISSING)
+        if number is _MISSING:
+            number = 1
+        elif isinstance(number, bool):
+            continue
+        elif isinstance(number, int):
+            pass
+        elif isinstance(number, str):
+            text = number.strip()
+            if not _PRIORITY.fullmatch(text):
+                continue
+            number = int(text, 10)
+        else:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

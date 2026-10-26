@@ -1,0 +1,68 @@
+import re
+
+_NUMBER_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    records = list(value)
+
+    # Rule 1: deduplicate FIRST - keep only the last occurrence of each
+    # nonempty string 'id'. Ids are compared raw (never stripped). Records
+    # without such an id stay independent.
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(records):
+        # Rule 2: skip non-object records.
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if last_position.get(identifier) != position:
+                continue
+        # Rule 2: skip records whose 'active' is JSON false (strictly False).
+        if record.get('active') is False:
+            continue
+        # Rule 3: 'path', falling back to 'route' only when 'path' is absent.
+        name = record['path'] if 'path' in record else record.get('route')
+        # Rule 4: skip non-string or blank-after-stripping keys; strip kept keys.
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # Rule 5: 'bytes', defaulting to 1 only when absent.
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, str):
+                stripped = number.strip()
+                if not _NUMBER_RE.fullmatch(stripped):
+                    continue
+                number = int(stripped)
+            elif not isinstance(number, int):
+                continue
+        else:
+            number = 1
+        # Rule 6: group by normalized path.
+        entry = totals.get(name)
+        if entry is None:
+            totals[name] = [number, 1]
+        else:
+            entry[0] += number
+            entry[1] += 1
+
+    # Rule 6: sort lexicographically by 'path'; [] when nothing remains.
+    return [
+        {'path': path, 'total': totals[path][0], 'count': totals[path][1]}
+        for path in sorted(totals)
+    ]

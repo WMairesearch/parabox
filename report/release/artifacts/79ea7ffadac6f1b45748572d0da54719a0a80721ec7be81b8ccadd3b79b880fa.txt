@@ -1,0 +1,73 @@
+import re
+
+def solve(value):
+    # Rule 2: First retain only the last occurrence of each nonempty string 'id'
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            record_id = record['id']
+            if isinstance(record_id, str) and record_id != "":
+                last_occurrence[record_id] = i
+                
+    retained_records = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            record_id = record['id']
+            if isinstance(record_id, str) and record_id != "":
+                if last_occurrence[record_id] != i:
+                    continue
+        retained_records.append(record)
+        
+    groups = {}
+    for record in retained_records:
+        # Rule 3: Skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+            
+        # Rule 4: Read 'category', falling back to 'kind' only when 'category' is absent.
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+            
+        if not isinstance(name, str):
+            continue
+            
+        name = name.strip()
+        if not name:
+            continue
+            
+        # Rule 5: Read 'priority', defaulting to 1 only when absent.
+        if 'priority' not in record:
+            priority_val = 1
+        else:
+            priority_val = record['priority']
+            
+        if isinstance(priority_val, bool):
+            continue
+        elif isinstance(priority_val, int):
+            priority = priority_val
+        elif isinstance(priority_val, str):
+            stripped_val = priority_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped_val):
+                priority = int(stripped_val)
+            else:
+                continue
+        else:
+            continue
+            
+        # Rule 6: Group and find maximum priority
+        if name in groups:
+            if priority > groups[name]:
+                groups[name] = priority
+        else:
+            groups[name] = priority
+            
+    # Sort results lexicographically by 'category'
+    result = [{'category': name, 'maximum': groups[name]} for name in sorted(groups.keys())]
+        
+    return result

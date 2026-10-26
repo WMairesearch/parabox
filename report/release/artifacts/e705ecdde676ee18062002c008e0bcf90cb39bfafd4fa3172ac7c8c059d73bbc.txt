@@ -1,0 +1,88 @@
+"""Inventory roll-up: group retained records by normalized sku and sum deltas.
+
+Implemented strictly from PROBLEM.md:
+  1. Deduplicate FIRST (before every other rule): keep only the last occurrence of
+     each nonempty string 'id'; records without such an id stay independent.
+  2. Skip non-object records and records whose 'active' is false.
+  3. Key = 'sku', falling back to 'item' only when 'sku' is absent; must be a
+     non-empty-after-stripping string; surrounding whitespace is stripped.
+  4. Value = 'delta', defaulting to 1 only when the key is absent; accepts ints
+     (never bools) and strings fullmatching [+-]?[0-9]+ after stripping; every
+     other value (null, floats, lists, ...) skips the record.
+  5. Output [{'sku': ..., 'total': ...}] sorted lexicographically by sku.
+  6. The input is never mutated.
+"""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _usable_id(record):
+    """Return the dedupe id of a record, or None when it has no usable one."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _delta(record):
+    """Return the integer delta for a record, or None when it must be skipped."""
+    if 'delta' not in record:
+        return 1
+    value = record['delta']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INTEGER.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if isinstance(value, (list, tuple)):
+        records = list(value)
+    else:
+        return []
+
+    # Rule 1: deduplicate by id, keeping only each id's last occurrence.
+    last_index = {}
+    for index, record in enumerate(records):
+        ident = _usable_id(record)
+        if ident is not None:
+            last_index[ident] = index
+    retained = []
+    for index, record in enumerate(records):
+        ident = _usable_id(record)
+        if ident is not None and last_index[ident] != index:
+            continue
+        retained.append(record)
+
+    totals = {}
+    for record in retained:
+        # Rule 2: objects only, and 'active' false drops the record.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        # Rule 3: sku, else item only when sku is absent.
+        key = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+        # Rule 4: delta, defaulting to 1 only when absent.
+        amount = _delta(record)
+        if amount is None:
+            continue
+        totals[key] = totals.get(key, 0) + amount
+
+    # Rule 5: lexicographic order by sku.
+    return [{'sku': sku, 'total': totals[sku]} for sku in sorted(totals)]
