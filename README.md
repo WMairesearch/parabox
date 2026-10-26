@@ -16,8 +16,8 @@ tasks with different feedback. The second fixes the task and varies the number
 of initially known values (1, 40, or 85); those correspond to approximate
 random-completion expectations of 34, 60, and 90 points, not guaranteed scores.
 See [experiment design](docs/experiments.md) for the task surfaces, comparisons,
-and outcome definitions. The [public results page](report/results.md) is
-intentionally empty until results for these integrated protocols are released.
+and outcome definitions. The [results](report/results.md) link the completed
+sequence and persistent-Wiki experiments to their configurations and evidence.
 
 For a first read: start here, then read the [experiment designs](docs/experiments.md),
 and use the [run guide](docs/running.md) when ready to reproduce a protocol.
@@ -33,6 +33,7 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -e .
 .venv/bin/python -m parabox.benchmark selftest
 .venv/bin/python -m parabox.benchmark.ternary --help
+.venv/bin/python -m parabox.benchmark analyze report/release
 ```
 
 Participant runs require Linux, rootless Podman, an immutable local image,
@@ -42,6 +43,7 @@ Never run participant code on the host; see [Security](SECURITY.md).
 
 `parabox/` contains the execution framework and task implementations.
 `examples/` contains configuration templates. Runtime inputs live in `data/`;
-published evidence belongs in `report/`. Historical study code is retained in
+published evidence belongs in `report/`. The evidence bundle is available in the
+source checkout, not the wheel. Historical study code is retained in
 the source checkout but excluded from built packages. Original contributions
 are [MIT-licensed](LICENSE); third-party material keeps its own license.

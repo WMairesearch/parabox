@@ -67,7 +67,58 @@ deadline. Only `run` makes provider calls:
 Replace the example cap and deadline with the values for your run. Outputs,
 including all scored submissions, actions, wiki transitions, and failed starts,
 stay under `runs/ternary/`. There is no automatic replacement or resume.
-The public release contains no hosted-model result table for this runner yet.
+For the published target and order seeds, use
+`examples/ternary.terminal-historical.example.json` or
+`examples/ternary.repeated-historical.example.json`. Choose `seats: 1` or
+`seats: 4` explicitly. Six models require 108 or 864 sessions respectively;
+both populations total 972 per scoring protocol. Provider templates must be
+configured before execution. The published target/order profile does not imply
+identical remote-model behavior or transport: final historical Kimi/Qwen recovery
+used streaming; the public `json-900-v1` profile explicitly records its JSON
+transport and retry policy.
+
+## Published persistent-Wiki experiment
+
+Use `examples/wiki.published.example.json`, replace the image and provider paths,
+then use the same `prepare`, `check`, `run` and `grade` commands as the function
+suite below. Alternatively, generate it with `default-spec --published`, repeated
+`--candidate NAME=CONFIG` arguments and `--image "$IMAGE_ID"`; omit `--reference`.
+This profile contains six positions and three conditions, with no function-suite
+or reference-model sessions. Six models require exactly 972 sessions. The older
+two-position development profile remains unchanged.
+Participant surfaces, founder file hashes and all 36 six-model wave orders match
+the historical schedule. Host execution differs: the historical runner used
+concurrent model pipelines and per-session deadlines; this public runner uses
+its serial wave loop and the supplied overall deadline. See the machine-readable
+[mapping checks](../report/release/wiki-mapping.json).
+
+## Recompute published results
+
+From a source checkout, no model or container is needed for descriptive analysis:
+
+```sh
+.venv/bin/python -m parabox.benchmark analyze report/release --output /tmp/parabox-summary.json
+```
+
+The same command accepts a newly completed ternary run or a prepared published
+Wiki run. Unended and ungraded sessions are not turned into zero-score results.
+The bundle contains canonical session records, candidate source artifacts,
+selected relay actions, configuration mapping and attempt accounting. Strings
+in `sources.json` identify historical source records; they are not local links.
+
+To independently regrade the published Wiki candidates using the installed
+per-case sandbox evaluator (no provider calls):
+
+```sh
+.venv/bin/python -m parabox.benchmark grade-evidence report/release \
+  --image "$IMAGE_ID" --cache runs/regrade-cache --output runs/regrade.json
+```
+
+This can be expensive. Published missing grades used the existing qualified
+batch evaluator (one container per candidate, fresh interpreter per case);
+the public regrade command uses per-case containers and reports disagreements
+rather than overwriting the published grades. Candidate artifacts must never
+be imported or executed directly on the host.
 
 ## Function-task development suite
 
