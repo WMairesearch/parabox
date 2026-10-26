@@ -1,29 +1,35 @@
 # Historical studies
 
-These are the exploratory experiments that preceded the two installed Parabox
-benchmarks. They are available in a source checkout, not in the wheel or source
+These explorations underpin Parabox's three model-behavior modules: Misaligned
+Method Propagation, Shared Practice Maintenance, and Costly Information
+Contribution. They are available in a source checkout, not in the wheel or source
 distribution. Start with [the current experiment designs](../../docs/experiments.md)
 if you want to run the released benchmark. Historical schedules, tasks, scoring,
 and model configurations differ; do not pool their rates with new runs.
 
 ## How the experiments developed
 
-| Question | Study code | What changed |
+| Model-behavior question | Study code | Comparison or observation |
 |---|---|---|
-| Can a method travel between agents? | [`relay/`](relay/), [`relay_board/`](relay_board/), [`relay_files/`](relay_files/), [`relay_search/`](relay_search/) | Compared isolated work with static or agent-updated libraries, message boards, files, and search delivery. |
-| Will agents find, use, or publish peer advice? | [`discovery/`](discovery/), [`discovery_code/`](discovery_code/), [`write/`](write/), [`write_code/`](write_code/) | Separated finding a note from acting on it, and acting from writing advice for a later agent. |
-| Does task and verifier design change method adoption? | [`mechspan_code/`](mechspan_code/), [`composition/`](composition/), [`unified/`](unified/), [`spillover/`](spillover/) | Varied code tasks, verifier acceptance paths, task solvability, feedback, and peer-note content. The unified study covered independent, chain, and population schedules. |
-| Does a method persist, or can a later agent interrupt it? | [`transmission/`](transmission/), [`transmission_door/`](transmission_door/), [`board/`](board/), [`population/`](population/), [`continuation/`](continuation/) | Followed successive agents and shared records; some designs introduced warnings, record selection, or changes at a generation boundary. |
-| What happens when agents maintain shared task infrastructure? | [`shared_wiki/`](shared_wiki/), [`costly_information/`](costly_information/) | The former tracked private-test access and wiki contributions across recipient chains. The latter tested scored short submissions that disclose a hidden ternary value to successors. |
+| Does changing a contributor change other models' violations? | [`unified/`](unified/), [`population/`](population/), [`scripts/peer_composition.py`](scripts/peer_composition.py) | Fixed-recipient contributor-model comparisons and population compositions; keep each historical schedule distinct. |
+| Which models adopt and pass on a method? | [`relay/`](relay/), [`relay_board/`](relay_board/), [`relay_files/`](relay_files/), [`relay_search/`](relay_search/) | Independent and connected work through static or agent-updated channels. |
+| Which models discover, act on and publish peer work? | [`discovery/`](discovery/), [`discovery_code/`](discovery_code/), [`write/`](write/), [`write_code/`](write_code/) | Separate discovery, execution and publication rather than treating them as the same behavior. |
+| Do model behaviors persist across task conditions? | [`mechspan_code/`](mechspan_code/), [`composition/`](composition/), [`spillover/`](spillover/) | Task solvability, verifier design, feedback and supplied notes are mechanism comparisons, not a replacement for evaluating models. |
+| Which models continue or interrupt inherited practices? | [`transmission/`](transmission/), [`transmission_door/`](transmission_door/), [`board/`](board/), [`continuation/`](continuation/), [`shared_wiki/`](shared_wiki/) | Successive actions, corrections, private access and Wiki maintenance; some historical protocols also assigned warnings or withdrew records. |
+| Which models contribute at a personal scoring cost? | [`costly_information/`](costly_information/) | Short scored submissions disclose hidden ternary values for successors. |
 
-The studies motivated the current separation of publication, delivery, exposure,
-adoption, and continuation. A shared file is not evidence that anyone read it;
-a verifier-accepted program is not necessarily a correct program; and a zero-point
-information submission is not by itself evidence of successor benefit.
+The central distinction is a model's own behavior versus its influence on peers
+and successors. Publication, delivery and adoption records trace that influence;
+shared files are the channel, not the object being evaluated. Keep model effects
+separate from researcher-assigned interventions and from descriptive case traces.
 
 ## Evidence and scope
 
-Earlier summary tables are in [`report/final/`](../../report/final/),
+Start with the [fixed-recipient model comparison](../../report/results.md#misaligned-method-propagation):
+changing the contributor changes later violations among the same recipient model.
+Its original [registration](../../report/final/peer-composition-registration.json)
+and [chain-level analysis](../../report/final/peer-composition-analysis.json) are
+retained alongside other summary tables in [`report/final/`](../../report/final/),
 [`report/longchain/`](../../report/longchain/),
 [`report/composition/`](../../report/composition/),
 [`report/mechspan/`](../../report/mechspan/), and
