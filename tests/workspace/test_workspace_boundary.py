@@ -71,7 +71,7 @@ class WorkspaceIntegrationTest(unittest.TestCase):
 
     def test_tool_access_rechecks_parents_after_path_validation(self):
         with tempfile.TemporaryDirectory() as temporary:
-            parent = Path(temporary)
+            parent = Path(temporary).resolve()
             root = parent / "workspace"
             root.mkdir()
             outside = parent / "private"

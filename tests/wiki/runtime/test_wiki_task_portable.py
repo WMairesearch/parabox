@@ -13,7 +13,7 @@ class PortableTaskTests(unittest.TestCase):
     def test_relocated_package_without_research_imports(self):
         package = Path(episode.__file__).resolve().parents[2]
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             target = root / "parabox"
             target.mkdir()
             for name in ("__init__.py", "util.py", "sandbox.py", "workspace.py"):
