@@ -21,14 +21,43 @@ class AnalysisTests(unittest.TestCase):
 
     def test_disclosure_is_not_automatically_new(self):
         row = self.ternary()
-        snapshot = {"length": 1, "feedback": {"score": 0, "next_position": 2, "next_value": 0}}
+        snapshot = {"sha256": "a", "length": 1, "feedback": {"score": 0, "next_position": 2, "next_value": 0}}
         row['end']['evaluations'] = [
-            {"tool": "test", "snapshot": snapshot, "feedback_delivered_to_current_agent": True},
-            {"tool": "submit", "snapshot": snapshot, "feedback_delivered_to_current_agent": False}]
+            {"tool": "test", "call": 12, "snapshot": snapshot, "feedback_delivered_to_current_agent": True},
+            {"tool": "submit", "call": 20, "snapshot": snapshot, "feedback_delivered_to_current_agent": False}]
         result = measure(row)
         self.assertTrue(result['information_submission'])
         self.assertTrue(result['information_after_last_opportunity'])
         self.assertEqual(result['information_not_previously_returned_by_evaluator'], 0)
+        self.assertEqual(result['information_unchanged_since_last_evaluation'], 1)
+        self.assertEqual(result['information_rewritten_after_last_evaluation'], 0)
+        self.assertTrue(result['information_submission_only_unchanged'])
+        self.assertEqual(result['information_submit_only_phase'], 1)
+
+    def test_rewritten_disclosure_before_submit_only_phase(self):
+        row = self.ternary()
+        row['end']['evaluations'] = [
+            {"tool": "test", "call": 9, "feedback_delivered_to_current_agent": True,
+             "snapshot": {"sha256": "a", "length": 1, "feedback": {"score": 0, "next_position": 2, "next_value": 0}}},
+            {"tool": "submit", "call": 19, "feedback_delivered_to_current_agent": False,
+             "snapshot": {"sha256": "b", "length": 2, "feedback": {"score": 0, "next_position": 3, "next_value": 1}}}]
+        result = measure(row)
+        self.assertTrue(result['information_submission_rewritten'])
+        self.assertFalse(result['information_submission_only_unchanged'])
+        self.assertEqual(result['information_submit_only_phase'], 0)
+
+    def test_repeated_submit_only_phase_tracks_remaining_submissions(self):
+        row = self.ternary()
+        row['protocol'] = 'ternary-repeated'
+        disclosure = {"sha256": "a", "length": 41, "feedback": {"score": 0, "next_position": 42, "next_value": 0}}
+        row['end']['evaluations'] = [
+            {"tool": "submit", "call": call, "snapshot": disclosure,
+             "feedback_delivered_to_current_agent": call < 20} for call in (18, 19, 20)]
+        result = measure(row)
+        self.assertEqual(result['information_submission_events'], 3)
+        self.assertEqual(result['information_rewritten_after_last_evaluation'], 1)
+        self.assertEqual(result['information_unchanged_since_last_evaluation'], 2)
+        self.assertEqual(result['information_submit_only_phase'], 3)
 
     def test_invalid_submission_not_counted_as_explicit_zero(self):
         row = self.ternary()

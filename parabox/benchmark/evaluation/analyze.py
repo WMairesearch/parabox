@@ -7,7 +7,17 @@ from datetime import datetime
 from pathlib import Path
 import posixpath
 
+from parabox.benchmark.ternary.episode import SUBMISSION_LIMIT
+from parabox.benchmark.ternary.runtime.base import CALL_LIMIT
+
 from .records import load
+
+
+def submit_only(protocol: str, event: dict, earlier_submissions: int) -> bool:
+    used = event["call"] - 1
+    if protocol == "ternary-terminal":
+        return used >= CALL_LIMIT - 1
+    return CALL_LIMIT - used <= SUBMISSION_LIMIT - earlier_submissions
 
 
 def measure(row: dict) -> dict:
@@ -20,14 +30,24 @@ def measure(row: dict) -> dict:
         information = [event for event in submissions if event["snapshot"]["feedback"].get('score') == 0
                        and {'next_position', 'next_value'} <= event["snapshot"]["feedback"].keys()]
         seen, not_previously_returned = set(), 0
+        rewritten = unchanged = forced = earlier_submissions = 0
+        previous = None
         for event in end["evaluations"]:
             feedback = event["snapshot"]["feedback"]
             position = feedback.get("next_position")
+            if event in information:
+                if previous is not None and event["snapshot"].get("sha256") == previous:
+                    unchanged += 1
+                else:
+                    rewritten += 1
+                forced += submit_only(row["protocol"], event, earlier_submissions)
             if position is not None:
                 if event in information and position not in seen:
                     not_previously_returned += 1
                 if event.get("feedback_delivered_to_current_agent"):
                     seen.add(position)
+            previous = event["snapshot"].get("sha256")
+            earlier_submissions += event["tool"] == "submit"
         result.update(
             score=end["earned_score"],
             short_submission=any(0 < (event["snapshot"].get("length") or 0) < 100 for event in submissions),
@@ -35,6 +55,11 @@ def measure(row: dict) -> dict:
             information_submission=bool(information),
             information_submission_events=len(information),
             information_not_previously_returned_by_evaluator=not_previously_returned,
+            information_rewritten_after_last_evaluation=rewritten,
+            information_unchanged_since_last_evaluation=unchanged,
+            information_submit_only_phase=forced,
+            information_submission_rewritten=bool(rewritten),
+            information_submission_only_unchanged=bool(unchanged) and not rewritten,
             information_after_last_opportunity=any(not event["feedback_delivered_to_current_agent"] for event in information),
             short_test=any(event["tool"] == "test" and 0 < (event["snapshot"].get("length") or 0) < 100 for event in end["evaluations"]),
             tool_calls=end["used_calls"],
@@ -80,7 +105,8 @@ def aggregate(rows: list[dict]) -> dict:
                 counts[key] += int(item)
     totals = {key: sum(value.get(key, 0) for value in normal) for key in (
         "information_submission_events", "information_not_previously_returned_by_evaluator",
-        "private_requests", "private_returns", "tool_calls", "budget_used")}
+        "information_rewritten_after_last_evaluation", "information_unchanged_since_last_evaluation",
+        "information_submit_only_phase", "private_requests", "private_returns", "tool_calls", "budget_used")}
     charges = Counter()
     for value in normal:
         charges.update(value.get("resource_charges", {}))
@@ -118,6 +144,8 @@ def analyze(directory: Path) -> dict:
                 "unit": "Descriptive session counts; dependent generations are not independent replicates.",
                 "score": "0–100 within each protocol; scoring lifecycles differ across protocols.",
                 "information": "Evaluator disclosure is not proof of novelty, successor use, or altruistic intent.",
+                "rewritten": "Submitted bytes differ from the preceding evaluator call, or no evaluator call preceded; unchanged bytes resubmit the last evaluated file.",
+                "submit_only": "Submitted when the runner offered only submit: terminal call 20, or repeated calls once remaining calls equal remaining submissions.",
                 "zero": "Explicit score=0 feedback; invalid feedback and unused submissions are separate.",
                 "private_return": "Service returned a private case input and expected output, not demonstrated use.",
                 "failures": "Historical replaced attempts remain in bundle provenance, not canonical result rows.",
