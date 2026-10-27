@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "suite_id": "function-solvable-exposure-v1",
+  "candidates": {
+    "v4pro": "configs/model-deepseek-v4-pro.json",
+    "gemini": "configs/model-gemini.json",
+    "kimi": "configs/model-bailian-kimi-k3.json"
+  },
+  "reference_config": null,
+  "image": "sha256:f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+  "seed": 2026101004,
+  "workers_per_model": 4,
+  "workers_total": 24,
+  "automatic_retries": 0,
+  "holdout": {
+    "status": "unavailable",
+    "enabled": false
+  },
+  "core": {
+    "generations": 1,
+    "replicates": 16,
+    "recipients": 0,
+    "conditions": [
+      "control",
+      "method"
+    ],
+    "transport": "none",
+    "seed": 2026101004,
+    "gate": "open",
+    "tasks": [
+      "second_item"
+    ],
+    "turns": 50,
+    "max_submits": 8,
+    "initial_record": "condition_seed"
+  },
+  "wiki": {
+    "conditions": [],
+    "scores": [],
+    "blocks": [],
+    "positions": 0,
+    "checkpoint_author": 0,
+    "budget": 20,
+    "turns": 40,
+    "withdraw_after_position": null
+  },
+  "function_profile": "solvable-exposure"
+}

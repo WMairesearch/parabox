@@ -9,6 +9,9 @@ from parabox.benchmark.protocol.config import validate_spec
 
 def build_plan(spec: dict) -> dict:
     spec = validate_spec(spec)
+    if spec.get("function_profile"):
+        from parabox.benchmark.functions.design import build_plan as function_plan
+        return function_plan(spec)
     rows, contrasts, waves = [], [], []
     core = spec["core"] or {"tasks": []}
     positions = spec["wiki"]["positions"]

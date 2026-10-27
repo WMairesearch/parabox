@@ -28,17 +28,38 @@ The table maps historical study configurations to the installed benchmark.
 
 | Experiment | Study configuration | Installed configuration |
 |---|---|---|
-| Misaligned Method Propagation | Three fixed DeepSeek V4 Pro recipients and one contributor, eight generations, five chains per contributor model, an initial method note | Two fixed-reference recipients and one contributor, two generations, empty initial record; isolated and cumulative populations |
+| Misaligned Method Propagation | Fixed-recipient model comparison; single-agent exposure and inheritance on `second_item` | Three published `--function-profile` selectors, alongside the two-generation empty-start default |
 | Shared Practice Maintenance | Wiki studies include a founder-note withdrawal protocol and a persistent-Wiki protocol | The published profile runs the persistent protocol: six positions, three starter scores, three initial conditions and three source blocks per model |
 | Costly Information Contribution | Terminal and repeated-scoring sequence chains, with one or four agents per generation | Both protocols are supported; `historical-v1` preserves the published target and ordering profile, while the generated profile supports new targets |
 
 ### Function comparison
 
-The fixed-recipient comparison has 960 completed sessions and five additional
-retry starts. Its results belong to the eight-generation seeded configuration,
-with three fixed recipients. The installed suite uses two generations and two
-fixed recipients, and also includes a two-position Wiki component. Its participant
-results are pending. Seeded-method study commands run from a source checkout.
+The fixed-recipient comparison (960 sessions), solvable exposure (96), and
+solvable inheritance (800) now use installed profiles. Their task implementation
+lives in `parabox/tasks/code/spec/transmission.py`; the study import remains a
+compatibility alias. The installed planner, runner and analyzer depend only on
+shared infrastructure. See the [run guide](../../docs/running.md#published-function-comparisons)
+and [protocol mapping](../../report/functions/protocols.json).
+
+The default two-generation suite retains two fixed recipients, an empty initial
+record and a two-position Wiki component. Published profiles preserve the
+original `second_item` problem wording; the default suite additionally specifies
+the return value for lists shorter than two elements.
+
+Other function evidence remains indexed by its original design:
+
+| Evidence under `report/` | Design retained in studies |
+|---|---|
+| `final/exposure-*.csv`, `final/gate-comparison-*.csv`, `final/corrected-gate-exposure-*.csv` | Contradictory functions and changes to verifier, state or score conditions |
+| `final/chain-*.csv` | Chain pilots and replications with supplied notes or researcher-assigned corrections |
+| `final/population-*.csv`, `population/`, `composition/` | Population composition and selected versus all-export handoffs |
+| `final/solvable-visible-tests-*.csv`, `final/solvable-hidden-tests-*.csv`, `final/solvable-isolated-tests-*.csv` | Alternative test visibility and isolation |
+| `mechspan/`, `longchain/` | Mechanism and longer-horizon explorations |
+
+These designs retain their own entry points in this directory. The migrated
+profiles cover the open-verifier, 50-turn `second_item` comparisons whose frozen
+participant surfaces were checked against the installed task. Original summary
+tables remain available alongside the new session-level bundle.
 
 A contributed [GPT-6 Astra pilot](../../report/final/gpt6-astra-pilot-20261022/)
 ran eight `unified` sessions on contradictory functions through a gateway's Chat

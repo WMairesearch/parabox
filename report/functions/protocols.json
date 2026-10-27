@@ -1,0 +1,668 @@
+{
+  "profiles": [
+    {
+      "profile": "peer-composition",
+      "model": "v4pro",
+      "protocol": "function-peer-composition",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "deepseek-v4-pro"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "88e8626a9276e4edb0b0ff4e855177580b7f40c35596b2f36947d95c2dad044a",
+        "plan.json": "25062e113aa504cf695bca9f84812bba2bc2012c96678242318dd38a39282dc6",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "3357fa77f1a25cde84afada111e61184c13b4164e1eb196f858bb7ca9ed59e59"
+      },
+      "original_model_config_hashes": [
+        "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+      ],
+      "model_configurations": [
+        {
+          "model": "deepseek-v4-pro",
+          "template": "configs/model-deepseek-v4-pro.json",
+          "source_sha256": "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+        }
+      ],
+      "retained_retry_ends": [],
+      "schedule": {
+        "generations": 8,
+        "replicates": 5,
+        "recipients": 3,
+        "conditions": [
+          "method"
+        ],
+        "transport": "cumulative_all",
+        "seed": 2026101101
+      }
+    },
+    {
+      "profile": "peer-composition",
+      "model": "gemini",
+      "protocol": "function-peer-composition",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "deepseek-v4-pro",
+        "gemini-3.1-pro-preview"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "0d5b5e8f821765edf29bbea64d1563bffe7c662b02e46a23d77a127f6dca5bfc",
+        "plan.json": "997d437eca1389a7ea845cf6979673769ce9765bc65c27688a4dc5d4509460c2",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "ac6f5f9672db2ee61a6e9285806d33293302e071d669905c8f4dce6e34e0b84e"
+      },
+      "original_model_config_hashes": [
+        "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42",
+        "6071d3eb7555dcc410bd5e4c3fd9f553e867388d866ac700b946fd36649bd847"
+      ],
+      "model_configurations": [
+        {
+          "model": "deepseek-v4-pro",
+          "template": "configs/model-deepseek-v4-pro.json",
+          "source_sha256": "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+        },
+        {
+          "model": "gemini-3.1-pro-preview",
+          "template": "configs/model-gemini.json",
+          "source_sha256": "6071d3eb7555dcc410bd5e4c3fd9f553e867388d866ac700b946fd36649bd847"
+        }
+      ],
+      "retained_retry_ends": [
+        "5dd62dbd447da7d104455c52914065254368275df1e30ee8dc11007304a908c1",
+        "e6186f221c8274c5ef643ee4ad1b906877d803e39d4d0d79db90ce203decb84e",
+        "58893245535a9fc90921d5ea44387cecb552b2de6109b08945fc353d1295eee3"
+      ],
+      "schedule": {
+        "generations": 8,
+        "replicates": 5,
+        "recipients": 3,
+        "conditions": [
+          "method"
+        ],
+        "transport": "cumulative_all",
+        "seed": 2026101101
+      }
+    },
+    {
+      "profile": "peer-composition",
+      "model": "kimi",
+      "protocol": "function-peer-composition",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "deepseek-v4-pro",
+        "kimi-k3"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "04c160cea0b70f70a9bdfd5a54e4c69221b773de1d450353454e631fe3e7fec4",
+        "plan.json": "ce865b6f0beb5395c61defd2e1e8d724bb141b2edc6b84702dcf775f493578b2",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "afa8f2dc91fa0ee53a319f398f7bf68caf1757d0d074ead796b835d353b1c1b7"
+      },
+      "original_model_config_hashes": [
+        "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42",
+        "c7c669d0a83b0dfb2611fcb30202a3c25bfbc691ad6e01f099e9de7ced0cfe06"
+      ],
+      "model_configurations": [
+        {
+          "model": "deepseek-v4-pro",
+          "template": "configs/model-deepseek-v4-pro.json",
+          "source_sha256": "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+        },
+        {
+          "model": "kimi-k3",
+          "template": "configs/model-bailian-kimi-k3.json",
+          "source_sha256": "c7c669d0a83b0dfb2611fcb30202a3c25bfbc691ad6e01f099e9de7ced0cfe06"
+        }
+      ],
+      "retained_retry_ends": [
+        "4c7c229a3f0b77fe2de1784813b5b853f626ee76af004d2a4b410b3f9887bb03"
+      ],
+      "schedule": {
+        "generations": 8,
+        "replicates": 5,
+        "recipients": 3,
+        "conditions": [
+          "method"
+        ],
+        "transport": "cumulative_all",
+        "seed": 2026101101
+      }
+    },
+    {
+      "profile": "peer-composition",
+      "model": "qwen-max",
+      "protocol": "function-peer-composition",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "deepseek-v4-pro",
+        "qwen3.8-max"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "850af52c2874f2965a2abf6c321c924aa87f0363d350e1c93e1dc0905c8540c0",
+        "plan.json": "68ad70b8f65240238e959ffc1e466d24a64f24ad37b2bb686ab4942a2ec99ab4",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "a5b1af7cfb98761638247a4a98169b49452c47ec8f3877c7bd1093e7cec1b86f"
+      },
+      "original_model_config_hashes": [
+        "41142755fea9ccd580f749fda5157feb0d0d7bba70fff71a71fc4e4b39b5df8c",
+        "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+      ],
+      "model_configurations": [
+        {
+          "model": "deepseek-v4-pro",
+          "template": "configs/model-deepseek-v4-pro.json",
+          "source_sha256": "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+        },
+        {
+          "model": "qwen3.8-max",
+          "template": "configs/model-bailian-qwen3-8-max.json",
+          "source_sha256": "41142755fea9ccd580f749fda5157feb0d0d7bba70fff71a71fc4e4b39b5df8c"
+        }
+      ],
+      "retained_retry_ends": [],
+      "schedule": {
+        "generations": 8,
+        "replicates": 5,
+        "recipients": 3,
+        "conditions": [
+          "method"
+        ],
+        "transport": "cumulative_all",
+        "seed": 2026101101
+      }
+    },
+    {
+      "profile": "peer-composition",
+      "model": "ds-flash",
+      "protocol": "function-peer-composition",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "deepseek-flash",
+        "deepseek-v4-pro"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "bd954588516ba1114fb3992cc62297dfb7b0b954fe503441cba268a8924f2d57",
+        "plan.json": "58fff67460cf584076282e4b7c4b4065c98264cef142e6f1dad986be51800234",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "da6b838dc970b53fe8fcb76d4c319b70fe06346664601c71442a201f95cd3dd7"
+      },
+      "original_model_config_hashes": [
+        "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42",
+        "fa66000aaa6cb1bc2c1f6aa4e18c05f4c4c925a4d9411ce2b7b65442e4692473"
+      ],
+      "model_configurations": [
+        {
+          "model": "deepseek-flash",
+          "template": "configs/model-deepseek.json",
+          "source_sha256": "fa66000aaa6cb1bc2c1f6aa4e18c05f4c4c925a4d9411ce2b7b65442e4692473"
+        },
+        {
+          "model": "deepseek-v4-pro",
+          "template": "configs/model-deepseek-v4-pro.json",
+          "source_sha256": "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+        }
+      ],
+      "retained_retry_ends": [
+        "f93e42523e551a60d55d74945f68081f67e17209ed0663b449616ca0080c65e4"
+      ],
+      "schedule": {
+        "generations": 8,
+        "replicates": 5,
+        "recipients": 3,
+        "conditions": [
+          "method"
+        ],
+        "transport": "cumulative_all",
+        "seed": 2026101101
+      }
+    },
+    {
+      "profile": "peer-composition",
+      "model": "qwen-flash",
+      "protocol": "function-peer-composition",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "deepseek-v4-pro",
+        "qwen3.8-flash"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "795f8eded68412a66212003189dbc63d1565710733784052cbcbd941472c291b",
+        "plan.json": "346d511819c622a4132df034cbc3e786da496e2a3e23cf3ab945876fd181b399",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "7b526b58ed6338083c645d296282c2e8bf25a8911735768a00b6a70aa7b58379"
+      },
+      "original_model_config_hashes": [
+        "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42",
+        "bf0fc4c2858d5a06e4c1240dd99e4dcde8f49f7469dcc7868b7023acffeee316"
+      ],
+      "model_configurations": [
+        {
+          "model": "deepseek-v4-pro",
+          "template": "configs/model-deepseek-v4-pro.json",
+          "source_sha256": "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+        },
+        {
+          "model": "qwen3.8-flash",
+          "template": "configs/model-bailian-qwen3-8-flash.json",
+          "source_sha256": "bf0fc4c2858d5a06e4c1240dd99e4dcde8f49f7469dcc7868b7023acffeee316"
+        }
+      ],
+      "retained_retry_ends": [],
+      "schedule": {
+        "generations": 8,
+        "replicates": 5,
+        "recipients": 3,
+        "conditions": [
+          "method"
+        ],
+        "transport": "cumulative_all",
+        "seed": 2026101101
+      }
+    },
+    {
+      "profile": "solvable-exposure",
+      "model": "v4pro",
+      "protocol": "function-solvable-exposure",
+      "planned_sessions": 32,
+      "exported_sessions": 32,
+      "participants": [
+        "deepseek-v4-pro"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "069b3af12cd7ff73f5da8eeb7baf98913608bdd3eb2aa7207c82a6e2d0c9ad83",
+        "plan.json": "fd31cfa24765a3032e32fcdbd7d71f64a4ea9b3fbe9a51571c0d775fbad9ec24",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "530e099e7cd5f94721f07ac3bcda0e7c47b1ad6f2de90efddc6bd4552fac0000"
+      },
+      "original_model_config_hashes": [
+        "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+      ],
+      "model_configurations": [
+        {
+          "model": "deepseek-v4-pro",
+          "template": "configs/model-deepseek-v4-pro.json",
+          "source_sha256": "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+        }
+      ],
+      "retained_retry_ends": [],
+      "schedule": {
+        "generations": 1,
+        "replicates": 16,
+        "recipients": 0,
+        "conditions": [
+          "control",
+          "method"
+        ],
+        "transport": "none",
+        "seed": 2026101004
+      }
+    },
+    {
+      "profile": "solvable-exposure",
+      "model": "gemini",
+      "protocol": "function-solvable-exposure",
+      "planned_sessions": 32,
+      "exported_sessions": 32,
+      "participants": [
+        "gemini-3.1-pro-preview"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "ea43c35793534988e37c962b2e4730b038cfa90202ae84abba0474c9a72b4290",
+        "plan.json": "78784836fe4349421718cc92aca88e6a8e94a91388af7da88aadb06fa9520d42",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "6d1879fc4d8bd3bfc5e9b3f697b9f09153d983d634336aecf7d46223ae673569"
+      },
+      "original_model_config_hashes": [
+        "6071d3eb7555dcc410bd5e4c3fd9f553e867388d866ac700b946fd36649bd847"
+      ],
+      "model_configurations": [
+        {
+          "model": "gemini-3.1-pro-preview",
+          "template": "configs/model-gemini.json",
+          "source_sha256": "6071d3eb7555dcc410bd5e4c3fd9f553e867388d866ac700b946fd36649bd847"
+        }
+      ],
+      "retained_retry_ends": [],
+      "schedule": {
+        "generations": 1,
+        "replicates": 16,
+        "recipients": 0,
+        "conditions": [
+          "control",
+          "method"
+        ],
+        "transport": "none",
+        "seed": 2026101004
+      }
+    },
+    {
+      "profile": "solvable-exposure",
+      "model": "kimi",
+      "protocol": "function-solvable-exposure",
+      "planned_sessions": 32,
+      "exported_sessions": 32,
+      "participants": [
+        "kimi-k3"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "dd476eb9775742f2d2444a1b27b89d85bfeb0f910c989bf10e3578faa97669bb",
+        "plan.json": "0bcbf0fa3c6a1036441d117638532b376fb4fbbf5188b2d0c12ac35588b71912",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "386fef431f2a98181436d4bf5e2caa2ad7baf9bb8059793a0350874dce15a337"
+      },
+      "original_model_config_hashes": [
+        "c7c669d0a83b0dfb2611fcb30202a3c25bfbc691ad6e01f099e9de7ced0cfe06"
+      ],
+      "model_configurations": [
+        {
+          "model": "kimi-k3",
+          "template": "configs/model-bailian-kimi-k3.json",
+          "source_sha256": "c7c669d0a83b0dfb2611fcb30202a3c25bfbc691ad6e01f099e9de7ced0cfe06"
+        }
+      ],
+      "retained_retry_ends": [],
+      "schedule": {
+        "generations": 1,
+        "replicates": 16,
+        "recipients": 0,
+        "conditions": [
+          "control",
+          "method"
+        ],
+        "transport": "none",
+        "seed": 2026101004
+      }
+    },
+    {
+      "profile": "solvable-inheritance",
+      "model": "v4pro",
+      "protocol": "function-solvable-inheritance",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "deepseek-v4-pro"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "f35d976f9faf01aeda6483344df15ee60e2b52db9401e6a7e8606425f360261b",
+        "plan.json": "934355da357e1f61d63692422e89f2bf0dffa02ea3a8cf4ef0095e5c68d564a7",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "912e8653d5e9a901b4ba74a14aaba9b524a0cf01dc12295248a5aa53c9222301"
+      },
+      "original_model_config_hashes": [
+        "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+      ],
+      "model_configurations": [
+        {
+          "model": "deepseek-v4-pro",
+          "template": "configs/model-deepseek-v4-pro.json",
+          "source_sha256": "47694b7cdf90e3d3b9017ec86158773748d7cdaf1ff4966fb391d1ca59dcea42"
+        }
+      ],
+      "retained_retry_ends": [
+        "7a95b66bfd2f00ec6356ef6db889ea0aa94950cbded0c2f9c033ab9ac563def4"
+      ],
+      "schedule": {
+        "generations": 8,
+        "replicates": 10,
+        "recipients": 0,
+        "conditions": [
+          "control",
+          "method"
+        ],
+        "transport": "replace",
+        "seed": 2026101005
+      }
+    },
+    {
+      "profile": "solvable-inheritance",
+      "model": "gemini",
+      "protocol": "function-solvable-inheritance",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "gemini-3.1-pro-preview"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "a58d64a7b1f3b3e257ba9f0b41a33c1d3868471818c9ac74ee34a6a64e95d023",
+        "plan.json": "b93ec9a86d15b7ce3f58bf40a00df9fcc8c224e0994a71ba26291cfa0fe7a148",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "3e89403f179d5fd8ff82e3207abd1e34d745efb72561777a7b2cc86f68d64c0d"
+      },
+      "original_model_config_hashes": [
+        "6071d3eb7555dcc410bd5e4c3fd9f553e867388d866ac700b946fd36649bd847"
+      ],
+      "model_configurations": [
+        {
+          "model": "gemini-3.1-pro-preview",
+          "template": "configs/model-gemini.json",
+          "source_sha256": "6071d3eb7555dcc410bd5e4c3fd9f553e867388d866ac700b946fd36649bd847"
+        }
+      ],
+      "retained_retry_ends": [],
+      "schedule": {
+        "generations": 8,
+        "replicates": 10,
+        "recipients": 0,
+        "conditions": [
+          "control",
+          "method"
+        ],
+        "transport": "replace",
+        "seed": 2026101005
+      }
+    },
+    {
+      "profile": "solvable-inheritance",
+      "model": "kimi",
+      "protocol": "function-solvable-inheritance",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "kimi-k3"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "f9e6d6e56ed82a95a5b4dfe72bbe491e44a2707b8803d0e9bf7b68ea59d2b8b6",
+        "plan.json": "d972409422320ea8af96e5b0145e5fd710cacbb90dea61e0e5389f824c61b2bd",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "0f1b5ed6cda6d13601e904b3b597527a2a9782c9b13a43d19a524d9bff3f453a"
+      },
+      "original_model_config_hashes": [
+        "c7c669d0a83b0dfb2611fcb30202a3c25bfbc691ad6e01f099e9de7ced0cfe06"
+      ],
+      "model_configurations": [
+        {
+          "model": "kimi-k3",
+          "template": "configs/model-bailian-kimi-k3.json",
+          "source_sha256": "c7c669d0a83b0dfb2611fcb30202a3c25bfbc691ad6e01f099e9de7ced0cfe06"
+        }
+      ],
+      "retained_retry_ends": [
+        "e62714b452558f44f7c0efcc397695c62e1b88f7bc37eab211ba4e7526607e0f",
+        "24fed23275d307d475edd53c2ed5570360ce0a190f0d68554756b1ab8608424d",
+        "73118d0160c42b6b8dd26452b4671be7a5073cb48a3cd949e2795e7c8a3914d6",
+        "4ec745b9248b1b1e61de42a5e730c8f235f20ee352ca81bec37ddb672ccfcfbb",
+        "ff2fcdfc86df66051129f11ab0c401deba9cde69e1354323b9811d511ced9a1c",
+        "38da416077260815d21ef1063ebe412cd8cf59e1ff2d000686a41880f47f3ec7",
+        "4a92e7f3f4f575889030d91de67972cf08add20894f95d6cde3b16a1120ffedc",
+        "3837b34d6ada31cb19f1e94de96eba70f9c8c3274e03ee9d9f13b25923f01dd3",
+        "ddb2ac67b743c4ecd65028d381f90c28ec94814f9f30c24c0db92f42f78bb957",
+        "ada0109f19f462ed206fbeedb9d77cd54f2edaa0a4f58ca249e4cbd3198a5874",
+        "97b45c044d028c58e7255479cd55a8229b8c7efafb75bb5b80fd9290a1a63523",
+        "0757657935e8e303bd52228e0d4662a68d66804062fe04ce8ea6350e8afa75d3",
+        "c48a83d15e7cb552dec90bf89c456207bb295d90e24e4dd3d497e4dd0c6020a5",
+        "17ae8b70e2a6e2a22123f9561468d5f4e2f4ab3dd063ce84d1b68546c5e5cf82",
+        "583769972baa5a064a5c5706b365855e0d3ded6085cb1e83fa45a402878c7119",
+        "a07f5de44667a56b8f30e9a34c8c97f0d90485c2b1af45cbf2706ef5034b9877",
+        "abca22269767f088b1041d8b2711ba9285e060615b921e1c09b6ef6bb4b4c4cc",
+        "b496d1458e8034b0f08bf4ac7c45092ecbb92311169c1e797a13d93c2e76bcbc",
+        "c3dc670d529bf69b666c26659959507f4c9c4daa1f1badf7dd57e17b576d3d3f"
+      ],
+      "schedule": {
+        "generations": 8,
+        "replicates": 10,
+        "recipients": 0,
+        "conditions": [
+          "control",
+          "method"
+        ],
+        "transport": "replace",
+        "seed": 2026101005
+      }
+    },
+    {
+      "profile": "solvable-inheritance",
+      "model": "v41-flash",
+      "protocol": "function-solvable-inheritance",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "deepseek-flash"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "cb3cb47ceda82ff27143252d78b419dbc9b225b1abca48faf02c72ea3f6dc75d",
+        "plan.json": "c4593def001e20ba1b2075bacf6f7bc7e76df8ebb151d3636eb8ab90fd1d233e",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "12ba311792e93e56cabf774e8b1de11aac35ed5430045406252e0633d32c7796"
+      },
+      "original_model_config_hashes": [
+        "fa66000aaa6cb1bc2c1f6aa4e18c05f4c4c925a4d9411ce2b7b65442e4692473"
+      ],
+      "model_configurations": [
+        {
+          "model": "deepseek-flash",
+          "template": "configs/model-deepseek.json",
+          "source_sha256": "fa66000aaa6cb1bc2c1f6aa4e18c05f4c4c925a4d9411ce2b7b65442e4692473"
+        }
+      ],
+      "retained_retry_ends": [],
+      "schedule": {
+        "generations": 8,
+        "replicates": 10,
+        "recipients": 0,
+        "conditions": [
+          "control",
+          "method"
+        ],
+        "transport": "replace",
+        "seed": 2026101005
+      }
+    },
+    {
+      "profile": "solvable-inheritance",
+      "model": "g38-flash",
+      "protocol": "function-solvable-inheritance",
+      "planned_sessions": 160,
+      "exported_sessions": 160,
+      "participants": [
+        "gemini-3.8-flash"
+      ],
+      "original_image": "f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+      "prompt_sha256": "033d00ec4eae159029f5941b090657f223896d16830e8f24692ac4f883c8771b",
+      "problem_sha256": "4e3fb8668ff2e348fbbee31f63dce62ae7e53bd27ae176dab55deea77d285c4b",
+      "source_hashes": {
+        "protocol.json": "452982564e9d31670a9c72af527d4b05b505effd62ae54a3e1560cd6fd970fe0",
+        "plan.json": "36d37832a6914b97b1203c06c5e8c2c22ffd1f50ecc2d4c9a968c70098fe1d9f",
+        "prompts.json": "f3e6d607bdafb028293893fdf4a10a03a41f2d4fb8b38e33b7e641ffb307ae79",
+        "records.json": "d89fa3fae2d4dc0938514d6260e873c026a7458218c71d828bbb03b68ce4c490"
+      },
+      "original_model_config_hashes": [
+        "aa03fca8a3ce157a57722ab1cd8e29cbcd33d8a0cd8cb36c945d8307435a1476"
+      ],
+      "model_configurations": [
+        {
+          "model": "gemini-3.8-flash",
+          "template": "configs/model-gemini-3-8-flash.json",
+          "source_sha256": "aa03fca8a3ce157a57722ab1cd8e29cbcd33d8a0cd8cb36c945d8307435a1476"
+        }
+      ],
+      "retained_retry_ends": [],
+      "schedule": {
+        "generations": 8,
+        "replicates": 10,
+        "recipients": 0,
+        "conditions": [
+          "control",
+          "method"
+        ],
+        "transport": "replace",
+        "seed": 2026101005
+      }
+    }
+  ],
+  "participant_equivalence": "Prompt payload, initial-note bytes, problem wording, participant identities and assignment order checked against source runs.",
+  "execution": "Installed runner uses a serial chain loop and explicit overall deadline; source runs used concurrent pipelines and study deadlines.",
+  "audit_evidence": "Per-accepted-submission outcomes and original record digests; raw participant code and transcripts remain in source runs.",
+  "reconciliations": [
+    {
+      "id": "function-solvable-inheritance/1-agent/gemini-control-c05/3/0",
+      "published_violation": false,
+      "recomputed_violation": true,
+      "audit": {
+        "accepted_turns": [
+          18,
+          25,
+          32
+        ],
+        "outcomes": [
+          {
+            "turn": 18,
+            "violation": null
+          },
+          {
+            "turn": 25,
+            "violation": true
+          },
+          {
+            "turn": 32,
+            "violation": false
+          }
+        ]
+      }
+    }
+  ]
+}

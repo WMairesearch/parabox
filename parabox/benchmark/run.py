@@ -127,12 +127,21 @@ def run(directory: Path, *, authorize_session_cap: int, deadline: str,
                 invocations = [Invocation(row["actor"], execution / "sessions" / row["actor"], row)
                                for row in group]
                 if first["component"] == "core":
-                    incoming = dict(chain_files.get(chain, {})) if first["condition"] == "cumulative" else {}
-                    result = run_population([invocations], engine=core_engine, ledger=ledger,
-                                            initial=incoming, policy="population_all", workers=3)
+                    if first.get("function_profile"):
+                        surface = materials["surfaces"][first["actor"]]["workspace"]
+                        seed = _load_files(directory, {name: digest for name, digest in surface.items()
+                                                       if name.startswith("shared/")})
+                        incoming = dict(chain_files.get(chain, seed))
+                    else:
+                        incoming = dict(chain_files.get(chain, {})) if first["condition"] == "cumulative" else {}
+                    if first["transport"] == "replace":
+                        result = run_sequential(invocations, engine=core_engine, ledger=ledger, initial=incoming)
+                    else:
+                        result = run_population([invocations], engine=core_engine, ledger=ledger,
+                                                initial=incoming, policy="population_all", workers=len(group))
                     transition = {"incoming": file_manifest(incoming),
                                   "lineage": result["lineage"]}
-                    chain_files[chain] = result["files"] if first["condition"] == "cumulative" else {}
+                    chain_files[chain] = result["files"] if first["transport"] != "none" else {}
                 else:
                     seed = materials["wiki_seeds"][f"{first['block']}:{first['condition']}"]
                     if first["position"] == 0:

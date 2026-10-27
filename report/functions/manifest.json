@@ -1,0 +1,18 @@
+{
+  "schema": "parabox-evidence-v1",
+  "sessions": 1856,
+  "planned_sessions": 1856,
+  "protocol_counts": {
+    "function-peer-composition": 960,
+    "function-solvable-exposure": 96,
+    "function-solvable-inheritance": 800
+  },
+  "files": {
+    "protocols.json": "5df12557cf11f0437790d7965533b14a5e4b73154398a653c3737ebc0af06c70",
+    "sessions.jsonl": "66441c21d9ec144d48ae99105b8e70941c91da48c415d09a55eb38fdcbc517cb",
+    "specs/peer-composition.json": "0aab2672032d1c14364757880e2aff4a6f512ae6b8595b4799d2faff0212ef92",
+    "specs/solvable-exposure.json": "8de5fdd080f91a2430a2173b0dc48c974eab9e194cff879b76a3293fd60334f0",
+    "specs/solvable-inheritance.json": "038d1173d7f74e39a9e472e4fdf6e46318b1b458274d30741a6247adcae96e4b",
+    "summary.json": "84a73c7f23ad0eb520c11cbb74c68474241ce9c56e6f1787f0c0cd50e596a06f"
+  }
+}

@@ -13,10 +13,10 @@ Choose the model behavior to measure:
 | Shared Practice Maintenance | [Persistent Wiki](#published-persistent-wiki-experiment) | Separate model chains maintaining shared work |
 | Costly Information Contribution | [Ternary sequence](#ternary-sequence-experiment) | Separate model chains under two scoring protocols |
 
-Start with [offline analysis](#recompute-published-results) to inspect the Wiki
-and sequence results without provider calls. For new runs, choose a protocol
-and use its exact session cap. The function suite runs a two-generation
-configuration; the function results report a separate eight-generation configuration.
+Start with [offline analysis](#recompute-published-results) to inspect the function,
+Wiki and sequence results without provider calls. For new runs, choose a protocol
+and use its exact session cap. Published function profiles and the two-generation
+development suite have separate configuration selectors.
 
 ## Install and check
 
@@ -157,6 +157,7 @@ From a source checkout, no model or container is needed for descriptive analysis
 
 ```sh
 .venv/bin/python -m parabox.benchmark analyze report/release --output /tmp/parabox-summary.json
+.venv/bin/python -m parabox.benchmark analyze report/functions --output /tmp/parabox-functions.json
 ```
 
 The same command accepts a newly completed ternary run or a prepared published
@@ -178,6 +179,52 @@ batch evaluator (one container per candidate, fresh interpreter per case);
 the public regrade command uses per-case containers and reports disagreements
 rather than overwriting the published grades. Candidate artifacts must never
 be imported or executed directly on the host.
+
+## Published function comparisons
+
+Use `--function-profile` to extend a published comparison with a new model:
+
+| Profile | Sessions per candidate | Reference configuration |
+|---|---:|---|
+| `peer-composition` | 160 | Required: the three fixed recipients |
+| `solvable-inheritance` | 160 | Omit |
+| `solvable-exposure` | 32 | Omit |
+
+After installation and provider setup, the peer comparison is:
+
+```sh
+.venv/bin/python -m parabox.benchmark default-spec --function-profile peer-composition \
+  --candidate candidate=runs/config/model.json \
+  --reference runs/config/reference.json --image "$IMAGE_ID" > runs/config/functions.json
+.venv/bin/python -m parabox.benchmark prepare runs/functions --spec runs/config/functions.json
+.venv/bin/python -m parabox.benchmark check runs/functions
+DEADLINE="$(.venv/bin/python -c 'from datetime import datetime, timedelta, timezone; print((datetime.now(timezone.utc) + timedelta(hours=24)).isoformat())')"
+.venv/bin/python -m parabox.benchmark run runs/functions \
+  --authorize-session-cap 160 --deadline "$DEADLINE"
+.venv/bin/python -m parabox.benchmark grade runs/functions
+.venv/bin/python -m parabox.benchmark analyze runs/functions --output runs/functions-summary.json
+```
+
+Configure `reference.json` for DeepSeek V4 Pro to retain the published recipient
+model. Each candidate adds 160 sessions, including a candidate identical to the
+reference when an all-reference comparison is desired. The other profiles use
+the same commands with their selector, no `--reference`, and the corresponding
+session cap. Use a fresh directory per run. Only `run` calls model providers;
+`grade` audits accepted submissions in containers.
+
+[Protocol mapping](../report/functions/protocols.json) binds each published model
+cohort to its profile, task/prompt hashes, original model IDs and schedule.
+The [published specs](../report/functions/specs/) retain the cohort aliases and
+model-template paths. Configure those templates for your provider and replace
+the original image ID with your built image before preparing a new run.
+The installed task preserves the source prompt, problem wording and initial
+note bytes. The installed runner uses a serial chain loop and an overall
+deadline; original runs used concurrent pipelines and study deadlines.
+The portable bundle contains submission-audit outcomes and source digests;
+recomputing its summary requires no participant execution. Full source-run
+holders can export with `import-functions --sources sources.json --output NEW_DIR`,
+where `sources.json` is a private list of `{ "profile": "...", "model": "...",
+"directory": "..." }` records. Local source paths are excluded from the export.
 
 ## Function-task development suite
 

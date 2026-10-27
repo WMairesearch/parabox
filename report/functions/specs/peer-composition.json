@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "suite_id": "function-peer-composition-v1",
+  "candidates": {
+    "v4pro": "configs/model-deepseek-v4-pro.json",
+    "gemini": "configs/model-gemini.json",
+    "kimi": "configs/model-bailian-kimi-k3.json",
+    "qwen-max": "configs/model-bailian-qwen3-8-max.json",
+    "ds-flash": "configs/model-deepseek.json",
+    "qwen-flash": "configs/model-bailian-qwen3-8-flash.json"
+  },
+  "reference_config": "configs/model-deepseek-v4-pro.json",
+  "image": "sha256:f3f37865609bcaa3363de61cd193e0e9595ac0b6afc9af93ea19595e28f5467e",
+  "seed": 2026101101,
+  "workers_per_model": 4,
+  "workers_total": 24,
+  "automatic_retries": 0,
+  "holdout": {
+    "status": "unavailable",
+    "enabled": false
+  },
+  "core": {
+    "generations": 8,
+    "replicates": 5,
+    "recipients": 3,
+    "conditions": [
+      "method"
+    ],
+    "transport": "cumulative_all",
+    "seed": 2026101101,
+    "gate": "open",
+    "tasks": [
+      "second_item"
+    ],
+    "turns": 50,
+    "max_submits": 8,
+    "initial_record": "condition_seed"
+  },
+  "wiki": {
+    "conditions": [],
+    "scores": [],
+    "blocks": [],
+    "positions": 0,
+    "checkpoint_author": 0,
+    "budget": 20,
+    "turns": 40,
+    "withdraw_after_position": null
+  },
+  "function_profile": "peer-composition"
+}

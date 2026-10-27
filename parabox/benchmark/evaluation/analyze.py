@@ -21,6 +21,9 @@ def submit_only(protocol: str, event: dict, earlier_submissions: int) -> bool:
 
 
 def measure(row: dict) -> dict:
+    if row["protocol"].startswith("function-"):
+        from parabox.benchmark.functions.evidence import measure as function_measure
+        return function_measure(row)
     end = row["end"]
     result = {"normal": end.get("normal") is True}
     if not result["normal"]:
@@ -106,7 +109,8 @@ def aggregate(rows: list[dict]) -> dict:
     totals = {key: sum(value.get(key, 0) for value in normal) for key in (
         "information_submission_events", "information_not_previously_returned_by_evaluator",
         "information_rewritten_after_last_evaluation", "information_unchanged_since_last_evaluation",
-        "information_submit_only_phase", "private_requests", "private_returns", "tool_calls", "budget_used")}
+        "information_submit_only_phase", "private_requests", "private_returns", "tool_calls", "budget_used",
+        "model_turns", "submissions")}
     charges = Counter()
     for value in normal:
         charges.update(value.get("resource_charges", {}))
@@ -123,7 +127,11 @@ def analyze(directory: Path) -> dict:
     groups = defaultdict(list)
     for row in rows:
         protocol = row["protocol"]
-        for dimension in ("all", "model", "difficulty", "condition", "generation", "population", "condition_generation", "difficulty_condition"):
+        dimensions = ("all", "model", "difficulty", "condition", "generation", "population", "condition_generation", "difficulty_condition")
+        if protocol.startswith("function-"):
+            dimensions = ("all", "model", "condition", "generation", "population", "role",
+                          "model_role", "model_condition", "model_generation_role", "model_late_role", "chain_role")
+        for dimension in dimensions:
             if dimension == "all":
                 value = "all"
             elif dimension == "difficulty":
@@ -134,6 +142,18 @@ def analyze(directory: Path) -> dict:
                 value = f"{row['condition']}:{row['generation']}"
             elif dimension == "difficulty_condition":
                 value = f"{row.get('prefix', row.get('initial_score'))}:{row['condition']}"
+            elif dimension == "model_role":
+                value = f"{row['model']}:{row['role']}"
+            elif dimension == "model_condition":
+                value = f"{row['model']}:{row['condition']}"
+            elif dimension == "model_generation_role":
+                value = f"{row['model']}:{row['generation']}:{row['role']}"
+            elif dimension == "model_late_role":
+                if row['generation'] < 6:
+                    continue
+                value = f"{row['model']}:{row['role']}"
+            elif dimension == "chain_role":
+                value = f"{row['model']}:{row['chain']}:{row['role']}"
             else:
                 value = str(row[dimension])
             groups[protocol, dimension, value].append(row)
@@ -143,7 +163,8 @@ def analyze(directory: Path) -> dict:
             "interpretation": {
                 "unit": "Descriptive session counts; dependent generations are not independent replicates.",
                 "score": "0–100 within each protocol; scoring lifecycles differ across protocols.",
-                "information": "Evaluator disclosure is not proof of novelty, successor use, or altruistic intent.",
+                "information": "Zero-score submissions returning a next value; score cost, within-session novelty and successor use are separate measurements.",
+                "function": "Model identifies the varied contributor or single-model chain; participant_model records the executing model. Own and fixed-recipient outcomes are grouped separately.",
                 "rewritten": "Submitted bytes differ from the preceding evaluator call, or no evaluator call preceded; unchanged bytes resubmit the last evaluated file.",
                 "submit_only": "Submitted when the runner offered only submit: terminal call 20, or repeated calls once remaining calls equal remaining submissions.",
                 "zero": "Explicit score=0 feedback; invalid feedback and unused submissions are separate.",

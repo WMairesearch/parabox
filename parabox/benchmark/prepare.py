@@ -18,6 +18,9 @@ SOURCE_FILES = (
     "parabox/benchmark/__init__.py", "parabox/benchmark/protocol/__init__.py",
     "parabox/benchmark/protocol/config.py",
     "parabox/benchmark/protocol/design.py", "parabox/benchmark/protocol/prompts.py",
+    "parabox/benchmark/functions/__init__.py", "parabox/benchmark/functions/design.py",
+    "parabox/benchmark/assets/function-seeds.json",
+    "parabox/tasks/code/spec/transmission.py",
     "parabox/benchmark/prepare.py", "parabox/benchmark/__main__.py",
     "parabox/benchmark/run.py", "parabox/benchmark/sources.py",
     "parabox/benchmark/assets/wiki-founders.json",
@@ -86,6 +89,9 @@ def render_materials(plan: dict) -> tuple[dict, dict[str, bytes]]:
             task = core_task(row)
             prompts = task.prompts_record()["payload"]
             files = task.workspace(row["problem"])
+            if row.get("function_profile"):
+                from parabox.benchmark.functions.design import initial_files
+                files.update(initial_files(row))
         else:
             prompts = {
                 "system": SYSTEM, "task": assignment(row["package"], False), "tools": TOOLS,

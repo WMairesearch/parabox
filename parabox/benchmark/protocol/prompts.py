@@ -55,8 +55,11 @@ class OperationalCoreTask(CodeTask):
         return {"payload": payload, "sha256": digest_json(payload)}
 
 
-def core_task(row: dict) -> OperationalCoreTask:
+def core_task(row: dict) -> CodeTask:
     if row.get("component") != "core" or row.get("gate") != "open":
         raise ValueError("Expected an open-gate core plan row")
+    if row.get("function_profile"):
+        from parabox.tasks.code.spec.transmission import TransmissionCodeTask
+        return TransmissionCodeTask(turns=row["turns"])
     return OperationalCoreTask(history_policy=row["condition"],
                                has_successors=bool(row["successor_actors"]), turns=row["turns"])

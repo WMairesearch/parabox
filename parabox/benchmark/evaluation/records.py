@@ -94,12 +94,16 @@ def load(directory: Path) -> tuple[dict, list[dict]]:
                     "registration_sha256": digest((directory / "registration.json").read_bytes())}
     elif (directory / "plan.json").exists():
         plan = read(directory / "plan.json")
-        if any(row["component"] != "wiki" for row in plan["sessions"]):
-            raise ValueError("Analyze the published Wiki profile; mixed development suites use task-specific grade outputs")
         rows = []
         for assignment in plan["sessions"]:
             root = directory / "execution/sessions" / assignment["actor"]
             if not (root / "end.json").exists():
+                continue
+            if assignment["component"] == "core":
+                from parabox.benchmark.functions.evidence import session as function_session
+                seats = assignment.get("seats", read(directory / "spec.json")["core"]["recipients"] + 1)
+                rows.append(function_session(root, {**assignment,
+                    "model": assignment["contributor"], "seats": seats}))
                 continue
             rows.append(session(root, "persistent-wiki", {
                 "chain": assignment["chain"], "model": assignment["model"],
@@ -114,6 +118,13 @@ def load(directory: Path) -> tuple[dict, list[dict]]:
     if len(set(identities)) != len(identities):
         raise ValueError("Duplicate canonical session identity")
     for row in rows:
+        if row["protocol"].startswith("function-"):
+            from parabox.benchmark.functions.evidence import validate
+            validate(row)
+            identity = f"{row['protocol']}/{row['seats']}-agent/{row['chain']}/{row['generation']}/{row['seat']}"
+            if row['id'] != identity:
+                raise ValueError("Canonical function identity differs")
+            continue
         if row["protocol"] not in ("ternary-terminal", "ternary-repeated", "persistent-wiki"):
             raise ValueError("Unknown experiment protocol")
         for name in ("chain", "model", "condition"):

@@ -27,11 +27,23 @@ keeping recipients fixed. An all-reference population supplies the comparison
 and is reused across candidates. Measure recipients' violations separately from
 the contributor's own violations and the population total.
 
-**Run and evidence.** Use `python -m parabox.benchmark default-spec` without
-`--published`; this suite also includes a two-position Wiki component.
-The [results](../report/results.md#misaligned-method-propagation) use a separate
-eight-generation, four-agent configuration with an initial method note. The
-two-generation configuration has no released participant results.
+**Run and evidence.** The default configuration above also includes a two-position
+Wiki component. Three published function configurations use the same execution
+and analysis commands through `--function-profile`:
+
+| Profile | Population and record | Sessions per candidate |
+|---|---|---:|
+| `peer-composition` | Three fixed recipients and one candidate; five eight-generation chains; initial method note; cumulative exports | 160 |
+| `solvable-inheritance` | One agent per generation; ten eight-generation chains per initial condition; actual predecessor folder replaces the record | 160 |
+| `solvable-exposure` | One agent; sixteen independent sessions per initial condition | 32 |
+
+All three use `second_item`, the open pytest verifier, 50 turns and eight
+submission opportunities. The single-agent profiles start with a control or
+method note. Model identity varies within each matched configuration. The
+[run guide](running.md#published-function-comparisons) gives the extension commands;
+the [results](../report/results.md#misaligned-method-propagation) contain 1,856
+sessions across these profiles. The two-generation default remains available
+for new experiments.
 
 ## Shared Practice Maintenance
 

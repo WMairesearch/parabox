@@ -8,9 +8,10 @@ import re
 
 
 def default_spec(candidates: dict[str, str], reference: str | None, image: str, *,
-                 historical: bool = False, published: bool = False) -> dict:
-    if historical and published:
-        raise ValueError("Published persistent Wiki and historical withdrawal are distinct profiles")
+                 historical: bool = False, published: bool = False,
+                 function_profile: str | None = None) -> dict:
+    if sum((historical, published, function_profile is not None)) > 1:
+        raise ValueError("Select one protocol profile")
     spec = {
         "schema_version": 1,
         "suite_id": "shared-work-development-v1" if historical else "shared-work-persistent-v1",
@@ -51,6 +52,13 @@ def default_spec(candidates: dict[str, str], reference: str | None, image: str, 
         spec["core"] = None
         spec["wiki"]["conditions"] = ["empty_wiki", "artifacts_only", "full_wiki"]
         spec["wiki"]["positions"] = 6
+    if function_profile is not None:
+        from parabox.benchmark.functions.design import PROFILES, configure
+        if function_profile not in PROFILES:
+            raise ValueError("Unknown function profile")
+        if function_profile != "peer-composition" and reference is not None:
+            raise ValueError("Single-model function profiles use only candidate configurations")
+        spec = configure(spec, function_profile)
     return spec
 
 
@@ -66,14 +74,16 @@ def validate_spec(spec: dict) -> dict:
             raise ValueError("Invalid candidate name or configuration path")
     reference = spec.get("reference_config")
     published = spec.get("suite_id") == "shared-work-published-wiki-v1"
-    if not published and (not isinstance(reference, str) or not reference):
+    function_profile = spec.get("function_profile")
+    needs_reference = not published and function_profile not in ("solvable-inheritance", "solvable-exposure")
+    if needs_reference and (not isinstance(reference, str) or not reference):
         raise ValueError("An explicit fixed reference configuration is required")
     image = spec.get("image")
     if not isinstance(image, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", image):
         raise ValueError("An immutable local image ID sha256:<64 hex digits> is required")
     expected = default_spec(candidates, reference, image,
                             historical=spec.get("suite_id") == "shared-work-development-v1",
-                            published=published)
+                            published=published, function_profile=function_profile)
     if json.dumps(spec, sort_keys=True, allow_nan=False) != json.dumps(expected, sort_keys=True):
         raise ValueError("Unsupported suite variation; use a separately versioned design")
     return copy.deepcopy(spec)

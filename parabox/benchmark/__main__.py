@@ -18,13 +18,16 @@ def main(argv=None) -> None:
     default = commands.add_parser("default-spec")
     default.add_argument("--candidate", action="append", required=True, metavar="NAME=CONFIG",
                          help="Contributor model in function populations; participant model in Wiki chains")
-    default.add_argument("--reference", help="Fixed function recipients and reference contributor; omit for --published")
+    default.add_argument("--reference", help="Fixed function recipients; omit for Wiki-only and single-agent function profiles")
     default.add_argument("--image", required=True, help="Immutable sha256:<image ID>")
     profiles = default.add_mutually_exclusive_group()
     profiles.add_argument("--historical", action="store_true",
                          help="Use the original founder-note withdrawal protocol")
     profiles.add_argument("--published", action="store_true",
                           help="Wiki only: six persistent positions, empty/artifacts/full, no reference population")
+    from parabox.benchmark.functions.design import PROFILES
+    profiles.add_argument("--function-profile", choices=tuple(PROFILES),
+                          help="Run a published function configuration; peer-composition requires --reference")
     preparation = commands.add_parser("prepare")
     preparation.add_argument("directory", type=Path)
     preparation.add_argument("--spec", type=Path, required=True)
@@ -44,6 +47,10 @@ def main(argv=None) -> None:
     analysis = commands.add_parser("analyze", help="Recompute descriptive results from saved evidence")
     analysis.add_argument("directory", type=Path)
     analysis.add_argument("--output", type=Path)
+    importing = commands.add_parser("import-functions", help="Project registered source runs into an offline evidence bundle")
+    importing.add_argument("--sources", type=Path, required=True,
+                           help="Private JSON list of profile, model and directory records")
+    importing.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         if args.command == "selftest":
@@ -57,7 +64,8 @@ def main(argv=None) -> None:
                     raise ValueError("Expected unique NAME=CONFIG candidate declarations")
                 candidates[name] = path
             result = validate_spec(default_spec(candidates, args.reference, args.image,
-                                                historical=args.historical, published=args.published))
+                                                historical=args.historical, published=args.published,
+                                                function_profile=args.function_profile))
         elif args.command == "prepare":
             result = prepare(args.directory, json.loads(args.spec.read_text()))
         elif args.command == "check":
@@ -67,6 +75,9 @@ def main(argv=None) -> None:
             result = analyze(args.directory)
             if args.output:
                 args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+        elif args.command == "import-functions":
+            from parabox.benchmark.functions.importer import export
+            result = export(json.loads(args.sources.read_text()), args.output)
         elif args.command == "grade-evidence":
             from parabox.benchmark.evaluation.grade import grade_evidence
             result = grade_evidence(args.directory, image=args.image, cache=args.cache)

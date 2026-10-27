@@ -40,6 +40,7 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -e .
 .venv/bin/python -m parabox.benchmark selftest
 .venv/bin/python -m parabox.benchmark analyze report/release
+.venv/bin/python -m parabox.benchmark analyze report/functions
 ```
 
 Use the [run guide](docs/running.md) to configure models and launch experiments.

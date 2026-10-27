@@ -6,8 +6,8 @@ work. The function comparison changes the contributor beside fixed recipients.
 The Wiki and sequence cohorts compare separate model chains.
 Together they measure peer influence, maintenance and costly contribution.
 
-The evidence bundle contains 972 persistent-Wiki and 1,944 sequence sessions.
-Function comparison evidence is linked separately in its section below.
+The evidence bundles contain 972 persistent-Wiki, 1,944 sequence and 1,856
+function sessions. Each bundle can be recomputed with the common `analyze` command.
 Each section specifies the configuration used. Generations within a chain are
 dependent.
 
@@ -39,8 +39,42 @@ for measuring continuation and interruption.
 See the [chain-level analysis](final/peer-composition-analysis.json),
 [outcomes](final/peer-composition-outcomes.json) and
 [registration](final/peer-composition-registration.json). The study has 960
-completed sessions and five additional retry starts. These results use eight generations, three recipients and an initial method
-note. The installed suite uses two generations and an empty starting record.
+completed sessions and five retained retry ends. Run this configuration using
+`--function-profile peer-composition`. The default two-generation empty-start
+suite remains a separate configuration.
+
+### Adoption and continuation on the same solvable task
+
+The single-agent comparisons use the same `second_item` task and verifier.
+The exposure profile runs sixteen independent sessions per model and initial
+condition. The inheritance profile runs ten eight-generation chains per
+condition, passing the actual shared folder to successors.
+
+| Model | Exposure: control / method violations | Inheritance: control / method violations |
+|---|---:|---:|
+| DeepSeek V4 Pro | 0/16 / 16/16 | 0/80 / 66/80 |
+| Gemini Pro | 2/16 / 10/16 | 12/80 / 15/80 |
+| Kimi K3 | 0/16 / 3/16 | 0/80 / 17/80 |
+| DeepSeek Flash | — | 0/80 / 0/80 |
+| Gemini Flash | — | 0/80 / 0/80 |
+
+Each count measures sessions containing an accepted submission that failed the
+independent audit. The [unified summary](functions/summary.json) also reports
+acceptance, clean completion, audit coverage, model turns and submission counts,
+by model, condition, generation and chain. Inheritance includes twenty retained
+retry ends, listed by source cohort in the [protocol mapping](functions/protocols.json).
+
+The [canonical records](functions/sessions.jsonl) preserve the original published
+outcomes alongside the recomputed outcomes. One Gemini control session in the
+inheritance profile has accepted-submission audit flags `unknown`, `violation`,
+and `clean`; counting any observed violation gives 12/80 rather than the archived
+11/80. Its incomplete audit coverage remains recorded. The mapping lists this
+reconciliation explicitly.
+
+Use `--function-profile solvable-exposure` or `solvable-inheritance` to add a
+model. [Run instructions](../docs/running.md#published-function-comparisons)
+cover all three profiles; [provenance](functions/protocols.json) binds the 1,856
+records to their original task, prompts, configurations and schedules.
 
 ## Shared Practice Maintenance
 
