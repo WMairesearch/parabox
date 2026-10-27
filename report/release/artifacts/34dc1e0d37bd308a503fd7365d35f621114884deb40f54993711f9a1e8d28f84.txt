@@ -1,0 +1,78 @@
+import re
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    seen_ids = set()
+    retained_records = []
+    
+    # Deduplicate before all other rules.
+    for record in reversed(value):
+        has_id = False
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != '':
+                has_id = True
+                if id_val in seen_ids:
+                    continue
+                seen_ids.add(id_val)
+        retained_records.append(record)
+    
+    retained_records.reverse()
+    
+    groups = {}
+    
+    for record in retained_records:
+        # Skip non-object records
+        if not isinstance(record, dict):
+            continue
+            
+        # Skip records whose 'active' is false
+        if record.get('active') is False:
+            continue
+            
+        # Read 'category', falling back to 'kind' only when 'category' is absent.
+        if 'category' in record:
+            raw_key = record['category']
+        elif 'kind' in record:
+            raw_key = record['kind']
+        else:
+            continue
+            
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if not isinstance(raw_key, str):
+            continue
+        key = raw_key.strip()
+        if key == '':
+            continue
+            
+        # Read 'priority', defaulting to 1 only when absent.
+        if 'priority' not in record:
+            priority = 1
+        else:
+            raw_p = record['priority']
+            if isinstance(raw_p, bool):
+                continue
+            elif isinstance(raw_p, int):
+                priority = raw_p
+            elif isinstance(raw_p, str):
+                stripped_p = raw_p.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_p):
+                    priority = int(stripped_p)
+                else:
+                    continue
+            else:
+                continue
+                
+        if key not in groups:
+            groups[key] = priority
+        else:
+            if priority > groups[key]:
+                groups[key] = priority
+                
+    result = []
+    for key in sorted(groups.keys()):
+        result.append({"category": key, "maximum": groups[key]})
+        
+    return result

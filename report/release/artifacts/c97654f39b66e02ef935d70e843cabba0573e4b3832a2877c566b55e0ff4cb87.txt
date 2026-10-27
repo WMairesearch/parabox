@@ -1,0 +1,79 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: Retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent. Deduplicate before all other rules.
+    last_seen = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                last_seen[rec_id] = i
+
+    retained = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                if last_seen[rec_id] != i:
+                    continue
+        retained.append(record)
+
+    # Step 2: Skip non-object records and records whose 'active' is false.
+    # Read 'category', falling back to 'kind' only when 'category' is absent.
+    # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+    # Read 'priority', defaulting to 1 only when absent. Accept integers (not booleans)
+    # and strings matching [+-]?[0-9]+ after stripping whitespace; convert strings
+    # to base-10 integers. Skip all other values, including null.
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            raw_cat = record['category']
+        elif 'kind' in record:
+            raw_cat = record['kind']
+        else:
+            continue
+
+        if not isinstance(raw_cat, str):
+            continue
+        category = raw_cat.strip()
+        if not category:
+            continue
+
+        if 'priority' not in record:
+            priority = 1
+        else:
+            raw_prio = record['priority']
+            if isinstance(raw_prio, bool):
+                continue
+            elif isinstance(raw_prio, int):
+                priority = raw_prio
+            elif isinstance(raw_prio, str):
+                stripped_prio = raw_prio.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_prio):
+                    priority = int(stripped_prio, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        if category not in groups:
+            groups[category] = priority
+        else:
+            if priority > groups[category]:
+                groups[category] = priority
+
+    # Step 3: Sort results lexicographically by 'category'.
+    result = []
+    for category in sorted(groups.keys()):
+        result.append({'category': category, 'maximum': groups[category]})
+    return result

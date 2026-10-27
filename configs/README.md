@@ -10,6 +10,6 @@ to a private file and supply your provider URL, model ID and credential
 environment-variable name. Keep the secret value outside JSON and version
 control. The example endpoint and model are intentionally unusable.
 
-Follow [getting started](../docs/getting-started.md) to prepare a run.
+Follow [running and extending](../docs/running.md) to prepare a run.
 Configuration hashes become part of its frozen record; changing a public
 template does not change a historical experiment.

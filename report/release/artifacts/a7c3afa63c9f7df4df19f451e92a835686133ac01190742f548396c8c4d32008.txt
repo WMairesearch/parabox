@@ -1,0 +1,73 @@
+import re
+
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _is_nonempty_string(value):
+    return isinstance(value, str) and value != ''
+
+
+def solve(value):
+    # Retain only the last occurrence of each nonempty string 'id'.
+    # Records without such an id remain independent.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if _is_nonempty_string(record_id):
+            last_id_position[record_id] = position
+
+    duplicate_positions = set()
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if _is_nonempty_string(record_id) and last_id_position[record_id] != position:
+            duplicate_positions.add(position)
+
+    groups = {}
+    for position, record in enumerate(value):
+        if position in duplicate_positions:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # 'category' must be absent (not merely None) to fall back to 'kind'.
+        if 'category' in record:
+            key = record['category']
+        else:
+            key = record.get('kind')
+
+        if not isinstance(key, str) or not key.strip():
+            continue
+        key = key.strip()
+
+        # Priority defaults to 1 only when the key is absent.
+        if 'priority' not in record:
+            number = 1
+        else:
+            number = record['priority']
+
+        if isinstance(number, str):
+            number = number.strip()
+            if _PRIORITY_RE.fullmatch(number):
+                number = int(number, 10)
+            else:
+                continue
+        elif type(number) is int:
+            pass
+        else:
+            continue
+
+        previous = groups.get(key)
+        if previous is None or number > previous:
+            groups[key] = number
+
+    return [
+        {'category': key, 'maximum': groups[key]}
+        for key in sorted(groups)
+    ]

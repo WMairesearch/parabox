@@ -1,0 +1,63 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def _priority(record):
+    """Return the effective priority as an int, or None when it is invalid."""
+    if 'priority' not in record:
+        return 1
+    value = record['priority']
+    if type(value) is int:            # accepts int, rejects bool/float/None
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _NUMBER.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Pass 1: deduplicate -- keep only the last occurrence of each nonempty
+    # string id.  Everything else is treated as independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    # Pass 2: filter and group.
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        number = _priority(record)
+        if number is None:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

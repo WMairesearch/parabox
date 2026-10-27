@@ -1,0 +1,59 @@
+import re
+
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: keep the last record for each
+    # nonempty string id; records without such an id are independent.
+    last_by_id = {}
+    independent = []
+    for record in value:
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_by_id[record_id] = record
+                continue
+        independent.append(record)
+
+    groups = {}
+    for record in independent + list(last_by_id.values()):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # sku, falling back to item only when sku is absent
+        if 'sku' in record:
+            sku = record['sku']
+        else:
+            sku = record.get('item')
+        if not isinstance(sku, str):
+            continue
+        sku = sku.strip()
+        if not sku:
+            continue
+
+        # delta, defaulting to 1 only when absent
+        if 'delta' in record:
+            delta = record['delta']
+        else:
+            delta = 1
+
+        if type(delta) is int:
+            number = delta
+        elif isinstance(delta, str):
+            delta = delta.strip()
+            if _DELTA_RE.fullmatch(delta) is None:
+                continue
+            number = int(delta)
+        else:
+            continue
+
+        groups[sku] = groups.get(sku, 0) + number
+
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

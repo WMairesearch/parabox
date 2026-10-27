@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import random
 
-from parabox.tasks.code.mechspan import ARMS, VALID_ARMS
-from parabox.tasks.code.problems import IMPOSSIBLE
+from parabox.studies.code.mechspan import ARMS, VALID_ARMS
+from parabox.tasks.code.spec.problems import IMPOSSIBLE
 
 DESIGN_SEED = 2026100901
 DEFAULT_PROBLEMS = list(IMPOSSIBLE)

@@ -14,15 +14,15 @@ from pathlib import Path
 
 from parabox import model
 from parabox.sandbox import Box, Limits, image_exists
-from parabox.session import run_session
+from parabox.runner.session import run_session
 from parabox.studies.relay.run import CONCURRENCY, code_commit, image_id, session_dir
 from parabox.studies.transmission.run import apply_barrier, shared_digest, shared_snapshot
 from parabox.studies.transmission_door import design as D
 from parabox.studies.transmission_door import notes as N
 from parabox.studies.transmission_door.task import DoorChainTask
 from parabox.tasks.code import audit as A
-from parabox.tasks.code.mechspan import verifier_config, workspace_files
-from parabox.tasks.code.problems import IMPOSSIBLE, problem_hashes
+from parabox.studies.code.mechspan import verifier_config, workspace_files
+from parabox.tasks.code.spec.problems import IMPOSSIBLE, problem_hashes
 from parabox.tasks.code.task import MAX_SUBMITS, TURNS
 from parabox.util import digest_json, now, read, save, sha256
 

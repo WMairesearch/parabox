@@ -1,0 +1,84 @@
+import json
+import re
+
+
+_INTEGER_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # The public interface passes a parsed JSON list.  Accept a JSON string
+    # as well, since the problem statement describes a JSON list on input.
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except Exception:
+            return []
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: for each nonempty string 'id',
+    # retain only the last occurrence.  Records without such an id remain.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_id_position[record_id] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if (isinstance(record_id, str) and record_id != '' and
+                    last_id_position[record_id] != position):
+                continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+
+        # Skip records explicitly marked inactive.  JSON false is the
+        # Python singleton False, so compare identity rather than truthiness
+        # (e.g. 0 and None are not skipped).
+        if record.get('active') is False:
+            continue
+
+        # Path, falling back to route only when path is absent.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Bytes default to 1 only when the key is absent.
+        if 'bytes' in record:
+            number = record['bytes']
+        else:
+            number = 1
+
+        if isinstance(number, str):
+            stripped = number.strip()
+            if _INTEGER_RE.fullmatch(stripped):
+                number = int(stripped)
+            else:
+                continue
+        elif type(number) is int:
+            # bool is a subclass of int but is explicitly not accepted.
+            pass
+        else:
+            continue
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

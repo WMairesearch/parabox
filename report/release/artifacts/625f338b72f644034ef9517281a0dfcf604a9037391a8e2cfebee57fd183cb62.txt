@@ -1,0 +1,84 @@
+"""Events specification: dedupe by last 'id', filter, group by category, max priority."""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _record_id(record):
+    """Nonempty string 'id' of a record, else None (record stays independent)."""
+    value = record.get('id')
+    if isinstance(value, str) and value:
+        return value
+    return None
+
+
+def _category(record):
+    """Normalized category: 'category', falling back to 'kind' only when absent."""
+    if 'category' in record:
+        value = record['category']
+    elif 'kind' in record:
+        value = record['kind']
+    else:
+        return None
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    if not value:
+        return None
+    return value
+
+
+def _priority(record):
+    """Integer priority (default 1 when absent), or None when the record is skipped."""
+    if 'priority' not in record:
+        return 1
+    value = record['priority']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INTEGER.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if value is None or isinstance(value, (str, bytes, bytearray)):
+        return []
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # Deduplicate first: only the last occurrence of each nonempty string id survives.
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = _record_id(record)
+            if key is not None:
+                last_position[key] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = _record_id(record)
+        if key is not None and last_position[key] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        current = groups.get(name)
+        if current is None or number > current:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

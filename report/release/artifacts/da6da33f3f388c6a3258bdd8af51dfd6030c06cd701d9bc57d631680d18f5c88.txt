@@ -1,0 +1,79 @@
+"""events: group retained records by normalized category and report the max priority."""
+
+import json
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _coerce_records(value):
+    """Return an iterable of candidate records without touching the input."""
+    if isinstance(value, (str, bytes, bytearray)):
+        # Not the documented shape, but harmless to accept an encoded list.
+        try:
+            value = json.loads(value)
+        except Exception:
+            return []
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def _category(record):
+    """Normalized category, or None when the record must be skipped."""
+    if 'category' in record:
+        name = record['category']
+    else:
+        name = record.get('kind')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def _priority(record):
+    """Priority as an int, or None when the record must be skipped."""
+    number = record['priority'] if 'priority' in record else 1
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _INT_RE.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    records = _coerce_records(value)
+
+    # Rule 1, before every other rule: keep only the last occurrence of each
+    # nonempty string 'id'.  Records without such an id stay independent.
+    last_index = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id:
+                last_index[record_id] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id and last_index[record_id] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        if name not in groups or number > groups[name]:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

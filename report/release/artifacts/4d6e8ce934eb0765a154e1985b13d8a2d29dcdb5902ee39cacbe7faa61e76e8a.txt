@@ -1,0 +1,66 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _record_id(record):
+    """Return the record's nonempty string id, or None if it has none."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string id. Records without such an id stay independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        ident = _record_id(record)
+        if ident is not None:
+            last_position[ident] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = _record_id(record)
+        if ident is not None and last_position[ident] != position:
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' in record:
+            delta = record['delta']
+            if isinstance(delta, bool):
+                continue
+            if isinstance(delta, int):
+                number = delta
+            elif isinstance(delta, str):
+                text = delta.strip()
+                if _DELTA_RE.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

@@ -1,0 +1,62 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # First pass: deduplicate by nonempty string 'id' before all other rules.
+    # Records without such an id are always retained (id is None below).
+    last_id_index = {}
+    record_ids = []
+    for index, record in enumerate(value):
+        record_id = None
+        if isinstance(record, dict):
+            candidate = record.get('id')
+            if isinstance(candidate, str) and candidate != '':
+                record_id = candidate
+        record_ids.append(record_id)
+        if record_id is not None:
+            last_id_index[record_id] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        record_id = record_ids[index]
+        if record_id is not None and last_id_index[record_id] != index:
+            continue  # an earlier duplicate of a later nonempty-string id
+
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            key = record['sku']
+        elif 'item' in record:
+            key = record['item']
+        else:
+            continue
+        if not isinstance(key, str) or not key.strip():
+            continue
+        key = key.strip()
+
+        if 'delta' not in record:
+            delta = 1
+        else:
+            delta = record['delta']
+            if isinstance(delta, bool):
+                continue
+            if isinstance(delta, int):
+                pass
+            elif isinstance(delta, str):
+                stripped = delta.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    delta = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+
+        groups[key] = groups.get(key, 0) + delta
+
+    return [{'sku': key, 'total': groups[key]} for key in sorted(groups)]

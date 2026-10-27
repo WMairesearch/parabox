@@ -1,0 +1,84 @@
+import re
+
+def solve(value):
+    seen_ids = set()
+    retained = []
+    
+    # Phase 1: Deduplicate and retain
+    # "First retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent. Deduplicate before all other rules."
+    for i in range(len(value) - 1, -1, -1):
+        record = value[i]
+        is_independent = True
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != '':
+                is_independent = False
+                if id_val not in seen_ids:
+                    seen_ids.add(id_val)
+                    retained.append(record)
+        if is_independent:
+            retained.append(record)
+            
+    retained.reverse()
+    
+    # Phase 2: Filter, parse and group
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        # "Read 'path', falling back to 'route' only when 'path' is absent."
+        if 'path' in record:
+            path_val = record['path']
+        elif 'route' in record:
+            path_val = record['route']
+        else:
+            continue
+            
+        # "Skip non-string or empty-after-stripping keys; strip surrounding whitespace."
+        if not isinstance(path_val, str):
+            continue
+        path_val = path_val.strip()
+        if not path_val:
+            continue
+            
+        # "Read 'bytes', defaulting to 1 only when absent."
+        if 'bytes' not in record:
+            byte_count = 1
+        else:
+            b = record['bytes']
+            # "Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace"
+            if type(b) is int:
+                byte_count = b
+            elif isinstance(b, str):
+                b_str = b.strip()
+                if re.match(r'^[+-]?[0-9]+$', b_str):
+                    byte_count = int(b_str)
+                else:
+                    # Skip all other values, including invalid strings
+                    continue
+            else:
+                # Skip all other values, including null, floats, booleans, lists, dicts
+                continue
+                
+        # Group by normalized 'path'
+        if path_val not in groups:
+            groups[path_val] = {'count': 0, 'total': 0}
+        groups[path_val]['count'] += 1
+        groups[path_val]['total'] += byte_count
+        
+    # "Each output object contains 'path' and the sum of bytes as 'total'
+    # and the number of retained records as 'count'. Sort results lexicographically by 'path'."
+    result = []
+    for path_val in sorted(groups.keys()):
+        result.append({
+            'path': path_val,
+            'total': groups[path_val]['total'],
+            'count': groups[path_val]['count']
+        })
+        
+    return result

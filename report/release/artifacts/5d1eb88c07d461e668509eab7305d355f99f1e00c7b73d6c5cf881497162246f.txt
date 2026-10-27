@@ -1,0 +1,84 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _clean_id(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    if 'id' not in record:
+        return None
+    value = record['id']
+    if isinstance(value, str) and value != '':
+        return value
+    return None
+
+
+def _is_skipped(record):
+    return record.get('active') is False
+
+
+def _get_path(record):
+    if 'path' in record:
+        value = record['path']
+    elif 'route' in record:
+        value = record['route']
+    else:
+        return None
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    if not value:
+        return None
+    return value
+
+
+def _get_bytes(record):
+    if 'bytes' not in record:
+        return 1
+    value = record['bytes']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INT_RE.match(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            key = _clean_id(record)
+            if key is not None:
+                last_index[key] = position
+
+    totals = {}
+    counts = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        key = _clean_id(record)
+        if key is not None and last_index[key] != position:
+            continue
+        if _is_skipped(record):
+            continue
+        name = _get_path(record)
+        if name is None:
+            continue
+        amount = _get_bytes(record)
+        if amount is None:
+            continue
+        totals[name] = totals.get(name, 0) + amount
+        counts[name] = counts.get(name, 0) + 1
+
+    return [
+        {'path': name, 'total': totals[name], 'count': counts[name]}
+        for name in sorted(totals)
+    ]

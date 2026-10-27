@@ -1,0 +1,66 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    """Return the deduplication key of a record, or None when independent."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _amount(record):
+    """Return the integer byte count for a record, or None when it must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    number = record['bytes']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _INTEGER.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last = {}
+    for position, record in enumerate(value):
+        key = _valid_id(record)
+        if key is not None:
+            last[key] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        key = _valid_id(record)
+        if key is not None and last[key] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        path = name.strip()
+        if not path:
+            continue
+        number = _amount(record)
+        if number is None:
+            continue
+        total, count = groups.get(path, (0, 0))
+        groups[path] = (total + number, count + 1)
+
+    return [{'path': path, 'total': total, 'count': count}
+            for path, (total, count) in sorted(groups.items())]

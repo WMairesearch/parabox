@@ -1,0 +1,67 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+_MISSING = object()
+
+
+def solve(value):
+    """Group inventory records by sku, summing deltas."""
+    if not isinstance(value, list):
+        return []
+
+    # Retain only the last occurrence of each nonempty string id.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        # Deduplicate before applying any other rule.
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest.get(identifier) != position:
+                continue
+
+        # Skip records explicitly marked inactive.
+        if record.get('active') is False:
+            continue
+
+        # Read 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Read 'delta', defaulting to 1 only when absent.
+        if 'delta' in record:
+            number = record['delta']
+        else:
+            number = 1
+
+        if isinstance(number, bool):
+            continue
+        if isinstance(number, int):
+            delta = number
+        elif isinstance(number, str):
+            text = number.strip()
+            if _DELTA_PATTERN.fullmatch(text) is None:
+                continue
+            delta = int(text, 10)
+        else:
+            continue
+
+        groups[name] = groups.get(name, 0) + delta
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

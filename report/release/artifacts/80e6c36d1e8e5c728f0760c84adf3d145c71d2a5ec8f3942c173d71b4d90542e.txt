@@ -1,0 +1,67 @@
+import re
+
+def solve(value):
+    # deduplicate
+    last_idx = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            r_id = record.get('id')
+            if isinstance(r_id, str) and r_id != "":
+                last_idx[r_id] = i
+                
+    groups = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            r_id = record.get('id')
+            if isinstance(r_id, str) and r_id != "":
+                if last_idx[r_id] != i:
+                    continue
+                    
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'path' in record:
+            name = record['path']
+        elif 'route' in record:
+            name = record['route']
+        else:
+            continue
+            
+        if not isinstance(name, str):
+            continue
+            
+        name = name.strip()
+        if not name:
+            continue
+            
+        if 'bytes' not in record:
+            number = 1
+        else:
+            val = record['bytes']
+            if type(val) is int:
+                number = val
+            elif isinstance(val, str):
+                val_stripped = val.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', val_stripped):
+                    number = int(val_stripped)
+                else:
+                    continue
+            else:
+                continue
+                
+        if name not in groups:
+            groups[name] = {'total': 0, 'count': 0}
+        groups[name]['total'] += number
+        groups[name]['count'] += 1
+        
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({
+            'path': name,
+            'total': groups[name]['total'],
+            'count': groups[name]['count']
+        })
+    return result

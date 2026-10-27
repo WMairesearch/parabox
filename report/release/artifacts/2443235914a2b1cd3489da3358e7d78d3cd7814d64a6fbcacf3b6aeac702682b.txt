@@ -1,0 +1,90 @@
+"""access_logs: group retained access-log records by normalized path."""
+
+import re
+
+_INTEGER_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _is_iterable_sequence(value):
+    if isinstance(value, (str, bytes, bytearray)):
+        return False
+    return isinstance(value, (list, tuple))
+
+
+def _dedup_key(record):
+    """Nonempty string 'id' (literal: not stripped); otherwise None."""
+    if not isinstance(record, dict):
+        return None
+    candidate = record.get('id')
+    if isinstance(candidate, str) and candidate != '':
+        return candidate
+    return None
+
+
+def _normalized_path(record):
+    """'path', falling back to 'route' only when the 'path' key is absent."""
+    raw = record['path'] if 'path' in record else record.get('route')
+    if not isinstance(raw, str):
+        return None
+    text = raw.strip()
+    if not text:
+        return None
+    return text
+
+
+def _normalized_bytes(record):
+    """int bytes, defaulting to 1 only when the key is absent; None => skip."""
+    if 'bytes' not in record:
+        return 1
+    value = record['bytes']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INTEGER_RE.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not _is_iterable_sequence(value):
+        return []
+
+    records = list(value)
+
+    # Deduplicate before all other rules: keep only the last occurrence of
+    # each nonempty string id; records without such an id stay independent.
+    last_position = {}
+    for position, record in enumerate(records):
+        key = _dedup_key(record)
+        if key is not None:
+            last_position[key] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = _dedup_key(record)
+        if key is not None and last_position[key] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        path = _normalized_path(record)
+        if path is None:
+            continue
+        amount = _normalized_bytes(record)
+        if amount is None:
+            continue
+        entry = groups.get(path)
+        if entry is None:
+            groups[path] = [amount, 1]
+        else:
+            entry[0] += amount
+            entry[1] += 1
+
+    return [
+        {'path': path, 'total': entry[0], 'count': entry[1]}
+        for path, entry in sorted(groups.items(), key=lambda item: item[0])
+    ]

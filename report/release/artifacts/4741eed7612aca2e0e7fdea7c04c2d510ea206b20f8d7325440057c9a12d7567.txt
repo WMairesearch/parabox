@@ -1,0 +1,92 @@
+"""access_logs: group retained access-log records by normalized path."""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _iter_records(value):
+    """Yield the records of the input list without touching the input."""
+    if isinstance(value, (list, tuple)):
+        for record in value:
+            yield record
+    else:
+        try:
+            iterator = iter(value)
+        except TypeError:
+            return
+        for record in iterator:
+            yield record
+
+
+def _dedupe_key(record):
+    """Return the identity used for last-wins deduplication, else None."""
+    if isinstance(record, dict):
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            return identifier
+    return None
+
+
+def _path_key(record):
+    """Normalized grouping key, or None when the record has no usable key."""
+    if 'path' in record:
+        name = record.get('path')
+    else:
+        name = record.get('route')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if name == '':
+        return None
+    return name
+
+
+def _byte_count(record):
+    """Parsed byte count, or None when the record must be skipped."""
+    if 'bytes' in record:
+        raw = record['bytes']
+    else:
+        return 1
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INTEGER.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    records = list(_iter_records(value))
+
+    # Deduplication happens first: only the last occurrence of each nonempty
+    # string 'id' survives; records without such an id stay independent.
+    last_position = {}
+    for position, record in enumerate(records):
+        identifier = _dedupe_key(record)
+        if identifier is not None:
+            last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = _dedupe_key(record)
+        if identifier is not None and last_position[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = _path_key(record)
+        if name is None:
+            continue
+        number = _byte_count(record)
+        if number is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': total, 'count': count}
+        for name, (total, count) in sorted(groups.items())
+    ]

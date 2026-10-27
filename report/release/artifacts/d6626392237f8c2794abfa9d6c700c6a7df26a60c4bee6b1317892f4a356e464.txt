@@ -1,0 +1,58 @@
+import re
+
+def solve(value):
+    seen_ids = set()
+    retained_indices = set()
+    for idx in range(len(value) - 1, -1, -1):
+        record = value[idx]
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != '':
+                if rec_id in seen_ids:
+                    continue
+                seen_ids.add(rec_id)
+        retained_indices.add(idx)
+        
+    groups = {}
+    for idx, record in enumerate(value):
+        if idx not in retained_indices:
+            continue
+            
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'sku' in record:
+            key_raw = record['sku']
+        elif 'item' in record:
+            key_raw = record['item']
+        else:
+            continue
+            
+        if not isinstance(key_raw, str):
+            continue
+        key = key_raw.strip()
+        if not key:
+            continue
+            
+        if 'delta' not in record:
+            delta_val = 1
+        else:
+            delta_raw = record['delta']
+            if type(delta_raw) is int:
+                delta_val = delta_raw
+            elif isinstance(delta_raw, str):
+                s = delta_raw.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    delta_val = int(s)
+                else:
+                    continue
+            else:
+                continue
+                
+        groups[key] = groups.get(key, 0) + delta_val
+        
+    result = [{'sku': k, 'total': groups[k]} for k in sorted(groups.keys())]
+    return result

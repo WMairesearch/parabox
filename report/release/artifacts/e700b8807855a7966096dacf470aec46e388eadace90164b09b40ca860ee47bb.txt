@@ -1,0 +1,71 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group inventory records by normalized sku and sum their deltas.
+
+    Rules (from PROBLEM.md):
+      * Deduplicate first on raw nonempty string 'id'; the last occurrence of
+        each id is the only one retained, even when it is inactive/invalid.
+        Records without such an id stay independent.
+      * Skip non-object records and records whose 'active' is exactly False.
+      * Key: 'sku', falling back to 'item' only when the 'sku' key is absent.
+        Must be a string, non-empty after stripping; stripped for grouping.
+      * Value: 'delta', defaulting to 1 only when the key is absent. Accepts
+        ints (bools rejected) and strings fully matching [+-]?[0-9]+ after
+        stripping (ASCII digits only); everything else skips the record.
+      * Output {'sku', 'total'} objects sorted lexicographically by sku;
+        [] when nothing is retained. The input is never modified.
+    """
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Pass 1: last position at which each nonempty string id occurs.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if last_position[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            key = record.get('sku')
+        else:
+            key = record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        if 'delta' in record:
+            delta = record.get('delta')
+        else:
+            delta = 1
+        if isinstance(delta, str):
+            text = delta.strip()
+            if not _INTEGER.fullmatch(text):
+                continue
+            delta = int(text, 10)
+        elif type(delta) is not int:
+            continue
+
+        totals[key] = totals.get(key, 0) + delta
+
+    return [{'sku': sku, 'total': total}
+            for sku, total in sorted(totals.items())]

@@ -1,0 +1,60 @@
+import re
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    rid = record.get('id')
+    return rid if isinstance(rid, str) and rid != '' else None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Dedup first: retain only the last occurrence of each nonempty string id.
+    last = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = _valid_id(record)
+            if rid is not None:
+                last[rid] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = _valid_id(record)
+        if rid is not None and last.get(rid) != i:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            key = record['path']
+        else:
+            key = record.get('route')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+        if 'bytes' in record:
+            raw = record['bytes']
+            if isinstance(raw, bool):
+                continue
+            if isinstance(raw, int):
+                number = raw
+            elif isinstance(raw, str):
+                text = raw.strip()
+                if not _BYTES_RE.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        total, count = groups.get(key, (0, 0))
+        groups[key] = (total + number, count + 1)
+
+    return [{'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+            for name in sorted(groups)]

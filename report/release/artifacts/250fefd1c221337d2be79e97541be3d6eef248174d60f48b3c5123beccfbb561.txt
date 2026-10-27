@@ -1,0 +1,76 @@
+"""Group event records by category and report the maximum priority per category.
+
+Rules (PROBLEM.md):
+  * keep only the LAST occurrence of each nonempty string 'id' (records without
+    such an id stay independent); dedupe BEFORE every other rule;
+  * skip non-object records and records whose 'active' is exactly False;
+  * key = 'category', falling back to 'kind' ONLY when the 'category' KEY is
+    absent; must be a string and nonempty after strip; surrounding whitespace
+    is stripped;
+  * number = 'priority', defaulting to 1 ONLY when the KEY is absent; accept
+    ints (never bools) and strings fullmatching [+-]?[0-9]+ after strip; every
+    other value (null, float, list, dict, bad string) drops the record;
+  * output {'category', 'maximum'} per group, sorted lexicographically by
+    'category'; [] when nothing remains; the input is never mutated.
+"""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Pass 1: position of the last occurrence of every nonempty string id.
+    latest = {}
+    position = 0
+    for record in value:
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+        position += 1
+
+    groups = {}
+    position = 0
+    for record in value:
+        here = position
+        position += 1
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest[identifier] != here:      # superseded -> dropped already
+                continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == '':
+            continue
+
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                text = number.strip()
+                if _INT_RE.match(text) is None:
+                    continue
+                number = int(text, 10)
+            if type(number) is not int:         # rejects bools, floats, None...
+                continue
+        else:
+            number = 1
+
+        previous = groups.get(name)
+        if previous is None or number > previous:
+            groups[name] = number
+
+    return [{'category': key, 'maximum': groups[key]} for key in sorted(groups)]

@@ -1,0 +1,66 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _retained_records(value):
+    """Apply the last-occurrence id deduplication, keeping input order."""
+    if not isinstance(value, list):
+        return []
+    records = list(value)
+    last = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key != '':
+                last[key] = position
+    kept = []
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key != '':
+                if last[key] != position:
+                    continue
+        kept.append(record)
+    return kept
+
+
+def solve(value):
+    maxima = {}
+    for record in _retained_records(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record.get('category')
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'priority' in record:
+            number = record.get('priority')
+            if isinstance(number, str):
+                text = number.strip()
+                if not _INTEGER.fullmatch(text):
+                    continue
+                try:
+                    number = int(text, 10)
+                except ValueError:
+                    continue
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+        if name in maxima:
+            if number > maxima[name]:
+                maxima[name] = number
+        else:
+            maxima[name] = number
+    return [
+        {'category': name, 'maximum': maxima[name]}
+        for name in sorted(maxima)
+    ]

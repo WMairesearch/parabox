@@ -1,0 +1,83 @@
+import re
+
+_DIGITS = re.compile(r'([+-]?)([0-9]+)\Z')
+
+
+def _to_int(text):
+    """Base-10 conversion that also works for very long digit strings."""
+    match = _DIGITS.match(text)
+    if match is None:
+        return None
+    sign, digits = match.group(1), match.group(2)
+    digits = digits.lstrip('0') or '0'
+    try:
+        value = int(digits)
+    except ValueError:  # digit-count limit on very long inputs
+        value = 0
+        for start in range(0, len(digits), 9):
+            chunk = digits[start:start + 9]
+            value = value * (10 ** len(chunk)) + int(chunk)
+    return -value if sign == '-' else value
+
+
+def _clean_path(record):
+    if 'path' in record:
+        name = record['path']
+    elif 'route' in record:
+        name = record['route']
+    else:
+        return None
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def _byte_count(record):
+    if 'bytes' not in record:
+        return 1
+    number = record['bytes']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        return _to_int(number.strip())
+    return None
+
+
+def solve(value):
+    latest = {}
+    if isinstance(value, list):
+        for position, record in enumerate(value):
+            if isinstance(record, dict):
+                identifier = record.get('id')
+                if isinstance(identifier, str) and identifier:
+                    latest[identifier] = position
+        records = value
+    else:
+        records = []
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest.get(identifier) != position:
+                continue
+        if record.get('active') is False:
+            continue
+        name = _clean_path(record)
+        if name is None:
+            continue
+        number = _byte_count(record)
+        if number is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

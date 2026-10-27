@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from parabox.stats import bootstrap, rate
+from parabox.studies.support.stats import bootstrap, rate
 from parabox.studies.relay.score import (  # noqa: F401  (re-exported for the CLI)
     blocks, endpoints, labelled, merged, records, report, review_items, run_review,
 )

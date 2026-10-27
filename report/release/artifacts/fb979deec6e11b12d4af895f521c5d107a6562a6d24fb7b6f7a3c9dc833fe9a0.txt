@@ -1,0 +1,63 @@
+import re
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Step 1: retain only the last occurrence of each nonempty string 'id'.
+    # Records without such an id remain independent.
+    last_positions = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_positions[record_id] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_positions[record_id] != index:
+                    continue
+        # Step 2: skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        # Step 3: read 'category', falling back to 'kind' only when absent.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # Step 4: read 'priority', defaulting to 1 only when absent.
+        if 'priority' in record:
+            number = record['priority']
+        else:
+            number = 1
+        if isinstance(number, bool):
+            continue
+        if isinstance(number, int):
+            pass
+        elif isinstance(number, str):
+            text = number.strip()
+            if _PRIORITY_PATTERN.fullmatch(text):
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            continue
+        # Step 5: group by normalized category, keeping the maximum priority.
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    # Step 6: sort results lexicographically by 'category'.
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

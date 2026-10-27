@@ -1,0 +1,66 @@
+import re
+
+
+def solve(value):
+    # Deduplicate before all other rules: for each nonempty string 'id',
+    # only the last record carrying that id is retained.  Records without a
+    # nonempty string id are left independent.
+    last_pos = {}
+    if isinstance(value, list):
+        for pos, record in enumerate(value):
+            if not isinstance(record, dict):
+                continue
+            raw_id = record.get('id')
+            if isinstance(raw_id, str) and raw_id != '':
+                last_pos[raw_id] = pos
+
+    groups = {}
+    if isinstance(value, list):
+        for pos, record in enumerate(value):
+            if not isinstance(record, dict):
+                continue
+
+            # Finish the deduplication step first.
+            raw_id = record.get('id')
+            if isinstance(raw_id, str) and raw_id != '':
+                if pos != last_pos.get(raw_id):
+                    continue
+
+            # Skip inactive records.
+            if record.get('active') is False:
+                continue
+
+            # Determine the normalized sku.  Fall back to 'item' only when
+            # 'sku' is absent entirely.
+            if 'sku' in record:
+                sku = record['sku']
+            else:
+                sku = record.get('item')
+
+            if not isinstance(sku, str):
+                continue
+            sku = sku.strip()
+            if not sku:
+                continue
+
+            # Determine delta.  It defaults to 1 only when the key is absent.
+            if 'delta' not in record:
+                delta = 1
+            else:
+                raw_delta = record['delta']
+                if isinstance(raw_delta, bool):
+                    continue
+                if isinstance(raw_delta, int):
+                    delta = raw_delta
+                elif isinstance(raw_delta, str):
+                    stripped = raw_delta.strip()
+                    if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                        delta = int(stripped)
+                    else:
+                        continue
+                else:
+                    continue
+
+            groups[sku] = groups.get(sku, 0) + delta
+
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

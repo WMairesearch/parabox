@@ -1,0 +1,78 @@
+import re
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate before all other rules: for each nonempty string id,
+    # keep only its last occurrence in the input order.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_positions[identifier] = position
+
+    groups = {}
+
+    for position, record in enumerate(value):
+        # Apply the deduplication decision first.  A record with a
+        # nonempty-string id survives only when it is the last occurrence.
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                if last_positions.get(identifier) != position:
+                    continue
+
+        # Skip records that are not JSON objects.
+        if not isinstance(record, dict):
+            continue
+
+        # Records whose 'active' member is JSON false are skipped.
+        if record.get('active') is False:
+            continue
+
+        # Resolve the grouping key.  'kind' is used only when the
+        # 'category' member is absent (not merely null).
+        if 'category' in record:
+            key = record['category']
+        elif 'kind' in record:
+            key = record['kind']
+        else:
+            continue
+
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        # Resolve the priority value.  It defaults to 1 only when the
+        # member is absent.  Present values must be an integer (but not a
+        # bool) or a string that matches an optional sign followed by
+        # digits after whitespace stripping.
+        if 'priority' in record:
+            priority = record['priority']
+            if type(priority) is int:
+                number = priority
+            elif isinstance(priority, str):
+                stripped = priority.strip()
+                if _PRIORITY_PATTERN.fullmatch(stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        if key in groups:
+            if number > groups[key]:
+                groups[key] = number
+        else:
+            groups[key] = number
+
+    return [
+        {'category': key, 'maximum': groups[key]}
+        for key in sorted(groups)
+    ]

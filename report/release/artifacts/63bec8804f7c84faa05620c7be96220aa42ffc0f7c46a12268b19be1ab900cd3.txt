@@ -1,0 +1,69 @@
+import re
+
+_INT = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group inventory records by normalized sku, summing the deltas."""
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: deduplicate BEFORE every other rule. Keep only the last
+    # occurrence of each nonempty string 'id'; records without such an id
+    # (missing / non-string / "") stay independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key != '':
+                last_position[key] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key != '' and last_position[key] != position:
+                continue
+        else:
+            # Rule 2: non-object records are skipped.
+            continue
+
+        # Rule 2: records whose 'active' is false are skipped.
+        if record.get('active') is False:
+            continue
+
+        # Rule 3: 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            name = record['sku']
+        elif 'item' in record:
+            name = record['item']
+        else:
+            continue
+
+        # Rule 4: key must be a string, non-empty after stripping.
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Rule 5: 'delta' defaults to 1 only when absent; ints (not bools)
+        # and integer strings are accepted, everything else skips the record.
+        if 'delta' in record:
+            raw = record['delta']
+            if type(raw) is int:
+                number = raw
+            elif isinstance(raw, str):
+                text = raw.strip()
+                if _INT.fullmatch(text) is None:
+                    continue
+                number = int(text)
+            else:
+                continue
+        else:
+            number = 1
+
+        groups[name] = groups.get(name, 0) + number
+
+    # Rule 6: sorted lexicographically by sku.
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

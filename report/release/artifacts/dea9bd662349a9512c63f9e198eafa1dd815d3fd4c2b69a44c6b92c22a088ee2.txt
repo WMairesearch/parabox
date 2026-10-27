@@ -1,0 +1,71 @@
+import re
+
+def solve(value):
+    # Step 1: Deduplicate by non-empty string 'id'
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != "":
+                last_occurrence[rec_id] = i
+                
+    retained = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != "":
+                if last_occurrence[rec_id] != i:
+                    continue
+        retained.append(record)
+        
+    groups = {}
+    
+    for record in retained:
+        # Skip non-object
+        if not isinstance(record, dict):
+            continue
+            
+        # Skip active is false
+        if record.get('active') is False:
+            continue
+            
+        # Read sku / item
+        if 'sku' in record:
+            raw_sku = record['sku']
+        elif 'item' in record:
+            raw_sku = record['item']
+        else:
+            continue
+            
+        if not isinstance(raw_sku, str):
+            continue
+            
+        sku = raw_sku.strip()
+        if sku == "":
+            continue
+            
+        # Read delta
+        if 'delta' not in record:
+            delta = 1
+        else:
+            raw_delta = record['delta']
+            if isinstance(raw_delta, bool):
+                continue
+            elif isinstance(raw_delta, int):
+                delta = raw_delta
+            elif isinstance(raw_delta, str):
+                val = raw_delta.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', val):
+                    delta = int(val)
+                else:
+                    continue
+            else:
+                continue
+                
+        groups[sku] = groups.get(sku, 0) + delta
+        
+    result = []
+    for sku in sorted(groups.keys()):
+        result.append({'sku': sku, 'total': groups[sku]})
+        
+    return result

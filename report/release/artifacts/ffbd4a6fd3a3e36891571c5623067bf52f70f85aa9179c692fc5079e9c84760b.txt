@@ -1,0 +1,57 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Rule 1 (first): retain only the last occurrence of each nonempty string
+    # 'id'; records without such an id remain independent.
+    last = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last[rid] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last[rid] != index:
+            continue
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+        # Read 'category', falling back to 'kind' only when 'category' absent.
+        if 'category' in record:
+            raw = record['category']
+        else:
+            raw = record.get('kind')
+        if not isinstance(raw, str):
+            continue
+        category = raw.strip()
+        if not category:
+            continue
+        # Read 'priority', defaulting to 1 only when absent.
+        if 'priority' not in record:
+            priority = 1
+        else:
+            p = record['priority']
+            if isinstance(p, bool):
+                continue
+            if isinstance(p, int):
+                priority = p
+            elif isinstance(p, str):
+                s = p.strip()
+                if not _PRIORITY_RE.fullmatch(s):
+                    continue
+                priority = int(s, 10)
+            else:
+                continue
+        if category in groups:
+            if priority > groups[category]:
+                groups[category] = priority
+        else:
+            groups[category] = priority
+    return [{'category': c, 'maximum': groups[c]} for c in sorted(groups)]

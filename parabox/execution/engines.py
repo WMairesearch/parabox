@@ -9,7 +9,8 @@ from pathlib import Path
 from parabox.util import digest_json
 
 from .artifacts import Outcome, manifest
-from .ledger import verify_files
+from .control.ledger import verify_files
+from .merge import final_accepted, snapshot_shared
 
 
 @dataclass
@@ -31,13 +32,12 @@ class CoreEngine:
         self.exporter = exporter
 
     def __call__(self, invocation: Invocation, incoming: dict[str, bytes]) -> Outcome:
-        from parabox.studies.population.merge import final_accepted, snapshot_shared
         incoming_hashes = manifest(incoming)
         if any(not name.startswith("shared/") for name in incoming):
             raise ValueError("Core shared input must stay under shared/")
         runner = self.runner
         if runner is None:
-            from parabox.session import run_session
+            from parabox.runner.session import run_session
             runner = run_session
         options = dict(self.factory(invocation))
         if "extra_files" in options:
@@ -70,7 +70,7 @@ class FrozenWikiEngine:
     """Only registered wiki entrypoints; no global budget overrides or grading."""
 
     MODULES = {"base": "parabox.tasks.wiki.episode",
-               "budget20": "parabox.tasks.wiki.budget"}
+               "budget20": "parabox.tasks.wiki.runtime.budget"}
     policies = frozenset({"replace"})
 
     def __init__(self, *, variant: str, frozen: dict[str, str], runner=None, exporter=None):

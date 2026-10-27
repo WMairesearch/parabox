@@ -1,0 +1,79 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _parse_delta(record):
+    """Return the record's delta as an int, or None if it must be skipped."""
+    if 'delta' not in record:
+        return 1
+    value = record['delta']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _DELTA_RE.fullmatch(text):
+            return int(text, 10)
+        return None
+    return None
+
+
+def _sku(record):
+    """Return the normalized sku, or None if the record must be skipped."""
+    if 'sku' in record:
+        raw = record['sku']
+    elif 'item' in record:
+        raw = record['item']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip()
+    if not name:
+        return None
+    return name
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last record for each nonempty string id.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = _valid_id(record)
+            if ident is not None:
+                last_index[ident] = position
+
+    kept = []
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = _valid_id(record)
+        if ident is not None and last_index[ident] != position:
+            continue
+        kept.append(record)
+
+    totals = {}
+    for record in kept:
+        if record.get('active') is False:
+            continue
+        name = _sku(record)
+        if name is None:
+            continue
+        delta = _parse_delta(record)
+        if delta is None:
+            continue
+        totals[name] = totals.get(name, 0) + delta
+
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

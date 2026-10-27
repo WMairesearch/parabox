@@ -1,0 +1,72 @@
+"""Inventory grouping: solve(value) -> [{'sku': ..., 'total': ...}, ...]."""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _records(value):
+    """Return the records that survive deduplication (last 'id' occurrence wins)."""
+    if isinstance(value, (str, bytes, bytearray)):
+        return []
+    try:
+        items = list(value)
+    except TypeError:
+        return []
+    kept = []
+    positions = {}
+    for record in items:
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                position = positions.get(identifier)
+                if position is None:
+                    positions[identifier] = len(kept)
+                    kept.append(record)
+                else:
+                    kept[position] = record
+                continue
+        kept.append(record)
+    return kept
+
+
+def _key_of(record):
+    """Normalized 'sku' (falling back to 'item' only when 'sku' is absent)."""
+    name = record['sku'] if 'sku' in record else record.get('item')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def _delta_of(record):
+    """Integer delta, 1 when absent, None when the record must be skipped."""
+    if 'delta' not in record:
+        return 1
+    raw = record['delta']
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INTEGER.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    totals = {}
+    for record in _records(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        name = _key_of(record)
+        if name is None:
+            continue
+        delta = _delta_of(record)
+        if delta is None:
+            continue
+        totals[name] = totals.get(name, 0) + delta
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

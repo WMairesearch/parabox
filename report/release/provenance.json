@@ -1,0 +1,38 @@
+{
+  "canonical_sessions": 2916,
+  "ternary_sessions": 1944,
+  "wiki_sessions": 972,
+  "project_actual_starts": 3361,
+  "project_start_cap": 4000,
+  "scope": "Current authorized campaign, not all-time project usage. Historical replaced attempts are excluded from canonical outcomes but not refunded.",
+  "selection": "Completed causal generation prefixes from audited layers; exceptional Qwen method generation replaces the entire failed generation, never individual successful seats.",
+  "audit_sha256": {
+    "original_scope": "b500cf42261878695fda09fa51cb45d40b2fe49da6ce9d0851bf901859ce4185",
+    "checkpoint_scope": "b9808ab5bdd71c59e75cc8ca14673a584f010ea9d7a5032fefc7d8c57338f346",
+    "final_scope": "5d8f539d5d22c9a246c442d0347c0563415530ab8a7ae80b5f38d6fdce4577d0"
+  },
+  "exception": {
+    "preserved_tool_actions": 24,
+    "preserved_model_responses": 25,
+    "discarded_action_outcomes": 50,
+    "discarded_successful_responses": 49,
+    "reason": "Malformed tool response; rollback before background computation with unavailable process state."
+  },
+  "replacement_sources": [
+    "persistent-wiki",
+    "persistent-wiki-recovery",
+    "ternary-prefix-checkpoint",
+    "ternary-prefix-checkpoint-deferred",
+    "ternary-prefix-exception",
+    "ternary-prefix-host-recovery",
+    "ternary-prefix-populations-v2",
+    "ternary-prefix-populations-v3",
+    "ternary-prefix-recovery",
+    "ternary-prefix-serial-v2",
+    "ternary-prefix-serial-v3",
+    "ternary-prefix-stream-final",
+    "ternary-prefix-stream-final-retry",
+    "ternary-prefix-stream-finish",
+    "ternary-prefix-stream-retry"
+  ]
+}

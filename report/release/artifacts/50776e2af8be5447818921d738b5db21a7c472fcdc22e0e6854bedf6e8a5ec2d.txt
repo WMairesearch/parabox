@@ -1,0 +1,53 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: keep only the last occurrence of each
+    # nonempty string 'id'; records without such an id remain independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        number = record.get('delta', 1)
+        if isinstance(number, str):
+            stripped = number.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                number = int(stripped)
+            else:
+                continue
+        if type(number) is not int:
+            continue
+
+        groups[name] = groups.get(name, 0) + number
+
+    result = [{'sku': name, 'total': total} for name, total in groups.items()]
+    result.sort(key=lambda group: group['sku'])
+    return result

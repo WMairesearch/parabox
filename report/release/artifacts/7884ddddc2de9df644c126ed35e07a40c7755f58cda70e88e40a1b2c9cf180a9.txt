@@ -1,0 +1,72 @@
+import re
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: Deduplicate
+    last_seen = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != '':
+                last_seen[rec_id] = i
+
+    groups = {}
+    
+    for i, record in enumerate(value):
+        # Step 1: Check deduplication
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != '':
+                if last_seen[rec_id] != i:
+                    continue
+        
+        # Step 2: Skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+            
+        # Step 3: Read 'path', falling back to 'route' only when 'path' is absent.
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if 'path' in record:
+            path = record['path']
+        elif 'route' in record:
+            path = record['route']
+        else:
+            continue
+            
+        if not isinstance(path, str):
+            continue
+        path = path.strip()
+        if not path:
+            continue
+            
+        # Step 4: Read 'bytes', defaulting to 1 only when absent. 
+        # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace; 
+        # convert strings to base-10 integers. Skip all other values, including null.
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            b = record['bytes']
+            if type(b) is int:
+                bytes_val = b
+            elif isinstance(b, str):
+                b_str = b.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', b_str):
+                    bytes_val = int(b_str)
+                else:
+                    continue
+            else:
+                continue
+                
+        # Group
+        total, count = groups.get(path, (0, 0))
+        groups[path] = (total + bytes_val, count + 1)
+        
+    result = []
+    for path in sorted(groups.keys()):
+        result.append({'path': path, 'total': groups[path][0], 'count': groups[path][1]})
+        
+    return result

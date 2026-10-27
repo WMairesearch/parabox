@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from parabox.tasks.code.problems import hidden_test_source, test_source
+from parabox.tasks.code.spec.problems import hidden_test_source, test_source
 from parabox.workspace import read_optional, read_regular, remove_tree, snapshot_regular, unlink_regular, write_regular
 
 PYTEST = "cd /workspace && python -m pytest tests/test_solution.py -q --tb=line"

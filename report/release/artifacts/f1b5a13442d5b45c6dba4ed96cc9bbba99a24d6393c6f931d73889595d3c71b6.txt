@@ -1,0 +1,80 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _to_int(text):
+    """Convert a digit string to a base-10 int without any input mutation."""
+    try:
+        return int(text, 10)
+    except ValueError:
+        # Extremely long digit strings can trip Python's int conversion limit.
+        sign = 1
+        body = text
+        if body[0] in '+-':
+            if body[0] == '-':
+                sign = -1
+            body = body[1:]
+        value = 0
+        for chunk_start in range(0, len(body), 1000):
+            chunk = body[chunk_start:chunk_start + 1000]
+            value = value * (10 ** len(chunk)) + int(chunk.lstrip('0') or '0', 10)
+        return sign * value
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: deduplicate by nonempty string 'id' before anything else,
+    # keeping only the last occurrence of each identifier.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_index[identifier] = position
+
+    totals = {}
+    counts = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_index[identifier] != position:
+                continue
+        # Skip records explicitly marked inactive.
+        if record.get('active') is False:
+            continue
+        # Read 'path', falling back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            key = record['path']
+        else:
+            key = record.get('route')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+        # Read 'bytes', defaulting to 1 only when absent.
+        if 'bytes' in record:
+            raw = record['bytes']
+            if isinstance(raw, str):
+                stripped = raw.strip()
+                if not _INT_RE.fullmatch(stripped):
+                    continue
+                number = _to_int(stripped)
+            elif type(raw) is int:
+                number = raw
+            else:
+                continue
+        else:
+            number = 1
+        totals[key] = totals.get(key, 0) + number
+        counts[key] = counts.get(key, 0) + 1
+
+    return [
+        {'path': key, 'total': totals[key], 'count': counts[key]}
+        for key in sorted(totals)
+    ]

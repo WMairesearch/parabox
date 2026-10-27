@@ -1,0 +1,63 @@
+import re
+
+_BYTES_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    if isinstance(record, dict):
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '':
+            return rid
+    return None
+
+
+def solve(value):
+    # Pass 1: deduplicate by nonempty string 'id', keeping the last occurrence.
+    last_position = {}
+    for position, record in enumerate(value):
+        rid = _valid_id(record)
+        if rid is not None:
+            last_position[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        rid = _valid_id(record)
+        if rid is not None and last_position[rid] != position:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            raw = record['path']
+        elif 'route' in record:
+            raw = record['route']
+        else:
+            continue
+        if not isinstance(raw, str):
+            continue
+        name = raw.strip()
+        if not name:
+            continue
+        if 'bytes' not in record:
+            number = 1
+        else:
+            raw_bytes = record['bytes']
+            if isinstance(raw_bytes, bool):
+                continue
+            if isinstance(raw_bytes, int):
+                number = raw_bytes
+            elif isinstance(raw_bytes, str):
+                text = raw_bytes.strip()
+                if _BYTES_PATTERN.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

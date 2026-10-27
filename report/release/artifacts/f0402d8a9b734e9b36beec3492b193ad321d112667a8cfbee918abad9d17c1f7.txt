@@ -1,0 +1,71 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate: retain only the last occurrence of each nonempty string 'id'.
+    # Records without such an id remain independent.
+    last_index_by_id = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                last_index_by_id[rec_id] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        rec_id = record.get('id')
+        if isinstance(rec_id, str) and rec_id:
+            if last_index_by_id[rec_id] != i:
+                continue
+
+        # Skip records whose 'active' is false
+        if record.get('active') is False:
+            continue
+
+        # Read 'category', falling back to 'kind' only when 'category' is absent
+        if 'category' in record:
+            cat = record['category']
+        elif 'kind' in record:
+            cat = record['kind']
+        else:
+            continue
+
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace
+        if not isinstance(cat, str):
+            continue
+        cat = cat.strip()
+        if not cat:
+            continue
+
+        # Read 'priority', defaulting to 1 only when absent
+        if 'priority' not in record:
+            p = 1
+        else:
+            raw_p = record['priority']
+            if isinstance(raw_p, int) and not isinstance(raw_p, bool):
+                p = raw_p
+            elif isinstance(raw_p, str):
+                s = raw_p.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    p = int(s, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        if cat in groups:
+            if p > groups[cat]:
+                groups[cat] = p
+        else:
+            groups[cat] = p
+
+    return [
+        {'category': cat, 'maximum': groups[cat]}
+        for cat in sorted(groups.keys())
+    ]

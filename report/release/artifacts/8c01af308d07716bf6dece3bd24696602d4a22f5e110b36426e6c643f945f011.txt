@@ -1,0 +1,62 @@
+import re
+
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: for records that contain a
+    # nonempty string 'id', keep only the last occurrence.  Records with
+    # no such id remain independent.
+    deduplicated = []
+    seen_ids = set()
+    for record in reversed(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != '':
+                if id_value in seen_ids:
+                    continue
+                seen_ids.add(id_value)
+        deduplicated.append(record)
+    deduplicated.reverse()
+
+    groups = {}
+    for record in deduplicated:
+        # Skip non-object records and records explicitly marked inactive.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read sku, falling back to item only when sku is absent.
+        if 'sku' in record:
+            raw_sku = record.get('sku')
+        else:
+            raw_sku = record.get('item')
+        if not isinstance(raw_sku, str):
+            continue
+        sku = raw_sku.strip()
+        if not sku:
+            continue
+
+        # Read delta, defaulting to 1 only when absent.
+        if 'delta' not in record:
+            delta = 1
+        else:
+            delta_value = record.get('delta')
+            if type(delta_value) is int:
+                delta = delta_value
+            elif isinstance(delta_value, str):
+                delta_value = delta_value.strip()
+                if _DELTA_RE.fullmatch(delta_value) is None:
+                    continue
+                delta = int(delta_value)
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    return [{'sku': sku, 'total': total} for sku, total in sorted(groups.items())]

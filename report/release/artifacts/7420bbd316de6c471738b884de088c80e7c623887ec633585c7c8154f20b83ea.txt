@@ -1,0 +1,72 @@
+"""access_logs: group retained access-log records by normalized path."""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Return [{'path': str, 'total': int, 'count': int}, ...] sorted by path."""
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Rule 1 (before all others): keep only the last occurrence of each
+    # nonempty string 'id'. Records without such an id stay independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_position[identifier] = position
+
+    totals = {}
+    counts = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_position[identifier] != position:
+                continue
+        if record.get('active', True) is False:
+            continue
+
+        # 'path' with fallback to 'route' only when 'path' is absent.
+        if 'path' in record:
+            name = record['path']
+        elif 'route' in record:
+            name = record['route']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # 'bytes': default 1 only when absent.
+        if 'bytes' in record:
+            raw = record['bytes']
+            if isinstance(raw, bool):
+                continue
+            if isinstance(raw, int):
+                number = raw
+            elif isinstance(raw, str):
+                candidate = raw.strip()
+                if _INTEGER.fullmatch(candidate) is None:
+                    continue
+                number = int(candidate, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        if name in totals:
+            totals[name] += number
+            counts[name] += 1
+        else:
+            totals[name] = number
+            counts[name] = 1
+
+    return [{'path': name, 'total': totals[name], 'count': counts[name]}
+            for name in sorted(totals)]

@@ -1,0 +1,72 @@
+"""Group access-log records by normalized path (access_logs specification)."""
+
+import re
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _parse_bytes(value):
+    """Return the integer byte count for a retained record, or None to skip."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _BYTES_RE.fullmatch(text):
+            try:
+                return int(text, 10)
+            except ValueError:
+                return None
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: keep only the last occurrence of each nonempty string id.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'bytes' in record:
+            number = _parse_bytes(record['bytes'])
+        else:
+            number = 1
+        if number is None:
+            continue
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    result = []
+    for name in sorted(groups):
+        total, count = groups[name]
+        result.append({'path': name, 'total': total, 'count': count})
+    return result

@@ -1,0 +1,47 @@
+import re
+
+_DELTA_PATTERN = re.compile(r"[+-]?[0-9]+")
+
+
+def _normalize_delta(raw):
+    if type(raw) is int:          # bool excluded on purpose
+        return raw
+    if type(raw) is str:
+        text = raw.strip()
+        if _DELTA_PATTERN.fullmatch(text):
+            return int(text)
+    return None
+
+
+def solve(value):
+    if isinstance(value, (list, tuple)):
+        items = value
+    else:
+        return []
+    last_position = {}
+    for position, record in enumerate(items):
+        if isinstance(record, dict):
+            identifier = record.get("id")
+            if isinstance(identifier, str) and identifier != "":
+                last_position[identifier] = position
+    groups = {}
+    for position, record in enumerate(items):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get("id")
+        if isinstance(identifier, str) and identifier != "" \
+                and last_position.get(identifier) != position:
+            continue                       # keep only LAST occurrence of an id
+        if record.get("active") is False:
+            continue
+        name = record.get("sku") if "sku" in record else record.get("item")
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == "":
+            continue
+        delta = _normalize_delta(record.get("delta", 1))
+        if delta is None:
+            continue
+        groups[name] = groups.get(name, 0) + delta
+    return [{"sku": n, "total": groups[n]} for n in sorted(groups)]

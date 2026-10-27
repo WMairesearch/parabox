@@ -1,0 +1,66 @@
+import re
+
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    # Deduplicate before all other rules: keep only the last occurrence of each
+    # nonempty string 'id'; records without such an id remain independent.
+    records = []
+    seen_ids = set()
+    for record in reversed(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and len(record_id) > 0:
+                if record_id in seen_ids:
+                    continue
+                seen_ids.add(record_id)
+        records.append(record)
+    records.reverse()
+
+    groups = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Category, falling back to kind only when category is absent.
+        if 'category' in record:
+            name = record.get('category')
+        else:
+            name = record.get('kind')
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Priority, defaulting to 1 only when absent.
+        if 'priority' in record:
+            number = record.get('priority')
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                number = number.strip()
+                if _PRIORITY_RE.match(number):
+                    number = int(number)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

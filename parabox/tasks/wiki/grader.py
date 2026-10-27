@@ -9,8 +9,10 @@ import re
 
 from parabox.util import digest_json, now, read, save, sha256
 from parabox.workspace import read_regular
-from . import evaluator, fixture, helpers, scoring
-from .scoring import submission_score
+from . import evaluator, fixture
+from .runtime import helpers
+from .evaluation import scoring
+from .evaluation.scoring import submission_score
 
 
 def implementation_hashes() -> dict[str, str]:

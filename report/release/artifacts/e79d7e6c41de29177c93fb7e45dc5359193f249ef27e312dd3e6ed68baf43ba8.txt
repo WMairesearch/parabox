@@ -1,0 +1,68 @@
+import re
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+        
+    last_idx = {}
+    for i, rec in enumerate(value):
+        if isinstance(rec, dict) and 'id' in rec:
+            rec_id = rec['id']
+            if isinstance(rec_id, str) and rec_id != '':
+                last_idx[rec_id] = i
+                
+    retained = []
+    for i, rec in enumerate(value):
+        if isinstance(rec, dict) and 'id' in rec:
+            rec_id = rec['id']
+            if isinstance(rec_id, str) and rec_id != '':
+                if last_idx[rec_id] != i:
+                    continue
+        retained.append(rec)
+        
+    groups = {}
+    for rec in retained:
+        if not isinstance(rec, dict):
+            continue
+            
+        if rec.get('active') is False:
+            continue
+            
+        if 'category' in rec:
+            cat_val = rec['category']
+        elif 'kind' in rec:
+            cat_val = rec['kind']
+        else:
+            continue
+            
+        if not isinstance(cat_val, str):
+            continue
+        cat_str = cat_val.strip()
+        if not cat_str:
+            continue
+            
+        if 'priority' not in rec:
+            priority = 1
+        else:
+            p_val = rec['priority']
+            if type(p_val) is int and type(p_val) is not bool:
+                priority = p_val
+            elif isinstance(p_val, str):
+                p_str = p_val.strip()
+                if re.match(r'^[+-]?[0-9]+$', p_str):
+                    priority = int(p_str)
+                else:
+                    continue
+            else:
+                continue
+                
+        if cat_str not in groups:
+            groups[cat_str] = priority
+        else:
+            if priority > groups[cat_str]:
+                groups[cat_str] = priority
+                
+    result = []
+    for cat in sorted(groups.keys()):
+        result.append({'category': cat, 'maximum': groups[cat]})
+    return result

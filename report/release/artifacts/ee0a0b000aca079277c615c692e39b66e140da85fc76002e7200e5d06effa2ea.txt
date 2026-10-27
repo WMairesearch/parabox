@@ -1,0 +1,67 @@
+import re
+
+_INT_PATTERN = re.compile(r'[+-]?[0-9]+')
+_MISSING = object()
+
+
+def _identifier(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    identifier = record.get('id', _MISSING)
+    if isinstance(identifier, str) and identifier != '':
+        return identifier
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1 (first): keep only the last occurrence of every nonempty string id.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = _identifier(record)
+            if identifier is not None:
+                last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = _identifier(record)
+        if identifier is not None and last_position[identifier] != position:
+            continue
+
+        if record.get('active', _MISSING) is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind', _MISSING)
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, bool):
+                continue
+            if not isinstance(number, int):
+                if not isinstance(number, str):
+                    continue
+                text = number.strip()
+                if not _INT_PATTERN.fullmatch(text):
+                    continue
+                number = int(text, 10)
+        else:
+            number = 1
+
+        previous = groups.get(name, _MISSING)
+        if previous is _MISSING or number > previous:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

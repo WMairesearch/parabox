@@ -5,7 +5,8 @@
   "wire": "responses",
   "request_body": {
     "reasoning": {
-      "effort": "high"
+      "effort": "high",
+      "summary": "auto"
     },
     "max_output_tokens": 32768,
     "store": false

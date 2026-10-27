@@ -1,0 +1,82 @@
+import re
+
+def solve(value):
+    # Phase 1: Deduplication
+    seen_ids = set()
+    retained = []
+    
+    for record in reversed(value):
+        has_id = False
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != '':
+                has_id = True
+                
+        if has_id:
+            if id_val in seen_ids:
+                continue
+            seen_ids.add(id_val)
+            
+        retained.append(record)
+        
+    retained.reverse()
+    
+    # Phase 2: Filtering and grouping
+    groups = {}
+    
+    for record in retained:
+        # Skip non-object records
+        if not isinstance(record, dict):
+            continue
+            
+        # Skip records whose 'active' is false
+        if record.get('active') is False:
+            continue
+            
+        # Read 'path', falling back to 'route' only when 'path' is absent
+        if 'path' in record:
+            key = record['path']
+        elif 'route' in record:
+            key = record['route']
+        else:
+            continue
+            
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace
+        if type(key) is not str:
+            continue
+        key = key.strip()
+        if not key:
+            continue
+            
+        # Read 'bytes', defaulting to 1 only when absent
+        if 'bytes' not in record:
+            b = 1
+        else:
+            v = record['bytes']
+            if type(v) is int:
+                b = v
+            elif type(v) is str:
+                v_str = v.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', v_str):
+                    b = int(v_str)
+                else:
+                    continue
+            else:
+                continue
+                
+        # Group retained records by normalized 'path'
+        if key not in groups:
+            groups[key] = {'total': 0, 'count': 0}
+        groups[key]['total'] += b
+        groups[key]['count'] += 1
+        
+    # Phase 3: Formatting and sorting
+    result = []
+    for key in sorted(groups.keys()):
+        result.append({
+            'path': key,
+            'total': groups[key]['total'],
+            'count': groups[key]['count']
+        })
+        
+    return result

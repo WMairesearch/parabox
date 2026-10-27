@@ -1,0 +1,39 @@
+import re
+
+
+def solve(value):
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record.get('path', record.get('route'))
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        number = record.get('bytes', 1)
+        if isinstance(number, str):
+            stripped = number.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                number = int(stripped)
+            else:
+                continue
+        if type(number) is not int:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+    result = []
+    for name in sorted(groups):
+        total, count = groups[name]
+        result.append({'path': name, 'total': total, 'count': count})
+    return result

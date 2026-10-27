@@ -1,0 +1,61 @@
+import re
+
+
+def solve(value):
+    # Deduplicate before all other rules: keep the last occurrence of each
+    # nonempty string 'id'; records without such an id stay independent.
+    retained = []
+    id_positions = {}
+    for record in value:
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != '':
+                position = id_positions.get(id_value)
+                if position is None:
+                    id_positions[id_value] = len(retained)
+                    retained.append(record)
+                else:
+                    retained[position] = record
+                continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # 'category' is used when present; 'kind' only when 'category' is absent.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # 'priority' defaults to 1 only when the key is absent.
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            # bool is a subclass of int, so require the exact int type.
+            if type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        groups[name] = max(groups.get(name, number), number)
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

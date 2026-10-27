@@ -1,0 +1,80 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    """Return the record's usable id, or None when it has none."""
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _coerce_bytes(record):
+    """Return the byte count for a record, or None when it must be skipped.
+
+    The default of 1 applies only when the 'bytes' key is absent.
+    """
+    if 'bytes' not in record:
+        return 1
+    value = record['bytes']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INT_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    records = list(value)
+
+    # 1. Deduplicate first: keep only the last occurrence of each usable id.
+    last = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            ident = _valid_id(record)
+            if ident is not None:
+                last[ident] = position
+
+    retained = []
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        ident = _valid_id(record)
+        if ident is not None and last[ident] != position:
+            continue
+        retained.append(record)
+
+    # 2. Filter and accumulate.
+    totals = {}
+    counts = {}
+    for record in retained:
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            raw_key = record['path']
+        else:
+            raw_key = record.get('route')
+        if not isinstance(raw_key, str):
+            continue
+        key = raw_key.strip()
+        if not key:
+            continue
+        amount = _coerce_bytes(record)
+        if amount is None:
+            continue
+        totals[key] = totals.get(key, 0) + amount
+        counts[key] = counts.get(key, 0) + 1
+
+    return [
+        {'path': key, 'total': totals[key], 'count': counts[key]}
+        for key in sorted(totals)
+    ]

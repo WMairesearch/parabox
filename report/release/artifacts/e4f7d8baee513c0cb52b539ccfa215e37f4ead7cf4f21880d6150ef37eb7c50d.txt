@@ -1,0 +1,77 @@
+"""Group access-log records by normalized path (see PROBLEM.md)."""
+
+import re
+
+_DIGITS = re.compile(r"[+-]?[0-9]+")
+
+
+def _coerce_bytes(value):
+    """Return the byte count for an accepted value, else None."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return int(value)
+    if isinstance(value, str):
+        text = value.strip()
+        if _DIGITS.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def _usable_id(record):
+    """Return the record's dedup id, or None when it has no usable id."""
+    identifier = record.get("id")
+    if isinstance(identifier, str) and identifier != "":
+        return identifier
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each usable id.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = _usable_id(record)
+            if identifier is not None:
+                last_index[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = _usable_id(record)
+        if identifier is not None and last_index[identifier] != position:
+            continue
+        if record.get("active") is False:
+            continue
+
+        if "path" in record:
+            raw_path = record["path"]
+        elif "route" in record:
+            raw_path = record["route"]
+        else:
+            continue
+        if not isinstance(raw_path, str):
+            continue
+        path = raw_path.strip()
+        if not path:
+            continue
+
+        if "bytes" in record:
+            number = _coerce_bytes(record["bytes"])
+            if number is None:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(path, (0, 0))
+        groups[path] = (total + number, count + 1)
+
+    return [
+        {"path": path, "total": groups[path][0], "count": groups[path][1]}
+        for path in sorted(groups)
+    ]

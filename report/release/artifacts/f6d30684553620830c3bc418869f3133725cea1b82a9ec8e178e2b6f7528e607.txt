@@ -1,0 +1,84 @@
+"""access_logs: deduplicate, filter, and aggregate access log records."""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _record_id(record):
+    """Return the id of a record when it is a usable nonempty string."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _retained(records):
+    """Keep only the last occurrence of each id; id-less records stay."""
+    last = {}
+    for position, record in enumerate(records):
+        ident = _record_id(record)
+        if ident is not None:
+            last[ident] = position
+    kept = []
+    for position, record in enumerate(records):
+        ident = _record_id(record)
+        if ident is not None and last[ident] != position:
+            continue
+        kept.append(record)
+    return kept
+
+
+def _path(record):
+    if 'path' in record:
+        name = record['path']
+    else:
+        name = record.get('route')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if not name:
+        return None
+    return name
+
+
+def _number(record):
+    """Return the byte count as an int, or None when the value is invalid."""
+    if 'bytes' in record:
+        number = record['bytes']
+    else:
+        return 1
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _INT_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+    groups = {}
+    for record in _retained(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        name = _path(record)
+        if name is None:
+            continue
+        number = _number(record)
+        if number is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

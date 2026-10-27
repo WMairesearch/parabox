@@ -1,0 +1,76 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _keep_last_by_id(records):
+    """Keep only the last record for every non-empty string id.
+
+    Records whose id is missing, not a string, or an empty string are all
+    independent and are always retained.  Emission order is irrelevant for the
+    final result (the output is sorted), so records are simply scanned in
+    reverse and the first occurrence of each id wins.
+    """
+    kept = []
+    seen = set()
+    for record in reversed(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                if identifier in seen:
+                    continue
+                seen.add(identifier)
+        kept.append(record)
+    return kept
+
+
+def _category(record):
+    if 'category' in record:
+        raw = record['category']
+    elif 'kind' in record:
+        raw = record['kind']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip()
+    if not name:
+        return None
+    return name
+
+
+def _priority(record):
+    if 'priority' not in record:
+        return 1
+    raw = record['priority']
+    if isinstance(raw, bool):
+        return None
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _PRIORITY_RE.match(text):
+            try:
+                return int(text, 10)
+            except ValueError:
+                return None
+    return None
+
+
+def solve(value):
+    groups = {}
+    for record in _keep_last_by_id(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        current = groups.get(name)
+        if current is None or number > current:
+            groups[name] = number
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

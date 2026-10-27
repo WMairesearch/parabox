@@ -1,0 +1,50 @@
+import re
+
+
+def solve(value):
+    # Rule 1 (first): keep only the last occurrence of each nonempty string 'id'.
+    last = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident:
+                last[ident] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = record.get('id')
+        if isinstance(ident, str) and ident and last[ident] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'priority' in record:
+            number = record['priority']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

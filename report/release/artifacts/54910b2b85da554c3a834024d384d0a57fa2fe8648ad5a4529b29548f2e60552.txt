@@ -1,0 +1,65 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # Rule 1 (applies BEFORE every other rule): keep only the LAST occurrence of
+    # each nonempty string 'id'. Records without such an id stay independent.
+    last_seen = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                last_seen[ident] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        # Rule 2a: skip non-object records.
+        if not isinstance(record, dict):
+            continue
+
+        # Rule 1 (continued): a record may be dropped by dedup even when its
+        # surviving twin is later skipped for another reason.
+        ident = record.get('id')
+        if isinstance(ident, str) and ident != '' and last_seen.get(ident) != index:
+            continue
+
+        # Rule 2b: skip records whose 'active' is false.
+        if record.get('active', True) is False:
+            continue
+
+        # Rule 2c: 'sku' wins; 'item' is used ONLY when the 'sku' key is absent.
+        key = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        # Rule 3: 'delta' defaults to 1 only when the key is ABSENT.
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if _INTEGER.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        groups[key] = groups.get(key, 0) + number
+
+    # Rule 4: output sorted lexicographically by 'sku'; [] when nothing remains.
+    return [{'sku': key, 'total': groups[key]} for key in sorted(groups)]

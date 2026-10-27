@@ -1,0 +1,51 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Input is a JSON list of records; anything else yields no results.
+    if isinstance(value, (list, tuple)):
+        records = value
+    else:
+        return []
+
+    # Pass 1: the LAST occurrence of every nonempty string id wins; every other
+    # record sharing that id is dropped.  Deduplication happens before all other
+    # rules, so a superseding record that is itself skipped still removes the
+    # earlier ones.
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        # 'route' is consulted only when the 'path' KEY is absent.
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        # 'bytes' defaults to 1 only when the KEY is absent.
+        number = record['bytes'] if 'bytes' in record else 1
+        if isinstance(number, str):
+            stripped = number.strip()
+            if not _INTEGER.fullmatch(stripped):
+                continue
+            number = int(stripped)
+        if type(number) is not int:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [{'path': path, 'total': total, 'count': count}
+            for path, (total, count) in sorted(groups.items())]

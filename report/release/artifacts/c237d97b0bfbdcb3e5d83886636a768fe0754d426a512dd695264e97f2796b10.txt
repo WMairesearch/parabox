@@ -1,0 +1,74 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _parse_delta_text(text):
+    """Convert a stripped string matching [+-]?[0-9]+ to an integer."""
+    try:
+        return int(text, 10)
+    except ValueError:
+        # Extremely long digit strings can exceed Python's int<->str limit.
+        negative = text[0] == '-'
+        digits = text.lstrip('+-')
+        number = 0
+        for char in digits:
+            number = number * 10 + (ord(char) - 48)
+        return -number if negative else number
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: retain only the last occurrence of
+    # each nonempty string 'id'; records without such an id stay independent.
+    last_occurrence = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_occurrence[record_id] = index
+
+    totals = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if (isinstance(record_id, str) and record_id != ''
+                and last_occurrence[record_id] != index):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            key = record['sku']
+        elif 'item' in record:
+            key = record['item']
+        else:
+            continue
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        if 'delta' in record:
+            raw = record['delta']
+            if isinstance(raw, bool):
+                continue
+            if isinstance(raw, int):
+                delta = raw
+            elif isinstance(raw, str):
+                text = raw.strip()
+                if _DELTA_PATTERN.fullmatch(text) is None:
+                    continue
+                delta = _parse_delta_text(text)
+            else:
+                continue
+        else:
+            delta = 1
+
+        totals[key] = totals.get(key, 0) + delta
+
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

@@ -1,0 +1,55 @@
+import re
+
+_DELTA = re.compile(r'[+-]?[0-9]+')
+
+
+def _records(value):
+    if value is None or isinstance(value, (str, bytes, bytearray)):
+        return []
+    if isinstance(value, (list, tuple)):
+        return list(value)
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def solve(value):
+    records = _records(value)
+
+    # Deduplicate FIRST: keep only the last occurrence of each nonempty
+    # string 'id' (raw, not stripped). Records without one stay independent.
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        name = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == '':
+            continue
+        number = record['delta'] if 'delta' in record else 1
+        if isinstance(number, str):
+            stripped = number.strip()
+            if _DELTA.fullmatch(stripped) is None:
+                continue
+            number = int(stripped)
+        if type(number) is not int:
+            continue
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

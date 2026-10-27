@@ -1,0 +1,55 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Pass 1: find last index for each nonempty string 'id'.
+    last_index = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_index[rid] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        # Dedup rule: drop superseded occurrences of a nonempty string id.
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '' and last_index[rid] != i:
+                continue
+        else:
+            continue  # skip non-object records
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' in record:
+            number = record['delta']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                s = number.strip()
+                if _DELTA_RE.fullmatch(s):
+                    number = int(s, 10)
+                else:
+                    continue
+            else:
+                continue  # null, float, bool, list, etc.
+        else:
+            number = 1
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

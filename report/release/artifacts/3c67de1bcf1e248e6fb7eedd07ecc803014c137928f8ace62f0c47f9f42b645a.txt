@@ -1,0 +1,73 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                last_occurrence[rec_id] = i
+
+    retained = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                if last_occurrence[rec_id] != i:
+                    continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            raw_path = record['path']
+        elif 'route' in record:
+            raw_path = record['route']
+        else:
+            continue
+
+        if not isinstance(raw_path, str):
+            continue
+        path = raw_path.strip()
+        if not path:
+            continue
+
+        if 'bytes' not in record:
+            b = 1
+        else:
+            raw_b = record['bytes']
+            if isinstance(raw_b, bool):
+                continue
+            elif isinstance(raw_b, int):
+                b = raw_b
+            elif isinstance(raw_b, str):
+                stripped_b = raw_b.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_b):
+                    b = int(stripped_b, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        if path not in groups:
+            groups[path] = [0, 0]
+        groups[path][0] += b
+        groups[path][1] += 1
+
+    result = []
+    for path in sorted(groups.keys()):
+        result.append({
+            'path': path,
+            'total': groups[path][0],
+            'count': groups[path][1]
+        })
+    return result

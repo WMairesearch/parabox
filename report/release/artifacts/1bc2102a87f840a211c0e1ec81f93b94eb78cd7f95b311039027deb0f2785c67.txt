@@ -1,0 +1,65 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group inventory records by normalized sku and sum their deltas.
+
+    Rules (in order):
+      1. Deduplicate first: keep only the LAST occurrence of each nonempty
+         string 'id'; records without such an id stay independent.
+      2. Skip non-object records and records whose 'active' is False.
+      3. Key: record['sku'] when the key is present, otherwise record['item']
+         (a present-but-non-string 'sku' does NOT fall back -> skip).
+         The key must be a string that is nonempty after stripping; the
+         stripped value is the group name.
+      4. Value: record['delta'], defaulting to 1 only when the key is absent.
+         Accept true ints (bools rejected) and strings fully matching
+         [+-]?[0-9]+ after stripping; every other value (null, float, bool,
+         list, dict, malformed string) skips the record.
+      5. Emit {'sku', 'total'} per group sorted lexicographically by sku;
+         [] when nothing remains. The input is never mutated.
+    """
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+
+        name = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, str):
+                text = number.strip()
+                if not _INTEGER.fullmatch(text):
+                    continue
+                number = int(text)
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': key, 'total': total} for key, total in sorted(groups.items())]

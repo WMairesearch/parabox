@@ -1,0 +1,52 @@
+import re
+
+_DELTA = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1 (before all others): retain only the last occurrence of each
+    # nonempty string 'id'; records without such an id stay independent.
+    last = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid:
+                last[rid] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid and last[rid] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        elif 'item' in record:
+            name = record['item']
+        else:
+            continue
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        if 'delta' in record:
+            delta = record['delta']
+            if type(delta) is int:
+                number = delta
+            elif isinstance(delta, str):
+                text = delta.strip()
+                if _DELTA.fullmatch(text) is None:
+                    continue
+                number = int(text)
+            else:
+                continue
+        else:
+            number = 1
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': key, 'total': total} for key, total in sorted(groups.items())]

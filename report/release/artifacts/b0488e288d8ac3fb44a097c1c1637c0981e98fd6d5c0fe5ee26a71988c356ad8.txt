@@ -1,0 +1,60 @@
+import re
+
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate before all other rules: for each nonempty string 'id',
+    # keep only the record where it appears last.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            last_id_position[record_id] = position
+
+    groups = {}
+
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        record_id = record.get('id')
+        if (isinstance(record_id, str) and record_id != ''
+                and last_id_position.get(record_id) != position):
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            sku = record.get('sku')
+        else:
+            sku = record.get('item')
+
+        if not isinstance(sku, str):
+            continue
+        sku = sku.strip()
+        if not sku:
+            continue
+
+        if 'delta' not in record:
+            delta = 1
+        else:
+            delta = record.get('delta')
+            if type(delta) is int:
+                pass
+            elif isinstance(delta, str):
+                delta = delta.strip()
+                if _DELTA_RE.fullmatch(delta):
+                    delta = int(delta)
+                else:
+                    continue
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

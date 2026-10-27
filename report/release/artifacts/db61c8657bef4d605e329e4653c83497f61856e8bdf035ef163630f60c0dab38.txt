@@ -1,0 +1,77 @@
+"""access_logs: group retained request records by normalized path."""
+
+import re
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _normalized_bytes(record):
+    """Return the byte value for a record, or None when the record must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    value = record['bytes']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _BYTES_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def _normalized_path(record):
+    """Return the stripped path key, or None when the record must be skipped."""
+    if 'path' in record:
+        key = record['path']
+    elif 'route' in record:
+        key = record['route']
+    else:
+        return None
+    if not isinstance(key, str):
+        return None
+    key = key.strip()
+    return key or None
+
+
+def _dedup_identity(record):
+    """Id used for de-duplication, or None when the record stays independent."""
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def solve(value):
+    records = value if isinstance(value, list) else []
+
+    # De-duplicate first: only the last occurrence of each nonempty string id survives.
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            ident = _dedup_identity(record)
+            if ident is not None:
+                last_position[ident] = position
+
+    totals = {}
+    counts = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        ident = _dedup_identity(record)
+        if ident is not None and last_position[ident] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        path = _normalized_path(record)
+        if path is None:
+            continue
+        number = _normalized_bytes(record)
+        if number is None:
+            continue
+        totals[path] = totals.get(path, 0) + number
+        counts[path] = counts.get(path, 0) + 1
+
+    return [{'path': path, 'total': totals[path], 'count': counts[path]}
+            for path in sorted(totals)]

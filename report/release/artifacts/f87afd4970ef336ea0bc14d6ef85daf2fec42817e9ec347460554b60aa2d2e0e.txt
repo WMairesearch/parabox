@@ -1,0 +1,91 @@
+import re
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier != '':
+        return identifier
+    return None
+
+
+def _category(record):
+    """Return the normalized category/key, or None when unusable."""
+    if 'category' in record:
+        raw = record['category']
+    else:
+        raw = record.get('kind')
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip()
+    if not name:
+        return None
+    return name
+
+
+def _priority(record):
+    """Return (ok, priority) where ok is False when the value is unusable."""
+    if 'priority' not in record:
+        return True, 1
+    raw = record['priority']
+    if isinstance(raw, str):
+        text = raw.strip()
+        if not _PRIORITY_PATTERN.fullmatch(text):
+            return False, None
+        try:
+            return True, int(text, 10)
+        except ValueError:  # e.g. digit-count limits on huge strings
+            sign = 1
+            digits = text
+            if digits[:1] in '+-':
+                sign = -1 if digits[0] == '-' else 1
+                digits = digits[1:]
+            result = 0
+            for character in digits:
+                result = result * 10 + (ord(character) - 48)
+            return True, sign * result
+    if type(raw) is int:  # bool is a subclass of int and must be rejected
+        return True, raw
+    return False, None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string id.  Records without such an id stay independent.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = _valid_id(record)
+            if identifier is not None:
+                last_index[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = _valid_id(record)
+        if identifier is not None and last_index[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        ok, number = _priority(record)
+        if not ok:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

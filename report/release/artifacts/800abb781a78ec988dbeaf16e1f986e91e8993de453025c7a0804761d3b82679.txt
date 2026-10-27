@@ -1,0 +1,73 @@
+import re
+
+
+def solve(value):
+    # The input is specified as a JSON list of records; anything else has no
+    # retained records under the event rules.
+    if not isinstance(value, list):
+        return []
+
+    # --- Deduplicate by id before all other rules. -------------------------
+    # Only a nonempty string id participates in deduplication.  For each such
+    # id, only the record at its last occurrence is retained.  Records that
+    # do not have such an id remain independent (i.e. they are all kept).
+    last_occurrence = {}
+    has_dedup_id = []
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_occurrence[record_id] = index
+                has_dedup_id.append(True)
+                continue
+        has_dedup_id.append(False)
+
+    keep_last = set(last_occurrence.values())
+
+    groups = {}
+    for index, record in enumerate(value):
+        if has_dedup_id[index] and index not in keep_last:
+            continue
+
+        # Skip non-object records.
+        if not isinstance(record, dict):
+            continue
+
+        # Skip records explicitly marked active: false.
+        if record.get('active') is False:
+            continue
+
+        # Category falls back to kind only when category is absent.
+        if 'category' in record:
+            category = record['category']
+        else:
+            category = record.get('kind')
+
+        if not isinstance(category, str) or not category.strip():
+            continue
+        category = category.strip()
+
+        # Priority defaults to 1 only when the key is absent.  Accept genuine
+        # integers (not booleans) and strings matching [+-]?[0-9]+ after
+        # stripping surrounding whitespace.
+        if 'priority' in record:
+            priority = record['priority']
+            if type(priority) is int:
+                number = priority
+            elif isinstance(priority, str) and re.fullmatch(r'[+-]?[0-9]+', priority.strip()):
+                number = int(priority.strip())
+            else:
+                continue
+        else:
+            number = 1
+
+        if category in groups:
+            if number > groups[category]:
+                groups[category] = number
+        else:
+            groups[category] = number
+
+    return [
+        {'category': category, 'maximum': groups[category]}
+        for category in sorted(groups)
+    ]

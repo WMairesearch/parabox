@@ -1,0 +1,53 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    records = value if isinstance(value, list) else []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    best = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if last_position[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'priority' in record:
+            number = record['priority']
+        else:
+            number = 1
+        if isinstance(number, str):
+            text = number.strip()
+            if not _INT_RE.match(text):
+                continue
+            number = int(text, 10)
+        elif isinstance(number, bool) or not isinstance(number, int):
+            continue
+        if name in best:
+            if number > best[name]:
+                best[name] = number
+        else:
+            best[name] = number
+
+    return [{'category': name, 'maximum': best[name]} for name in sorted(best)]

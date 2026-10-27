@@ -1,0 +1,56 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Pass 1: de-duplicate by nonempty string id; the LAST occurrence wins.
+    # Applied before every other rule (active, key validity, priority).
+    last_index = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_index[rid] = index
+
+    maxima = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last_index[rid] != index:
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            key = record['category']
+        else:
+            key = record.get('kind')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if key == '':
+            continue
+
+        if 'priority' in record:
+            raw = record['priority']
+        else:
+            raw = 1
+        if type(raw) is int:
+            priority = raw
+        elif isinstance(raw, str):
+            text = raw.strip()
+            if _INTEGER.fullmatch(text) is None:
+                continue
+            priority = int(text, 10)
+        else:
+            continue
+
+        if key not in maxima or priority > maxima[key]:
+            maxima[key] = priority
+
+    return [{'category': key, 'maximum': maxima[key]} for key in sorted(maxima)]

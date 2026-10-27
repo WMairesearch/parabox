@@ -1,0 +1,69 @@
+"""Inventory grouping per PROBLEM.md."""
+
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _identifier(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    if not isinstance(record, dict):
+        return None
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier != '':
+        return identifier
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # 1. Deduplicate: keep only the last occurrence of each nonempty string id.
+    #    Records without such an id remain independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        identifier = _identifier(record)
+        if identifier is not None:
+            last_position[identifier] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        identifier = _identifier(record)
+        if identifier is not None and last_position[identifier] != position:
+            continue
+        retained.append(record)
+
+    # 2. Build groups.
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, str):
+                candidate = number.strip()
+                if not _DELTA_RE.fullmatch(candidate):
+                    continue
+                number = int(candidate, 10)
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': key, 'total': groups[key]} for key in sorted(groups)]

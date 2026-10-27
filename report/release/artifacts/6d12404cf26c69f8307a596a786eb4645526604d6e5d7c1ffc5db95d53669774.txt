@@ -1,0 +1,61 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: for every nonempty string 'id', keep only the last
+    # record carrying that id.  Records without such an id stay independent.
+    last_seen = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_seen[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_seen[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'bytes' not in record:
+            number = 1
+        else:
+            number = record['bytes']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                stripped = number.strip()
+                if not _INT_RE.fullmatch(stripped):
+                    continue
+                number = int(stripped, 10)
+            else:
+                continue
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

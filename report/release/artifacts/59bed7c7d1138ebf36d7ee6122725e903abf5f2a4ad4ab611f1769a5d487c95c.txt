@@ -1,0 +1,67 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1 (before every other rule): keep only the LAST occurrence of each
+    # nonempty string 'id'. Records without such an id stay independent.
+    last_seen = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                last_seen[ident] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        # Rule 2a: skip non-object records.
+        if not isinstance(record, dict):
+            continue
+
+        ident = record.get('id')
+        if isinstance(ident, str) and ident != '' and last_seen.get(ident) != index:
+            continue
+
+        # Rule 2b: skip records explicitly marked inactive.
+        if record.get('active', True) is False:
+            continue
+
+        # Rule 2c: 'category' wins; 'kind' is used only when 'category' is absent.
+        key = record['category'] if 'category' in record else record.get('kind')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        # Rule 3: 'priority' defaults to 1 only when the key is ABSENT.
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if _INTEGER.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        if key in groups:
+            if number > groups[key]:
+                groups[key] = number
+        else:
+            groups[key] = number
+
+    return [
+        {'category': key, 'maximum': groups[key]}
+        for key in sorted(groups)
+    ]

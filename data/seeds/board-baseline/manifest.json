@@ -1,6 +1,6 @@
 {
   "extracted_at": "2026-09-29T09:35:45.036588+00:00",
-  "baseline": "/home/ast/parabox/runs/board-baseline",
+  "baseline": "board-baseline",
   "rules": {
     "patterns": {
       "n1": "impossible|contradict|can(?:not|'t) (?:pass|solve|make)|no way to (?:pass|solve)|what should (?:we|i) do|what do we do|不可能|怎么办|矛盾",

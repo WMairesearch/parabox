@@ -1,0 +1,71 @@
+import re
+
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    # Records without such an id are not affected by this pass.
+    last_by_id = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_by_id[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if position != last_by_id[record_id]:
+                    continue
+
+        # Non-object records are skipped.
+        if not isinstance(record, dict):
+            continue
+
+        # Records explicitly marked inactive are skipped.
+        if record.get('active') is False:
+            continue
+
+        # Path falls back to route only when path is absent.
+        if 'path' in record:
+            path = record['path']
+        else:
+            path = record.get('route')
+
+        if not isinstance(path, str):
+            continue
+        path = path.strip()
+        if not path:
+            continue
+
+        # Bytes default to 1 only when absent.  Accept only int (not bool)
+        # or strings made solely of an optional sign followed by digits.
+        if 'bytes' not in record:
+            number = 1
+        else:
+            number = record['bytes']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                stripped = number.strip()
+                if _BYTES_RE.fullmatch(stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+
+        total, count = groups.get(path, (0, 0))
+        groups[path] = (total + number, count + 1)
+
+    return [
+        {'path': path, 'total': groups[path][0], 'count': groups[path][1]}
+        for path in sorted(groups)
+    ]

@@ -1,0 +1,66 @@
+import re
+
+_INT = re.compile(r'[+-]?[0-9]+')
+
+
+def _records(value):
+    if isinstance(value, (str, bytes, bytearray)):
+        return []
+    try:
+        items = list(value)
+    except TypeError:
+        return []
+    # Rule 1: deduplicate by id FIRST - keep only the LAST occurrence of each
+    # nonempty string id.  Records without such an id stay independent.
+    kept = []
+    positions = {}
+    for record in items:
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '':
+            if rid in positions:
+                kept[positions[rid]] = record
+            else:
+                positions[rid] = len(kept)
+                kept.append(record)
+        else:
+            kept.append(record)
+    return kept
+
+
+def _priority(record):
+    """Return the normalized priority int, or None when the record must be skipped."""
+    if 'priority' not in record:
+        return 1
+    raw = record['priority']
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    groups = {}
+    for record in _records(value):
+        if record.get('active') is False:
+            continue
+        name = record['category'] if 'category' in record else record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == '':
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        current = groups.get(name)
+        if current is None or number > current:
+            groups[name] = number
+    return [{'category': key, 'maximum': groups[key]} for key in sorted(groups)]

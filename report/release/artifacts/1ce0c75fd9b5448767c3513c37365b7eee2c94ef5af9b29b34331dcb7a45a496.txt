@@ -1,0 +1,63 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _priority(record):
+    """Return (ok, value)."""
+    if 'priority' not in record:
+        return True, 1
+    value = record['priority']
+    if type(value) is int:
+        return True, value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INT_RE.match(text):
+            return True, int(text, 10)
+    return False, None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last_index = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            last_index[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_index.get(identifier) != position:
+                continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        ok, number = _priority(record)
+        if not ok:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

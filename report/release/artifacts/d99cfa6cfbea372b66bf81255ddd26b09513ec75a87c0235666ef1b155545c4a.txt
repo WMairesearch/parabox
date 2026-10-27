@@ -1,0 +1,74 @@
+import re
+
+def solve(value):
+    retained = []
+    seen_ids = set()
+    for record in reversed(value):
+        has_valid_id = False
+        valid_id = None
+        if isinstance(record, dict) and 'id' in record:
+            vid = record['id']
+            if isinstance(vid, str) and vid != "":
+                has_valid_id = True
+                valid_id = vid
+        
+        if has_valid_id:
+            if valid_id in seen_ids:
+                continue
+            seen_ids.add(valid_id)
+            retained.append(record)
+        else:
+            retained.append(record)
+            
+    retained.reverse()
+    
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'category' in record:
+            key = record['category']
+        elif 'kind' in record:
+            key = record['kind']
+        else:
+            continue
+            
+        if not isinstance(key, str):
+            continue
+            
+        key = key.strip()
+        if not key:
+            continue
+            
+        if 'priority' not in record:
+            priority = 1
+        else:
+            p = record['priority']
+            if isinstance(p, bool):
+                continue
+            elif isinstance(p, int):
+                priority = p
+            elif isinstance(p, str):
+                p_stripped = p.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', p_stripped):
+                    priority = int(p_stripped)
+                else:
+                    continue
+            else:
+                continue
+                
+        if key in groups:
+            if priority > groups[key]:
+                groups[key] = priority
+        else:
+            groups[key] = priority
+            
+    result = []
+    for key in sorted(groups.keys()):
+        result.append({'category': key, 'maximum': groups[key]})
+        
+    return result

@@ -10,7 +10,7 @@ from parabox.studies.transmission_door import design as D
 from parabox.studies.transmission_door import notes as N
 from parabox.studies.transmission_door.run import extra_files
 from parabox.studies.transmission_door.task import DoorChainTask, forbidden_words
-from parabox.tasks.code.mechspan import verifier_config
+from parabox.studies.code.mechspan import verifier_config
 from parabox.util import read, sha256
 
 

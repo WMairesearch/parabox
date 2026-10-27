@@ -1,0 +1,65 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # 1. Deduplicate: keep only the LAST occurrence of each nonempty string id.
+    keep = [True] * len(value)
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_index[rid] = position
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                if last_index[rid] != position:
+                    keep[position] = False
+
+    groups = {}
+    order = []
+    for position, record in enumerate(value):
+        if not keep[position]:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        # path / route
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        if not name.strip():
+            continue
+        name = name.strip()
+        # bytes
+        if 'bytes' in record:
+            number = record['bytes']
+        else:
+            number = 1
+        if isinstance(number, bool):
+            continue
+        if isinstance(number, str):
+            stripped = number.strip()
+            if not _INT_RE.fullmatch(stripped):
+                continue
+            number = int(stripped)
+        elif not isinstance(number, int):
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    result = []
+    for name in sorted(groups):
+        total, count = groups[name]
+        result.append({'path': name, 'total': total, 'count': count})
+    return result

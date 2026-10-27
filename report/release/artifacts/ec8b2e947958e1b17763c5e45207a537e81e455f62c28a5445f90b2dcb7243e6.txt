@@ -1,0 +1,57 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Pass 1: locate the last occurrence of each nonempty string 'id'.
+    # Deduplication happens before all other rules; records without such
+    # an id (including non-object records) remain independent.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_index[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last_index[rid] != position:
+            continue  # superseded by a later record carrying the same id
+
+        if record.get('active') is False:
+            continue
+
+        # 'item' is consulted only when 'sku' is absent entirely.
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                delta = number
+            elif isinstance(number, str):
+                text = number.strip()
+                if _DELTA_PATTERN.fullmatch(text) is None:
+                    continue
+                delta = int(text, 10)
+            else:
+                continue  # null and every other type is skipped
+        else:
+            delta = 1
+
+        groups[name] = groups.get(name, 0) + delta
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

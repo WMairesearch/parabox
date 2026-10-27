@@ -1,0 +1,60 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group event records by normalized category and report the maximum priority."""
+    if isinstance(value, (str, bytes)) or not isinstance(value, (list, tuple)):
+        return []
+
+    records = list(value)
+
+    # Rule 1 (applied before every other rule): keep only the last occurrence of
+    # each record carrying a nonempty string 'id'.  Records without such an id
+    # stay independent (they are never dropped by this rule).
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_position.get(identifier) != position:
+                continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                text = number.strip()
+                if _INTEGER.fullmatch(text) is None:
+                    continue
+                number = int(text)
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        previous = groups.get(name)
+        if previous is None or number > previous:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

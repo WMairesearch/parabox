@@ -1,0 +1,68 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # First rule: retain only the last occurrence of each nonempty string id.
+    # Records without such an id remain independent.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            id_value = record['id']
+            if isinstance(id_value, str) and id_value != '':
+                last_id_position[id_value] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            id_value = record['id']
+            if isinstance(id_value, str) and id_value != '':
+                if last_id_position[id_value] != position:
+                    continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        # Skip non-object records and records whose active is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read category, falling back to kind only when category is absent.
+        if 'category' in record:
+            raw_key = record['category']
+        else:
+            raw_key = record.get('kind')
+
+        # Skip non-string or empty-after-stripping keys; strip whitespace.
+        if not isinstance(raw_key, str):
+            continue
+        key = raw_key.strip()
+        if not key:
+            continue
+
+        # Read priority, defaulting to 1 only when absent.
+        if 'priority' not in record:
+            number = 1
+        else:
+            priority = record['priority']
+            if type(priority) is int:
+                number = priority
+            elif isinstance(priority, str):
+                stripped = priority.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+
+        groups[key] = max(groups[key], number) if key in groups else number
+
+    return [
+        {'category': key, 'maximum': groups[key]}
+        for key in sorted(groups)
+    ]

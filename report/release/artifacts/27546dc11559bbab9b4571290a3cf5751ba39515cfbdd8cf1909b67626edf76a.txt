@@ -1,0 +1,70 @@
+import re
+
+
+def solve(value):
+    # First, deduplicate by nonempty string 'id', keeping only the last
+    # occurrence of each such id.  Records without a nonempty string id are
+    # left untouched.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_id_position[record_id] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_id_position[record_id] != position:
+                    continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        # Skip non-object records.
+        if not isinstance(record, dict):
+            continue
+
+        # Skip records explicitly marked active=false (JSON false).
+        if record.get('active') is False:
+            continue
+
+        # Category falls back to kind only when category is absent.
+        if 'category' in record:
+            raw_category = record['category']
+        else:
+            raw_category = record.get('kind')
+
+        if not isinstance(raw_category, str):
+            continue
+        category = raw_category.strip()
+        if not category:
+            continue
+
+        # Priority defaults to 1 only when the key is absent.  Integers
+        # (but not booleans) and integer strings are accepted.
+        if 'priority' not in record:
+            priority = 1
+        else:
+            raw_priority = record['priority']
+            if type(raw_priority) is int:
+                priority = raw_priority
+            elif isinstance(raw_priority, str):
+                stripped_priority = raw_priority.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_priority):
+                    priority = int(stripped_priority)
+                else:
+                    continue
+            else:
+                continue
+
+        if category in groups:
+            if priority > groups[category]:
+                groups[category] = priority
+        else:
+            groups[category] = priority
+
+    return [{'category': category, 'maximum': groups[category]}
+            for category in sorted(groups)]

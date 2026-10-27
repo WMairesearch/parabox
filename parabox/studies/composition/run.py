@@ -12,14 +12,14 @@ from pathlib import Path
 
 from parabox import model
 from parabox.sandbox import Box, Limits, image_exists
-from parabox.session import run_session
+from parabox.runner.session import run_session
 from parabox.studies.composition import design as D
 from parabox.studies.composition import notes as N
 from parabox.studies.composition.task import VERIFIER, CompositionTask
 from parabox.studies.relay.run import CONCURRENCY, code_commit, image_id, session_dir
 from parabox.studies.transmission.run import shared_digest
 from parabox.tasks.base import run_audit_session
-from parabox.tasks.code.problems import problem_hashes
+from parabox.tasks.code.spec.problems import problem_hashes
 from parabox.tasks.code.task import MAX_SUBMITS, TURNS
 from parabox.util import digest_json, now, read, save, sha256
 

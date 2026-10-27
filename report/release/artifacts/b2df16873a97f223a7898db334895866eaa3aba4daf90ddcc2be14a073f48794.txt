@@ -1,0 +1,71 @@
+import re
+
+_DELTA_PATTERN = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _parse_delta(record):
+    """Return the integer delta for a record, or None if it must be skipped."""
+    if 'delta' not in record:
+        return 1
+    number = record['delta']
+    if isinstance(number, str):
+        text = number.strip()
+        if not _DELTA_PATTERN.match(text):
+            return None
+        try:
+            return int(text, 10)
+        except ValueError:
+            return None
+    if isinstance(number, bool) or not isinstance(number, int):
+        return None
+    return int(number)
+
+
+def _key_of(record):
+    """Return the normalized sku string, or None if the record must be skipped."""
+    if 'sku' in record:
+        name = record['sku']
+    else:
+        name = record.get('item')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: retain only the last occurrence of each nonempty string 'id'.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        name = _key_of(record)
+        if name is None:
+            continue
+
+        delta = _parse_delta(record)
+        if delta is None:
+            continue
+
+        groups[name] = groups.get(name, 0) + delta
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

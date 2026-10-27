@@ -1,0 +1,63 @@
+"""Events grouping specification implementation."""
+
+import re
+
+_PRIORITY = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedupe(value):
+    """Keep only the last occurrence of each nonempty string id."""
+    seen = set()
+    kept = []
+    for record in reversed(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                if ident in seen:
+                    continue
+                seen.add(ident)
+        kept.append(record)
+    kept.reverse()
+    return kept
+
+
+def _priority(record):
+    """Return a priority int, or None when the value must be rejected."""
+    if 'priority' not in record:
+        return 1
+    raw = record['priority']
+    if isinstance(raw, str):
+        text = raw.strip()
+        if not _PRIORITY.fullmatch(text):
+            return None
+        return int(text, 10)
+    if type(raw) is int:
+        return raw
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+    groups = {}
+    for record in _dedupe(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        number = _priority(record)
+        if number is None:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+    return [{'category': key, 'maximum': groups[key]} for key in sorted(groups)]

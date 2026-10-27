@@ -1,0 +1,67 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _identifier(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier:
+        return identifier
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: deduplicate -- keep only the last occurrence of each nonempty
+    # string id.  Records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = _identifier(record)
+            if identifier is not None:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = _identifier(record)
+        if identifier is not None and latest[identifier] != position:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                candidate = number.strip()
+                if not _INTEGER.match(candidate):
+                    continue
+                number = int(candidate, 10)
+            if type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

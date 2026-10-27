@@ -1,0 +1,66 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent. Deduplicate before all other rules.
+    seen_ids = set()
+    retained = []
+    for record in reversed(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                if rec_id in seen_ids:
+                    continue
+                seen_ids.add(rec_id)
+        retained.append(record)
+    retained.reverse()
+
+    totals = {}
+    for record in retained:
+        # Skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read 'sku', falling back to 'item' only when 'sku' is absent.
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if 'sku' in record:
+            key_raw = record['sku']
+        elif 'item' in record:
+            key_raw = record['item']
+        else:
+            continue
+
+        if not isinstance(key_raw, str):
+            continue
+
+        sku = key_raw.strip()
+        if not sku:
+            continue
+
+        # Read 'delta', defaulting to 1 only when absent.
+        # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace;
+        # convert strings to base-10 integers. Skip all other values, including null.
+        if 'delta' not in record:
+            delta = 1
+        else:
+            delta_raw = record['delta']
+            if type(delta_raw) is int:
+                delta = delta_raw
+            elif isinstance(delta_raw, str):
+                delta_str = delta_raw.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', delta_str):
+                    delta = int(delta_str, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        totals[sku] = totals.get(sku, 0) + delta
+
+    return [{'sku': sku, 'total': totals[sku]} for sku in sorted(totals.keys())]

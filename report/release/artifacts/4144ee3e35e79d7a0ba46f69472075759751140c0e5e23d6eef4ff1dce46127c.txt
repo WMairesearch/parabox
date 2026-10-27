@@ -1,0 +1,66 @@
+import re
+
+def solve(value):
+    valid_ids = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            record_id = record['id']
+            if isinstance(record_id, str) and record_id != '':
+                valid_ids[record_id] = i
+
+    retained_indices = set(valid_ids.values())
+
+    groups = {}
+
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            record_id = record['id']
+            if isinstance(record_id, str) and record_id != '':
+                if i not in retained_indices:
+                    continue
+        
+        if not isinstance(record, dict):
+            continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'sku' in record:
+            sku_val = record['sku']
+        elif 'item' in record:
+            sku_val = record['item']
+        else:
+            continue
+            
+        if not isinstance(sku_val, str):
+            continue
+        
+        sku = sku_val.strip()
+        if not sku:
+            continue
+            
+        if 'delta' in record:
+            delta_val = record['delta']
+        else:
+            delta_val = 1
+            
+        if type(delta_val) is int:
+            delta = delta_val
+        elif isinstance(delta_val, str):
+            stripped_delta = delta_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped_delta):
+                delta = int(stripped_delta)
+            else:
+                continue
+        else:
+            continue
+            
+        if sku not in groups:
+            groups[sku] = 0
+        groups[sku] += delta
+
+    result = []
+    for sku in sorted(groups.keys()):
+        result.append({"sku": sku, "total": groups[sku]})
+        
+    return result

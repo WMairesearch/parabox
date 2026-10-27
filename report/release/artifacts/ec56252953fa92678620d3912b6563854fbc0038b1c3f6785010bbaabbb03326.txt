@@ -1,0 +1,76 @@
+import re
+
+def solve(value):
+    # Deduplicate based on 'id'
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != "":
+                last_occurrence[rec_id] = i
+                
+    groups = {}
+    for i, record in enumerate(value):
+        # 1. Deduplicate check
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != "":
+                if last_occurrence[rec_id] != i:
+                    continue
+                    
+        # 2. Skip non-object records
+        if not isinstance(record, dict):
+            continue
+            
+        # 3. Skip records whose 'active' is false
+        if record.get('active') is False:
+            continue
+            
+        # 4. Read 'category' falling back to 'kind'
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            name = None
+            
+        # 5. Skip non-string or empty-after-stripping keys
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+            
+        # 6. Read 'priority', defaulting to 1 only when absent
+        if 'priority' not in record:
+            priority = 1
+        else:
+            priority = record['priority']
+            
+        # 7. Accept integers (not booleans) and strings matching [+-]?[0-9]+
+        if isinstance(priority, bool):
+            continue
+        if isinstance(priority, int):
+            number = priority
+        elif isinstance(priority, str):
+            priority_str = priority.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', priority_str):
+                number = int(priority_str)
+            else:
+                continue
+        else:
+            continue
+            
+        # Group by normalized 'category'
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+            
+    # Format and sort results
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'category': name, 'maximum': groups[name]})
+        
+    return result

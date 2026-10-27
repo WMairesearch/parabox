@@ -1,0 +1,66 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group event-like records by normalized category and report max priority."""
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: among object records, keep only the last occurrence
+    # of each nonempty string id. Records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        # Fall back to 'kind' only when 'category' is absent entirely.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            number = record['priority']
+        else:
+            number = 1
+
+        if isinstance(number, str):
+            stripped = number.strip()
+            if _PRIORITY_RE.fullmatch(stripped):
+                number = int(stripped, 10)
+        if type(number) is not int:
+            continue
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

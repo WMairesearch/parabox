@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 
-from parabox.model import chat, gemini, responses
+from parabox.model import anthropic, chat, gemini, responses
 from parabox.util import ROOT, read
 
 REQUEST_TIMEOUT_S = 360
@@ -47,6 +47,9 @@ class Client:
             return gemini.complete(self.config, self.key, messages, tools=tools, timeout=REQUEST_TIMEOUT_S)
         if self.config.get("wire") == "responses":
             return responses.complete(self.config, self.key, messages, tools=tools, timeout=REQUEST_TIMEOUT_S)
+        if self.config.get("wire") == "anthropic":
+            return anthropic.complete(self.config, self.key, messages, tools=tools,
+                                      timeout=REQUEST_TIMEOUT_S, thinking=thinking)
         return chat.complete(self.config, self.key, messages, tools=tools, timeout=REQUEST_TIMEOUT_S, thinking=thinking)
 
     def text(self, messages: list[dict], *, thinking: bool = True) -> str:
@@ -66,6 +69,8 @@ def assistant_message(message: dict) -> dict:
         kept["reasoning_content"] = message["reasoning_content"]
     if "responses_output" in message:
         kept["responses_output"] = message["responses_output"]
+    if "anthropic_content" in message:
+        kept["anthropic_content"] = message["anthropic_content"]
     for field in ("provider_specific_fields", "reasoning_details"):
         if field in message:
             kept[field] = copy.deepcopy(message[field])

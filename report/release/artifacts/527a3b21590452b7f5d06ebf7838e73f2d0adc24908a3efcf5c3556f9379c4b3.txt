@@ -1,0 +1,80 @@
+import re
+
+PRIORITY_RE = re.compile(r'^[+-]?[0-9]+$')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # 1. Deduplicate by nonempty string 'id':
+    # Retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent.
+    last_indices = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                last_indices[rec_id] = i
+
+    groups = {}
+
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                if last_indices[rec_id] != i:
+                    continue
+
+        # Skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read 'category', falling back to 'kind' only when 'category' is absent.
+        if 'category' in record:
+            raw_cat = record['category']
+        elif 'kind' in record:
+            raw_cat = record['kind']
+        else:
+            continue
+
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if not isinstance(raw_cat, str):
+            continue
+        category = raw_cat.strip()
+        if not category:
+            continue
+
+        # Read 'priority', defaulting to 1 only when absent.
+        if 'priority' not in record:
+            priority = 1
+        else:
+            raw_priority = record['priority']
+            # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace;
+            # convert strings to base-10 integers. Skip all other values, including null.
+            if isinstance(raw_priority, int) and not isinstance(raw_priority, bool):
+                priority = raw_priority
+            elif isinstance(raw_priority, str):
+                p_str = raw_priority.strip()
+                if PRIORITY_RE.fullmatch(p_str):
+                    priority = int(p_str, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        if category not in groups:
+            groups[category] = priority
+        else:
+            if priority > groups[category]:
+                groups[category] = priority
+
+    result = []
+    for category in sorted(groups.keys()):
+        result.append({
+            'category': category,
+            'maximum': groups[category]
+        })
+    return result

@@ -1,0 +1,71 @@
+import re
+
+DELTA_RE = re.compile(r'^[+-]?[0-9]+$')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # First retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent. Deduplicate before all other rules.
+    last_indices = {}
+    for idx, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                last_indices[rec_id] = idx
+
+    groups = {}
+    for idx, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        rec_id = record.get('id')
+        if isinstance(rec_id, str) and rec_id != '':
+            if last_indices[rec_id] != idx:
+                continue
+
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+
+        # Read 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            raw_key = record['sku']
+        elif 'item' in record:
+            raw_key = record['item']
+        else:
+            continue
+
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if not isinstance(raw_key, str):
+            continue
+        sku = raw_key.strip()
+        if not sku:
+            continue
+
+        # Read 'delta', defaulting to 1 only when absent.
+        if 'delta' not in record:
+            delta = 1
+        else:
+            raw_delta = record['delta']
+            if isinstance(raw_delta, bool):
+                continue
+            elif isinstance(raw_delta, int):
+                delta = raw_delta
+            elif isinstance(raw_delta, str):
+                s = raw_delta.strip()
+                if not DELTA_RE.match(s):
+                    continue
+                delta = int(s, 10)
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    result = []
+    for sku in sorted(groups.keys()):
+        result.append({'sku': sku, 'total': groups[sku]})
+
+    return result

@@ -11,7 +11,7 @@ from pathlib import Path
 
 from parabox.studies.discovery_code import notes as N
 from parabox.studies.relay.run import session_dir
-from parabox.tasks.code.discovery import DiscoveryCodeTask
+from parabox.studies.code.discovery import DiscoveryCodeTask
 from parabox.tasks.code.task import CACHE_DIR
 from parabox.util import read, sha256
 

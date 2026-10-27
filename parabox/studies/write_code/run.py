@@ -18,7 +18,7 @@ from parabox.studies.write_code import design as D
 from parabox.studies.write_code import notes as N
 from parabox.studies.write_code.task import WriteCodeTask
 from parabox.tasks.base import run_audit_session
-from parabox.tasks.code.problems import PROBLEMS, problem_hashes
+from parabox.tasks.code.spec.problems import PROBLEMS, problem_hashes
 from parabox.tasks.code.task import MAX_SUBMITS, TURNS
 from parabox.util import digest_json, now, read, save, sha256
 
@@ -133,7 +133,7 @@ def run(directory: Path) -> None:
 
 
 def run_session_write(task, client, box, target, row):
-    from parabox.session import run_session
+    from parabox.runner.session import run_session
     return run_session(task, client, box, target, row, integrity="none", shared=False,
                        opening=[], extra_files=extra_files(row["arm"]))
 

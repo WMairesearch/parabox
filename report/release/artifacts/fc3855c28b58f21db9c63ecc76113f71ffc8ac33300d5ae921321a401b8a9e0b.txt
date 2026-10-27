@@ -1,0 +1,70 @@
+import re
+
+_BYTES_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedup_id(record):
+    """Return the nonempty string id of a record, or None."""
+    if isinstance(record, dict):
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            return record_id
+    return None
+
+
+def solve(value):
+    # Rule 1 (before all other rules): retain only the last occurrence
+    # of each nonempty string 'id'; records without such an id remain
+    # independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        record_id = _dedup_id(record)
+        if record_id is not None:
+            last_position[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        record_id = _dedup_id(record)
+        if record_id is not None and last_position[record_id] != position:
+            continue
+        # Rule 2: skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        # Rule 3: read 'path', falling back to 'route' only when 'path' absent.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # Rule 4: read 'bytes', defaulting to 1 only when absent.
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                stripped = number.strip()
+                if not _BYTES_PATTERN.fullmatch(stripped):
+                    continue
+                number = int(stripped, 10)
+            else:
+                continue
+        else:
+            number = 1
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    # Rule 5: group, then sort results lexicographically by 'path'.
+    result = [
+        {'path': name, 'total': pair[0], 'count': pair[1]}
+        for name, pair in groups.items()
+    ]
+    result.sort(key=lambda item: item['path'])
+    return result

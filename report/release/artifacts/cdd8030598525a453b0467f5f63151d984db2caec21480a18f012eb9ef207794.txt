@@ -1,0 +1,53 @@
+"""Group event records by normalized category, keeping the maximum priority."""
+
+import re
+
+_INTEGER_TEXT = re.compile(r'[+-]?[0-9]+')
+
+
+def _is_blank_key(value):
+    return not isinstance(value, str) or not value.strip()
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string id. Records without such an id stay independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if last_position[identifier] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        name = record.get('category', record.get('kind'))
+        if _is_blank_key(name):
+            continue
+        name = name.strip()
+        number = record.get('priority', 1)
+        if isinstance(number, str) and _INTEGER_TEXT.fullmatch(number.strip()):
+            number = int(number.strip())
+        if type(number) is not int:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [
+        {'category': name, 'maximum': groups[name]}
+        for name in sorted(groups)
+    ]

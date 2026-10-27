@@ -1,0 +1,62 @@
+import re
+
+def solve(value):
+    # Deduplicate based on 'id'
+    last_seen = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val != "":
+                last_seen[id_val] = i
+
+    groups = {}
+    
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+            
+        id_val = record.get('id')
+        if isinstance(id_val, str) and id_val != "":
+            if last_seen[id_val] != i:
+                continue
+                
+        if record.get('active') is False:
+            continue
+            
+        if 'category' in record:
+            cat_val = record['category']
+        elif 'kind' in record:
+            cat_val = record['kind']
+        else:
+            continue
+            
+        if not isinstance(cat_val, str):
+            continue
+            
+        cat = cat_val.strip()
+        if not cat:
+            continue
+            
+        if 'priority' not in record:
+            priority = 1
+        else:
+            p_val = record['priority']
+            if isinstance(p_val, int) and not isinstance(p_val, bool):
+                priority = p_val
+            elif isinstance(p_val, str):
+                p_str = p_val.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', p_str):
+                    priority = int(p_str)
+                else:
+                    continue
+            else:
+                continue
+                
+        if cat not in groups or priority > groups[cat]:
+            groups[cat] = priority
+            
+    result = []
+    for cat in sorted(groups.keys()):
+        result.append({'category': cat, 'maximum': groups[cat]})
+        
+    return result

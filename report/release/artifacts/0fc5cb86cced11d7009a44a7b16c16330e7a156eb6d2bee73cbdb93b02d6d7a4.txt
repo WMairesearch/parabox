@@ -1,0 +1,64 @@
+import re
+
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Input is expected to be a JSON list.  Anything else has no records.
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: keep only the last occurrence of
+    # each nonempty string id.  Records without such an id stay independent.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != '':
+                last_id_position[id_value] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        id_value = record.get('id')
+        if isinstance(id_value, str) and id_value != '':
+            if last_id_position.get(id_value) != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            raw_sku = record['sku']
+        else:
+            raw_sku = record.get('item')
+
+        if not isinstance(raw_sku, str):
+            continue
+        sku = raw_sku.strip()
+        if not sku:
+            continue
+
+        if 'delta' not in record:
+            delta = 1
+        else:
+            delta_value = record['delta']
+            if type(delta_value) is int:
+                delta = delta_value
+            elif isinstance(delta_value, str):
+                stripped = delta_value.strip()
+                if _DELTA_RE.fullmatch(stripped) is None:
+                    continue
+                delta = int(stripped)
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    return [
+        {'sku': sku, 'total': groups[sku]}
+        for sku in sorted(groups)
+    ]

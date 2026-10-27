@@ -1,0 +1,68 @@
+import re
+
+def solve(value):
+    # Pass 1: find last occurrence of each nonempty string 'id'
+    last_id_idx = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != '':
+                last_id_idx[rec_id] = i
+                
+    groups = {}
+    for i, record in enumerate(value):
+        # Deduplication
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != '':
+                if last_id_idx[rec_id] != i:
+                    continue
+        
+        # Skip non-object records
+        if not isinstance(record, dict):
+            continue
+            
+        # Skip if 'active' is false (strictly boolean False)
+        if record.get('active') is False:
+            continue
+            
+        # Read 'category', fall back to 'kind' only when 'category' is absent
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+            
+        # Skip non-string or empty-after-stripping keys
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+            
+        # Read 'priority', defaulting to 1 only when absent
+        if 'priority' not in record:
+            number = 1
+        else:
+            number = record['priority']
+            
+        if type(number) is int:
+            num = number
+        elif type(number) is str:
+            n_str = number.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', n_str):
+                num = int(n_str)
+            else:
+                continue
+        else:
+            continue
+            
+        # Group and max priority
+        groups[name] = max(groups[name], num) if name in groups else num
+        
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'category': name, 'maximum': groups[name]})
+        
+    return result

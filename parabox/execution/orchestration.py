@@ -4,7 +4,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 
 from .artifacts import handoff, manifest
-from .runtime import execute_invocation, validate_invocations
+from .control.runtime import execute_invocation, validate_invocations
 
 
 def _policy(engine, policy):

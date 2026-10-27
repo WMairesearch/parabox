@@ -1,0 +1,66 @@
+import re
+
+def solve(value):
+    last_occurrence_indices = set()
+    seen_ids = set()
+    for i in range(len(value) - 1, -1, -1):
+        record = value[i]
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                if rec_id not in seen_ids:
+                    seen_ids.add(rec_id)
+                    last_occurrence_indices.add(i)
+            else:
+                last_occurrence_indices.add(i)
+        else:
+            last_occurrence_indices.add(i)
+            
+    retained_records = [value[i] for i in range(len(value)) if i in last_occurrence_indices]
+    
+    groups = {}
+    for record in retained_records:
+        if not isinstance(record, dict):
+            continue
+        
+        if record.get('active') is False:
+            continue
+            
+        if 'path' in record:
+            key = record['path']
+        elif 'route' in record:
+            key = record['route']
+        else:
+            continue
+            
+        if not isinstance(key, str):
+            continue
+            
+        key = key.strip()
+        if not key:
+            continue
+            
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            bytes_val = record['bytes']
+            
+        if type(bytes_val) is int:
+            num = bytes_val
+        elif type(bytes_val) is str:
+            s = bytes_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', s):
+                num = int(s)
+            else:
+                continue
+        else:
+            continue
+            
+        total, count = groups.get(key, (0, 0))
+        groups[key] = (total + num, count + 1)
+        
+    result = []
+    for key in sorted(groups.keys()):
+        result.append({'path': key, 'total': groups[key][0], 'count': groups[key][1]})
+        
+    return result

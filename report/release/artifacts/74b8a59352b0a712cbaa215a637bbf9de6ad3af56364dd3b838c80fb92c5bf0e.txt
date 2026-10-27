@@ -1,0 +1,72 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _record_id(record):
+    """Return the dedup id for a dict record, or None when it has no usable id."""
+    value = record.get('id')
+    if isinstance(value, str) and value != '':
+        return value
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # First pass: last occurrence index for each nonempty string id.
+    last_seen = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = _record_id(record)
+        if rid is not None:
+            last_seen[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        # Deduplicate before all other rules: keep only the last occurrence.
+        rid = _record_id(record)
+        if rid is not None and last_seen.get(rid) != position:
+            continue
+
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+
+        # Read 'path', falling back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Read 'bytes', defaulting to 1 only when absent.
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                text = number.strip()
+                if _INT_RE.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            elif type(number) is not int:
+                # excludes bool, float, None, lists, dicts, ...
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': path, 'total': totals[0], 'count': totals[1]}
+        for path, totals in sorted(groups.items())
+    ]

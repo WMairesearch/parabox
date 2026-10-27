@@ -1,0 +1,74 @@
+"""Group event records by category and report each group's maximum priority."""
+
+import re
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _deduplicate(value):
+    """Keep only the last occurrence of each nonempty string id."""
+    kept = []
+    seen = set()
+    for record in reversed(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                if identifier in seen:
+                    continue
+                seen.add(identifier)
+        kept.append(record)
+    kept.reverse()
+    return kept
+
+
+def _normalized_category(record):
+    """Return the stripped category, or None when it must be skipped."""
+    if 'category' in record:
+        name = record['category']
+    elif 'kind' in record:
+        name = record['kind']
+    else:
+        return None
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if not name:
+        return None
+    return name
+
+
+def _priority(record):
+    """Return the record priority, or None when the record must be skipped."""
+    if 'priority' not in record:
+        return 1
+    number = record['priority']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _PRIORITY_PATTERN.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    groups = {}
+    for record in _deduplicate(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        name = _normalized_category(record)
+        if name is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

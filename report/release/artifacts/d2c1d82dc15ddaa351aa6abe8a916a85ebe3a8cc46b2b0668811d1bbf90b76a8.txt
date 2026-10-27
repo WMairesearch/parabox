@@ -1,0 +1,78 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Step 1: Retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent. Deduplicate before all other rules.
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                last_occurrence[rec_id] = i
+
+    retained = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                if last_occurrence[rec_id] != i:
+                    continue
+        retained.append(record)
+
+    # Step 2: Process retained records
+    # Skip non-object records and records whose 'active' is false.
+    # Read 'sku', falling back to 'item' only when 'sku' is absent.
+    # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+    # Read 'delta', defaulting to 1 only when absent. Accept integers (not booleans)
+    # and strings matching [+-]?[0-9]+ after stripping whitespace; convert strings to base-10 integers.
+    # Skip all other values, including null.
+    # Group retained records by normalized 'sku'.
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            raw_sku = record['sku']
+        elif 'item' in record:
+            raw_sku = record['item']
+        else:
+            continue
+
+        if not isinstance(raw_sku, str):
+            continue
+        sku = raw_sku.strip()
+        if not sku:
+            continue
+
+        if 'delta' not in record:
+            delta = 1
+        else:
+            raw_delta = record['delta']
+            if isinstance(raw_delta, bool):
+                continue
+            elif isinstance(raw_delta, int):
+                delta = raw_delta
+            elif isinstance(raw_delta, str):
+                stripped_delta = raw_delta.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_delta):
+                    delta = int(stripped_delta, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    # Step 3: Format and sort results lexicographically by 'sku'.
+    # Return [] when no records remain.
+    result = []
+    for sku in sorted(groups.keys()):
+        result.append({'sku': sku, 'total': groups[sku]})
+    return result

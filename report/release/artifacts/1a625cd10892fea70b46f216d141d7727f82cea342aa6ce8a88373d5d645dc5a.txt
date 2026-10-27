@@ -1,0 +1,56 @@
+import re
+
+
+def solve(value):
+    # Deduplicate by nonempty string 'id' before all other rules.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_position[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_position[record_id] != position:
+                    continue
+
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            sku = record['sku']
+        elif 'item' in record:
+            sku = record['item']
+        else:
+            continue
+
+        if not isinstance(sku, str):
+            continue
+        sku = sku.strip()
+        if sku == '':
+            continue
+
+        if 'delta' not in record:
+            delta = 1
+        else:
+            delta_value = record['delta']
+            if type(delta_value) is int:
+                delta = delta_value
+            elif isinstance(delta_value, str):
+                stripped_delta = delta_value.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_delta):
+                    delta = int(stripped_delta)
+                else:
+                    continue
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

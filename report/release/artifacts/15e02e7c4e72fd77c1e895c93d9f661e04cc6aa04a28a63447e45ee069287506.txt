@@ -1,0 +1,56 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _valid_id(record):
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier:
+        return identifier
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: keep only the last occurrence of each nonempty string id.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = _valid_id(record)
+            if identifier is not None:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = _valid_id(record)
+        if identifier is not None and latest.get(identifier) != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record.get('category', record.get('kind'))
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record.get('priority', 1)
+        if isinstance(number, str):
+            stripped = number.strip()
+            if not _PRIORITY_RE.match(stripped):
+                continue
+            number = int(stripped, 10)
+        elif type(number) is not int:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    result = [{'category': name, 'maximum': groups[name]} for name in groups]
+    result.sort(key=lambda item: item['category'])
+    return result

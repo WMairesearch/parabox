@@ -1,0 +1,63 @@
+import re
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+        
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val != '':
+                last_occurrence[id_val] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        
+        id_val = record.get('id')
+        if isinstance(id_val, str) and id_val != '':
+            if last_occurrence[id_val] != i:
+                continue
+                
+        if record.get('active') is False:
+            continue
+            
+        if 'path' in record:
+            path_val = record['path']
+        elif 'route' in record:
+            path_val = record['route']
+        else:
+            continue
+            
+        if not isinstance(path_val, str):
+            continue
+        path_val = path_val.strip()
+        if not path_val:
+            continue
+            
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            raw_bytes = record['bytes']
+            if type(raw_bytes) is int:
+                bytes_val = raw_bytes
+            elif isinstance(raw_bytes, str):
+                stripped = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    bytes_val = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+                
+        if path_val not in groups:
+            groups[path_val] = {'total': 0, 'count': 0}
+        groups[path_val]['total'] += bytes_val
+        groups[path_val]['count'] += 1
+
+    result = []
+    for p in sorted(groups.keys()):
+        result.append({'path': p, 'total': groups[p]['total'], 'count': groups[p]['count']})
+    return result

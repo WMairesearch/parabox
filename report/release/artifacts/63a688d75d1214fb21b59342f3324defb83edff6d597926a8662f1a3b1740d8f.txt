@@ -1,0 +1,62 @@
+import re
+
+
+def solve(value):
+    # Rule 1 (applied before all other rules): retain only the last
+    # occurrence of each nonempty string 'id'. Records without such an
+    # id remain independent.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_positions[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # Skip non-object records.
+        if not isinstance(record, dict):
+            continue
+        # Deduplicate: drop any record whose nonempty string id has a
+        # later occurrence.
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if position != last_positions[identifier]:
+                continue
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+        # Read 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        # Skip non-string or empty-after-stripping keys; strip whitespace.
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # Read 'delta', defaulting to 1 only when absent.
+        if 'delta' in record:
+            number = record['delta']
+        else:
+            number = 1
+        # Accept integers (not booleans) and signed digit strings.
+        if isinstance(number, bool):
+            continue
+        if isinstance(number, int):
+            pass
+        elif isinstance(number, str):
+            stripped = number.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                number = int(stripped)
+            else:
+                continue
+        else:
+            # Skip all other values, including null.
+            continue
+        groups[name] = groups.get(name, 0) + number
+
+    # Sort results lexicographically by 'sku'.
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

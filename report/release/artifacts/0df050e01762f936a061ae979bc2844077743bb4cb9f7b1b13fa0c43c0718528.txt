@@ -1,0 +1,64 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if isinstance(value, (list, tuple)):
+        records = list(value)
+    else:
+        return []
+
+    # Rule 1: keep only the last occurrence of each nonempty string 'id'.
+    # Records without such an id stay independent (all kept).
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key != '':
+                last_position[key] = position
+
+    totals = {}
+    for position, record in enumerate(records):
+        identifier = None
+        if isinstance(record, dict):
+            candidate = record.get('id')
+            if isinstance(candidate, str) and candidate != '':
+                identifier = candidate
+        if identifier is not None and last_position[identifier] != position:
+            continue
+
+        # Rule 2: skip non-object records and inactive records.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Rule 3: 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            key = record.get('sku')
+        elif 'item' in record:
+            key = record.get('item')
+        else:
+            continue
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if key == '':
+            continue
+
+        # Rule 4: 'delta', defaulting to 1 only when absent.
+        if 'delta' in record:
+            raw = record.get('delta')
+            if type(raw) is int:
+                amount = raw
+            elif isinstance(raw, str) and _DELTA_RE.fullmatch(raw.strip()):
+                amount = int(raw.strip(), 10)
+            else:
+                continue
+        else:
+            amount = 1
+
+        totals[key] = totals.get(key, 0) + amount
+
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

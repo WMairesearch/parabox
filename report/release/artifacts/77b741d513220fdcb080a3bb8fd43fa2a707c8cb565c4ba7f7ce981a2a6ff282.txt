@@ -1,0 +1,81 @@
+"""Inventory aggregation per PROBLEM.md.
+
+Rules, in order:
+ 1. Deduplicate first: keep only the last occurrence of each record whose
+    'id' is a nonempty string; records without such an id stay independent.
+ 2. Skip non-object records and records whose 'active' is exactly false.
+ 3. Key: 'sku', falling back to 'item' only when 'sku' is absent.  Skip
+    non-strings and strings that are empty after stripping; strip whitespace.
+ 4. Delta: 'delta', default 1 only when absent.  Accept real integers (not
+    booleans) and strings fully matching [+-]?[0-9]+ after stripping
+    whitespace (converted base-10).  Everything else (incl. null) skips.
+ 5. Sum deltas per normalized key; emit [{'sku': ..., 'total': ...}] sorted
+    lexicographically by 'sku'.  Input is never mutated.
+"""
+
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # --- rule 1: index the last occurrence of every nonempty string id ---
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_position[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        # --- rule 2 (part): non-object records are skipped ---
+        if not isinstance(record, dict):
+            continue
+
+        # --- rule 1 (applied): duplicates before the last occurrence go ---
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_position[identifier] != position:
+                continue
+
+        # --- rule 2: 'active' false means skip ---
+        if record.get('active') is False:
+            continue
+
+        # --- rule 3: key lookup, validation and normalization ---
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # --- rule 4: delta lookup, validation and normalization ---
+        if 'delta' in record:
+            number = record['delta']
+        else:
+            number = 1
+        if isinstance(number, bool):
+            continue
+        if isinstance(number, str):
+            text = number.strip()
+            if _DELTA_RE.fullmatch(text) is None:
+                continue
+            try:
+                number = int(text, 10)
+            except ValueError:  # defensive; regex should guarantee this
+                continue
+        elif type(number) is not int:
+            continue
+
+        # --- rule 5: accumulate ---
+        totals[name] = totals.get(name, 0) + number
+
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

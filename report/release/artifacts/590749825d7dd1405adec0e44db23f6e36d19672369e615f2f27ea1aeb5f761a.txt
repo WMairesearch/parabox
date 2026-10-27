@@ -1,0 +1,60 @@
+import json
+import re
+
+
+def solve(value):
+    if isinstance(value, str):
+        value = json.loads(value)
+
+    # Deduplicate before all other rules: keep only the last occurrence of
+    # each nonempty string 'id'.  Records without such an id stay independent.
+    last_id_pos = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != '':
+                last_id_pos[id_value] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != '':
+                if position != last_id_pos[id_value]:
+                    continue
+
+        if not isinstance(record, dict):
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            sku = record['sku']
+        else:
+            sku = record.get('item')
+
+        if not isinstance(sku, str) or not sku.strip():
+            continue
+        sku = sku.strip()
+
+        if 'delta' in record:
+            delta = record['delta']
+            if isinstance(delta, bool):
+                continue
+            if isinstance(delta, int):
+                number = delta
+            elif isinstance(delta, str):
+                text = delta.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', text):
+                    number = int(text)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        groups[sku] = groups.get(sku, 0) + number
+
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

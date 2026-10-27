@@ -1,0 +1,53 @@
+import re
+
+
+def solve(value):
+    # Pass 1: find the last position of each nonempty string 'id'.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        # Deduplicate: keep only the last occurrence of each nonempty string id.
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+        # Read 'path', falling back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            name = record.get('path')
+        else:
+            name = record.get('route')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        # Read 'bytes', defaulting to 1 only when absent.
+        if 'bytes' in record:
+            number = record.get('bytes')
+        else:
+            number = 1
+        if isinstance(number, bool):
+            continue
+        if isinstance(number, str):
+            stripped = number.strip()
+            if not re.fullmatch(r'[+-]?[0-9]+', stripped):
+                continue
+            number = int(stripped, 10)
+        elif type(number) is not int:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    result = []
+    for name in sorted(groups):
+        total, count = groups[name]
+        result.append({'path': name, 'total': total, 'count': count})
+    return result

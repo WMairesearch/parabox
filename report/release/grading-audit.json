@@ -1,0 +1,16 @@
+{
+  "summary": {
+    "ended_at": "2026-10-26T10:15:33.638636+00:00",
+    "canonical_sessions": 972,
+    "graded": 972,
+    "errors": [],
+    "workers": 4,
+    "model_calls": 0
+  },
+  "source_sha256": "15a464f292a7e8d85df4801ec382589b41fe2ff30a905fafbdd7eb5b3c3e5c86",
+  "existing_grades_retained": 820,
+  "new_sandbox_grades": 152,
+  "participant_model_calls": 0,
+  "source_session_files_modified": false,
+  "method": "Original end-bound grades retained; missing grades use the qualified stage evaluator. Candidate sources and graded first-change snapshots are included for independent regrading."
+}

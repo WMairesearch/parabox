@@ -1,0 +1,59 @@
+import re
+
+
+def solve(value):
+    # First rule: keep only the last occurrence of each nonempty string 'id'.
+    # Records without such an id are independent and remain.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_id_position[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            if last_id_position.get(record_id) != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            raw_path = record['path']
+        else:
+            raw_path = record.get('route')
+
+        if not isinstance(raw_path, str):
+            continue
+        path = raw_path.strip()
+        if path == '':
+            continue
+
+        if 'bytes' not in record:
+            number = 1
+        else:
+            raw_bytes = record['bytes']
+            if type(raw_bytes) is int:
+                number = raw_bytes
+            elif isinstance(raw_bytes, str):
+                text = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', text):
+                    number = int(text)
+                else:
+                    continue
+            else:
+                continue
+
+        total, count = groups.get(path, (0, 0))
+        groups[path] = (total + number, count + 1)
+
+    return [
+        {'path': path, 'total': groups[path][0], 'count': groups[path][1]}
+        for path in sorted(groups)
+    ]

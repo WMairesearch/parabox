@@ -1,0 +1,64 @@
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedup_key(record):
+    """Return the deduplication key of a record, or None when independent."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _delta(record):
+    """Return the integer delta for a record, or None when it must be skipped."""
+    if 'delta' not in record:
+        return 1
+    number = record['delta']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _INTEGER.fullmatch(text) is None:
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last = {}
+    for position, record in enumerate(value):
+        key = _dedup_key(record)
+        if key is not None:
+            last[key] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        key = _dedup_key(record)
+        if key is not None and last[key] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(name, str):
+            continue
+        sku = name.strip()
+        if not sku:
+            continue
+        number = _delta(record)
+        if number is None:
+            continue
+        groups[sku] = groups.get(sku, 0) + number
+
+    return [{'sku': sku, 'total': total} for sku, total in sorted(groups.items())]

@@ -1,0 +1,58 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Pass 1: deduplicate first -- keep only the last occurrence of each
+    # nonempty string 'id'. Records without such an id remain independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    # Pass 2: apply the remaining rules and accumulate per-sku totals.
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' in record:
+            number = record['delta']
+        else:
+            number = 1
+        if isinstance(number, str):
+            stripped = number.strip()
+            if _INT_RE.fullmatch(stripped):
+                number = int(stripped, 10)
+            else:
+                continue
+        if type(number) is not int:
+            continue
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

@@ -1,0 +1,83 @@
+import re
+
+_INT_PATTERN = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _usable_id(record):
+    """Return the raw id string when it is a nonempty string, else None."""
+    if not isinstance(record, dict):
+        return None
+    if 'id' not in record:
+        return None
+    value = record['id']
+    if isinstance(value, str) and value:
+        return value
+    return None
+
+
+def _normalized_key(record):
+    """Return the stripped sku key, or None when the record has no valid key."""
+    if 'sku' in record:
+        raw = record['sku']
+    elif 'item' in record:
+        raw = record['item']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    stripped = raw.strip()
+    if not stripped:
+        return None
+    return stripped
+
+
+def _delta(record):
+    """Return the delta as an int, or None when the value is unacceptable."""
+    if 'delta' not in record:
+        return 1
+    value = record['delta']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INT_PATTERN.match(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string id.
+    last_position = {}
+    for position, record in enumerate(value):
+        identifier = _usable_id(record)
+        if identifier is not None:
+            last_position[identifier] = position
+
+    groups = {}
+    order = []
+    for position, record in enumerate(value):
+        identifier = _usable_id(record)
+        if identifier is not None and last_position[identifier] != position:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if 'active' in record and record['active'] is False:
+            continue
+        key = _normalized_key(record)
+        if key is None:
+            continue
+        delta = _delta(record)
+        if delta is None:
+            continue
+        if key in groups:
+            groups[key] += delta
+        else:
+            groups[key] = delta
+            order.append(key)
+
+    return [{'sku': key, 'total': groups[key]} for key in sorted(groups)]

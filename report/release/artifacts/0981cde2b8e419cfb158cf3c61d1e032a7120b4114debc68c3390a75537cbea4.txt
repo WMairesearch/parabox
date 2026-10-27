@@ -1,0 +1,74 @@
+"""Events processing per PROBLEM.md."""
+
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def _nonempty_id(record):
+    """Return the record's id if it is a nonempty string id, else None."""
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: retain only the last occurrence of each nonempty string 'id'.
+    # Records without such an id remain independent. Deduplicate first.
+    last_seen = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = _nonempty_id(record)
+            if ident is not None:
+                last_seen[ident] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # Non-object records are skipped.
+        if not isinstance(record, dict):
+            continue
+        ident = _nonempty_id(record)
+        if ident is not None and last_seen[ident] != position:
+            continue
+        # Records whose 'active' is false are skipped.
+        if record.get('active') is False:
+            continue
+        # Category: 'category', falling back to 'kind' only when absent.
+        if 'category' in record:
+            raw = record['category']
+        elif 'kind' in record:
+            raw = record['kind']
+        else:
+            continue
+        if not isinstance(raw, str):
+            continue
+        name = raw.strip()
+        if not name:
+            continue
+        # Priority: default 1 only when absent.
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if not _NUMBER.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

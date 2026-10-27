@@ -1,0 +1,71 @@
+"""access_logs: group retained access-log records by normalized path.
+
+Rules (PROBLEM.md):
+  * Deduplicate first: for each nonempty *string* 'id', keep only its LAST
+    occurrence.  Records without such an id stay independent.  Dedup runs
+    before every other rule, so a suppressed-by-later record never counts and
+    a surviving last record is still filtered normally.
+  * Skip non-object records and records whose 'active' is exactly False.
+  * Key: 'path', falling back to 'route' only when 'path' is absent.  Skip
+    non-strings and empty-after-strip values; strip surrounding whitespace.
+  * 'bytes': default 1 only when the key is absent.  Accept ints (never bools)
+    and strings fully matching [+-]?[0-9]+ after stripping; convert base 10.
+    Skip everything else (including null).
+  * Emit {'path', 'total', 'count'} sorted lexicographically by 'path';
+    [] when nothing remains.  The input is never mutated.
+"""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _amount(raw):
+    """Return the integer value of a 'bytes' field, or None when unusable."""
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.match(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    last_seen = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_seen[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and last_seen[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        amount = _amount(record['bytes'] if 'bytes' in record else 1)
+        if amount is None:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + amount, count + 1)
+
+    return [{'path': name, 'total': total, 'count': count}
+            for name, (total, count) in sorted(groups.items())]

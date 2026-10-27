@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import hashlib
 from pathlib import PurePosixPath
 
+from .merge import merge_record
+
 
 def manifest(files: dict[str, bytes]) -> dict[str, str]:
     if len(files) > 4096:
@@ -45,7 +47,6 @@ def handoff(previous: dict[str, bytes], outcomes: list[Outcome], *,
         files = dict(outcomes[0].files)
         native = {}
     elif policy in ("population_all", "population_accepted"):
-        from parabox.studies.population.merge import merge_record
         if policy == "population_accepted" and any(
                 type(outcome.accepted) is not bool for outcome in outcomes):
             raise ValueError("Acceptance-gated merge requires explicit final acceptance")

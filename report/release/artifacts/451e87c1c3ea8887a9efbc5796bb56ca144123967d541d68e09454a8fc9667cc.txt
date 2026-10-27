@@ -1,0 +1,67 @@
+import re
+import sys
+
+try:
+    sys.set_int_max_str_digits(1000000)
+except AttributeError:
+    pass
+
+_DIGITS = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Pass 1: find the last position of each nonempty string 'id'.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    # Pass 2: apply dedup, then the remaining rules, and group.
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if (isinstance(identifier, str) and identifier != ''
+                and latest[identifier] != position):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if _DIGITS.fullmatch(text) is None:
+                    continue
+                try:
+                    number = int(text, 10)
+                except ValueError:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+        entry = groups.get(name)
+        if entry is None:
+            groups[name] = [number, 1]
+        else:
+            entry[0] += number
+            entry[1] += 1
+
+    return [{'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+            for name in sorted(groups)]

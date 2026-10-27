@@ -1,0 +1,51 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # 1. Deduplicate first: only the last occurrence of each nonempty string id survives.
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        # 2. Skip inactive records (strict False only).
+        if record.get('active') is False:
+            continue
+        # 3. Key: 'path' when the key is present, otherwise fall back to 'route'.
+        name = record['path'] if 'path' in record else record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # 4. Bytes: default 1 only when the key is absent.
+        number = record['bytes'] if 'bytes' in record else 1
+        if isinstance(number, str):
+            text = number.strip()
+            if _NUMBER.fullmatch(text) is None:
+                continue
+            number = int(text, 10)
+        elif type(number) is not int:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    # 5. Sorted lexicographically by path.
+    return [{'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+            for name in sorted(groups)]

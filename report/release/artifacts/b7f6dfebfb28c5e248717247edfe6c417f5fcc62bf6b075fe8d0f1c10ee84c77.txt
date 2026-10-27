@@ -1,0 +1,70 @@
+import re
+import sys
+
+if hasattr(sys, 'set_int_max_str_digits'):
+    try:
+        sys.set_int_max_str_digits(0)
+    except Exception:
+        pass
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        if 'priority' not in record:
+            number = 1
+        else:
+            raw_priority = record['priority']
+            if isinstance(raw_priority, bool):
+                continue
+            elif isinstance(raw_priority, int):
+                number = raw_priority
+            elif isinstance(raw_priority, str):
+                s = raw_priority.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    try:
+                        number = int(s, 10)
+                    except (ValueError, OverflowError):
+                        continue
+                else:
+                    continue
+            else:
+                continue
+
+        groups[name] = max(groups[name], number) if name in groups else number
+
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'category': name, 'maximum': groups[name]})
+    return result

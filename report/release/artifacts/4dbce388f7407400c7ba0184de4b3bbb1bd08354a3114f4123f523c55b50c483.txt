@@ -1,0 +1,59 @@
+import re
+
+
+def solve(value):
+    # Deduplicate before all other rules:
+    # for each nonempty-string 'id', keep only the last occurrence.
+    # Records without such an id remain independent (and keep their order).
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != '':
+                last_index[id_value] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # Deduplicate records that carry a nonempty-string id.
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != '':
+                if last_index[id_value] != position:
+                    continue
+        # Skip non-object records.
+        if not isinstance(record, dict):
+            continue
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+
+        # sku with fallback to item only when 'sku' is absent.
+        if 'sku' in record:
+            sku = record['sku']
+        else:
+            sku = record.get('item')
+
+        if not isinstance(sku, str) or not sku.strip():
+            continue
+        sku = sku.strip()
+
+        # delta defaults to 1 only when absent.
+        if 'delta' not in record:
+            number = 1
+        else:
+            number = record['delta']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            elif type(number) is int:
+                pass
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + number
+
+    result = [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]
+    return result

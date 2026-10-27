@@ -1,0 +1,79 @@
+import re
+
+def solve(value):
+    seen_ids = set()
+    retained = []
+    
+    # First retain only the last occurrence of each nonempty string 'id'; 
+    # records without such an id remain independent. Deduplicate before all other rules.
+    for record in reversed(value):
+        has_valid_id = False
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id:
+                has_valid_id = True
+                if rec_id not in seen_ids:
+                    seen_ids.add(rec_id)
+                    retained.append(record)
+        if not has_valid_id:
+            retained.append(record)
+            
+    retained.reverse()
+    
+    groups = {}
+    for record in retained:
+        # Skip non-object records
+        if not isinstance(record, dict):
+            continue
+            
+        # and records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+            
+        # Read 'category', falling back to 'kind' only when 'category' is absent.
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+            
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+            
+        # Read 'priority', defaulting to 1 only when absent. 
+        if 'priority' not in record:
+            priority = 1
+        else:
+            number = record['priority']
+            # Accept integers (not booleans)
+            if type(number) is int:
+                priority = number
+            # and strings matching [+-]?[0-9]+ after stripping whitespace; 
+            elif isinstance(number, str):
+                num_str = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', num_str):
+                    # convert strings to base-10 integers.
+                    priority = int(num_str)
+                else:
+                    continue
+            else:
+                # Skip all other values, including null.
+                continue
+                
+        # Group retained records by normalized 'category'.
+        if name not in groups:
+            groups[name] = priority
+        else:
+            groups[name] = max(groups[name], priority)
+            
+    result = []
+    # Sort results lexicographically by 'category'.
+    for name in sorted(groups.keys()):
+        result.append({'category': name, 'maximum': groups[name]})
+        
+    return result

@@ -1,0 +1,62 @@
+"""Inventory grouping per PROBLEM.md."""
+
+import re
+
+_INT_RE = re.compile(r"[+-]?[0-9]+\Z")
+
+
+def _delta_value(record):
+    """Return the integer delta for a record, or None if it must be skipped."""
+    if 'delta' not in record:
+        return 1
+    raw = record['delta']
+    if isinstance(raw, bool):
+        return None
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _INT_RE.match(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Pass 1: find the last occurrence of each valid (nonempty string) id.
+    last_index = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != "":
+            last_index[rid] = position
+
+    # Pass 2: apply the remaining rules to the retained records.
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != "":
+            if last_index.get(rid) != position:
+                continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        delta = _delta_value(record)
+        if delta is None:
+            continue
+        groups[name] = groups.get(name, 0) + delta
+
+    return [{'sku': key, 'total': groups[key]} for key in sorted(groups)]

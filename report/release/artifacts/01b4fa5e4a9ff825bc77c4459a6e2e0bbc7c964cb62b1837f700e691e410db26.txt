@@ -1,0 +1,52 @@
+import re
+
+
+def solve(value):
+    # Deduplicate before all other rules: for each nonempty string 'id',
+    # keep only the last occurrence. Records without such an id stay.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_positions[record_id] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_positions[record_id] != position:
+                    continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+            if type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        groups[name] = max(groups.get(name, number), number)
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

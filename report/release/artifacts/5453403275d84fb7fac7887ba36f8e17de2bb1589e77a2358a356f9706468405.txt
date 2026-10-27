@@ -1,0 +1,55 @@
+import re
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate first: retain only the last occurrence of each nonempty
+    # string 'id'; records without such an id remain independent.
+    last_index_for_id = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                last_index_for_id[ident] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '' and last_index_for_id[ident] != index:
+                continue  # shadowed by a later record carrying the same id
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if not _PRIORITY_PATTERN.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

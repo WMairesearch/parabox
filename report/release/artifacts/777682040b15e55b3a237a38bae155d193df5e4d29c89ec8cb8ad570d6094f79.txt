@@ -1,0 +1,60 @@
+import re
+
+_PRIORITY_PATTERN = re.compile(r'^[+-]?[0-9]+$')
+
+
+def solve(value):
+    # Rule 1 (before all others): keep only the last occurrence of each
+    # nonempty string 'id'; records without such an id stay independent.
+    retained = []
+    last_by_id = {}
+    for record in value:
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_by_id[record_id] = record
+                continue
+        retained.append(record)
+    retained.extend(last_by_id.values())
+
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        # 'kind' is a fallback only when 'category' is absent.
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # 'priority' defaults to 1 only when absent.
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if not _PRIORITY_PATTERN.match(text):
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

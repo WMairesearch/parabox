@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 from statistics import median
 
-from parabox.stats import rate, wilson
+from parabox.studies.support.stats import rate, wilson
 from parabox.studies.board.score import behavior
 from parabox.studies.discovery_code.design import ARMS
 from parabox.studies.relay.run import session_dir

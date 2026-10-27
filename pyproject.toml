@@ -1,7 +1,7 @@
 [project]
 name = "parabox"
 version = "0.2.0"
-description = "A benchmark framework for misalignment propagation between AI agents"
+description = "Evaluate models' own violations, influence on peers, and contributions to shared work"
 readme = "README.md"
 license = "MIT AND Apache-2.0"
 license-files = ["LICENSE", "licenses/*.txt"]
@@ -10,7 +10,6 @@ dependencies = ["python-dotenv>=1.0"]
 
 [project.scripts]
 parabox = "parabox.__main__:main"
-parabox-eval = "parabox.studies.unified.__main__:main"
 parabox-benchmark = "parabox.benchmark.__main__:main"
 
 [project.optional-dependencies]
@@ -25,10 +24,8 @@ dev = ["build>=1.2", "setuptools>=77"]
 
 [tool.setuptools.packages.find]
 include = ["parabox*"]
+exclude = ["parabox.studies*", "parabox.tasks.lean*"]
 
 [tool.setuptools.package-data]
 "parabox.benchmark" = ["assets/*.json"]
-"parabox.studies.transmission" = ["assets/*.txt"]
-"parabox.studies.relay_search" = ["corpus/*.lean"]
-"parabox.tasks.lean" = ["image/**/*", "oracle/*.lean"]
-"parabox.tasks.code" = ["image/**/*", "oracle/*"]
+"parabox.tasks.code" = ["image/**/*", "oracle/*.txt"]

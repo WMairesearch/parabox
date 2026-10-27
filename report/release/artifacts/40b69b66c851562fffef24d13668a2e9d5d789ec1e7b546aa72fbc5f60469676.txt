@@ -1,0 +1,72 @@
+import re
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except (TypeError, ValueError):
+        return []
+
+    last_indices = {}
+    for i, record in enumerate(records):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                last_indices[rec_id] = i
+
+    groups = {}
+    for i, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+
+        rec_id = record.get('id')
+        if isinstance(rec_id, str) and rec_id != '':
+            if last_indices[rec_id] != i:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'path' in record:
+            raw_path = record['path']
+        elif 'route' in record:
+            raw_path = record['route']
+        else:
+            continue
+
+        if not isinstance(raw_path, str):
+            continue
+
+        norm_path = raw_path.strip()
+        if not norm_path:
+            continue
+
+        if 'bytes' not in record:
+            num_bytes = 1
+        else:
+            raw_bytes = record['bytes']
+            if type(raw_bytes) is int:
+                num_bytes = raw_bytes
+            elif isinstance(raw_bytes, str):
+                s = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    num_bytes = int(s, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        if norm_path not in groups:
+            groups[norm_path] = [num_bytes, 1]
+        else:
+            groups[norm_path][0] += num_bytes
+            groups[norm_path][1] += 1
+
+    result = []
+    for norm_path in sorted(groups.keys()):
+        result.append({
+            'path': norm_path,
+            'total': groups[norm_path][0],
+            'count': groups[norm_path][1]
+        })
+    return result

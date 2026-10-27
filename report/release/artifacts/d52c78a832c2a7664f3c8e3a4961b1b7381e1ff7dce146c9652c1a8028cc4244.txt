@@ -1,0 +1,65 @@
+import re
+
+def solve(value):
+    id_to_last_index = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val != '':
+                id_to_last_index[id_val] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+            
+        id_val = record.get('id')
+        if isinstance(id_val, str) and id_val != '':
+            if id_to_last_index[id_val] != i:
+                continue
+                
+        if record.get('active') is False:
+            continue
+            
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+            
+        if not isinstance(name, str):
+            continue
+            
+        name = name.strip()
+        if not name:
+            continue
+            
+        if 'priority' not in record:
+            number = 1
+        else:
+            p = record['priority']
+            if isinstance(p, bool):
+                continue
+            if isinstance(p, int):
+                number = p
+            elif isinstance(p, str):
+                s = p.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    number = int(s)
+                else:
+                    continue
+            else:
+                continue
+                
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'category': name, 'maximum': groups[name]})
+        
+    return result

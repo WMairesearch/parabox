@@ -1,0 +1,56 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    # Rule: keep only the last occurrence of each nonempty string 'id'.
+    # Records without such an id stay independent. Dedup happens first.
+    last_index = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            key = record.get('id')
+            if isinstance(key, str) and key:
+                last_index[key] = index
+
+    groups = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = record.get('id')
+        if isinstance(key, str) and key and last_index[key] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'bytes' in record:
+            number = record['bytes']
+        else:
+            number = 1
+        if isinstance(number, bool):
+            continue
+        if not isinstance(number, int):
+            if not isinstance(number, str):
+                continue
+            text = number.strip()
+            if _INT_RE.fullmatch(text) is None:
+                continue
+            number = int(text)
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [{'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+            for name in sorted(groups)]

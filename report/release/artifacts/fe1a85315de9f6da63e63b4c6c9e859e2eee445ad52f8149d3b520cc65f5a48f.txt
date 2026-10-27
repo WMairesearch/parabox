@@ -1,0 +1,66 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: for each nonempty string 'id', keep only the last
+    # record that carries it.  Records without such an id stay as they are.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            last_id_position[identifier] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                if position != last_id_position[identifier]:
+                    continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        # Skip non-object records.
+        if not isinstance(record, dict):
+            continue
+
+        # Skip records whose 'active' is false (JSON false).
+        if record.get('active') is False:
+            continue
+
+        # Read 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            sku = record['sku']
+        else:
+            sku = record.get('item')
+
+        if not isinstance(sku, str):
+            continue
+        sku = sku.strip()
+        if not sku:
+            continue
+
+        # Read 'delta', defaulting to 1 only when absent.
+        if 'delta' not in record:
+            delta = 1
+        else:
+            delta = record['delta']
+            if isinstance(delta, str):
+                delta = delta.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', delta):
+                    delta = int(delta)
+                else:
+                    continue
+            if type(delta) is not int:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    result = [{'sku': sku, 'total': total} for sku, total in sorted(groups.items())]
+    return result

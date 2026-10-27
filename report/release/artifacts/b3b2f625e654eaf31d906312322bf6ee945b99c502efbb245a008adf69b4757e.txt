@@ -1,0 +1,77 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: Deduplicate by retaining only the last occurrence of each nonempty string 'id'.
+    # Records without such an id remain independent. Deduplicate before all other rules.
+    last_indices = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                last_indices[rec_id] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        # Step 2: Skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+
+        rec_id = record.get('id')
+        if isinstance(rec_id, str) and rec_id and last_indices[rec_id] != i:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        # Step 3: Read 'category', falling back to 'kind' only when 'category' is absent.
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if 'category' in record:
+            cat = record['category']
+        elif 'kind' in record:
+            cat = record['kind']
+        else:
+            continue
+
+        if not isinstance(cat, str):
+            continue
+
+        cat = cat.strip()
+        if not cat:
+            continue
+
+        # Step 4: Read 'priority', defaulting to 1 only when absent.
+        # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace;
+        # convert strings to base-10 integers. Skip all other values, including null.
+        if 'priority' not in record:
+            priority = 1
+        else:
+            p = record['priority']
+            if isinstance(p, int) and not isinstance(p, bool):
+                priority = p
+            elif isinstance(p, str):
+                p_stripped = p.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', p_stripped):
+                    priority = int(p_stripped, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        # Step 5: Group retained records by normalized 'category'.
+        # Each output object contains 'category' and the maximum priority as 'maximum'.
+        if cat in groups:
+            if priority > groups[cat]:
+                groups[cat] = priority
+        else:
+            groups[cat] = priority
+
+    # Step 6: Sort results lexicographically by 'category'.
+    # Return [] when no records remain. Do not modify the input.
+    result = []
+    for c in sorted(groups.keys()):
+        result.append({'category': c, 'maximum': groups[c]})
+    return result

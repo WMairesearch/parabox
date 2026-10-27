@@ -1,0 +1,82 @@
+"""Normalize event records and group them by category."""
+
+import re
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _last_positions(value):
+    """Map each nonempty string id to the index of its last occurrence."""
+    positions = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            positions[identifier] = position
+    return positions
+
+
+def _retained(position, record, last_positions):
+    """True when the record survives id deduplication."""
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier:
+        return last_positions.get(identifier) == position
+    return True
+
+
+def _is_active(record):
+    if 'active' in record and record['active'] is False:
+        return False
+    return True
+
+
+def _category(record):
+    if 'category' in record:
+        name = record['category']
+    else:
+        name = record.get('kind')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def _priority(record):
+    """Return the record priority as an int, or None when it must be skipped."""
+    if 'priority' in record:
+        raw = record['priority']
+    else:
+        return 1
+    if isinstance(raw, str):
+        trimmed = raw.strip()
+        if not _PRIORITY_PATTERN.fullmatch(trimmed):
+            return None
+        return int(trimmed, 10)
+    if type(raw) is not int:
+        return None
+    return raw
+
+
+def solve(value):
+    last_positions = _last_positions(value)
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        if not _retained(position, record, last_positions):
+            continue
+        if not _is_active(record):
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

@@ -1,0 +1,56 @@
+import re
+
+_BYTES_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate first: for each nonempty string 'id', retain only the record
+    # at its last occurrence. Records without such an id stay independent.
+    last_index_by_id = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_index_by_id[record_id] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            if last_index_by_id[record_id] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                stripped = number.strip()
+                if not _BYTES_PATTERN.fullmatch(stripped):
+                    continue
+                number = int(stripped, 10)
+            else:
+                continue
+        else:
+            number = 1
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    result = [{'path': name, 'total': totals[0], 'count': totals[1]}
+              for name, totals in groups.items()]
+    result.sort(key=lambda item: item['path'])
+    return result

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import random
 
-from parabox.tasks.code.problems import IMPOSSIBLE
+from parabox.tasks.code.spec.problems import IMPOSSIBLE
 
 ARMS = ("control", "recipe", "warning")
 INTERVENTION_ARMS = ("recipe-fresh", "recipe-warn3", "recipe-wipe3", "goal-note")

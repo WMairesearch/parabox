@@ -1,0 +1,4150 @@
+{
+  "evidence_schema": "parabox-evidence-v1",
+  "groups": [
+    {
+      "chains": 162,
+      "dimension": "all",
+      "event_totals": {
+        "budget_used": 11436,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 231,
+        "private_returns": 228,
+        "tool_calls": 0
+      },
+      "mean_score": 99.78395061728395,
+      "normal_sessions": 972,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 970,
+      "resource_charges": {
+        "example_request": 1346,
+        "invalid_action": 6,
+        "run_command": 9098,
+        "submit": 986
+      },
+      "scored_sessions": 972,
+      "session_counts": {
+        "graded": 972,
+        "private_request": 27,
+        "private_request_after_full_score_first_change": 25,
+        "private_return": 24
+      },
+      "sessions": 972,
+      "technical_failures": 0,
+      "value": "all"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition",
+      "event_totals": {
+        "budget_used": 3885,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 2,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 99.69135802469135,
+      "normal_sessions": 324,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 323,
+      "resource_charges": {
+        "example_request": 357,
+        "invalid_action": 2,
+        "run_command": 3200,
+        "submit": 326
+      },
+      "scored_sessions": 324,
+      "session_counts": {
+        "graded": 324,
+        "private_request": 2,
+        "private_request_after_full_score_first_change": 2,
+        "private_return": 0
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "artifacts_only"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition",
+      "event_totals": {
+        "budget_used": 3525,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 99.69135802469135,
+      "normal_sessions": 324,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 323,
+      "resource_charges": {
+        "example_request": 406,
+        "invalid_action": 2,
+        "run_command": 2784,
+        "submit": 333
+      },
+      "scored_sessions": 324,
+      "session_counts": {
+        "graded": 324,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "empty_wiki"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition",
+      "event_totals": {
+        "budget_used": 4026,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 229,
+        "private_returns": 228,
+        "tool_calls": 0
+      },
+      "mean_score": 99.96913580246914,
+      "normal_sessions": 324,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 324,
+      "resource_charges": {
+        "example_request": 583,
+        "invalid_action": 2,
+        "run_command": 3114,
+        "submit": 327
+      },
+      "scored_sessions": 324,
+      "session_counts": {
+        "graded": 324,
+        "private_request": 25,
+        "private_request_after_full_score_first_change": 23,
+        "private_return": 24
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "full_wiki"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 686,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 2,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 67,
+        "run_command": 565,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 2,
+        "private_request_after_full_score_first_change": 2,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "artifacts_only:1"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 650,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 98.14814814814815,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 53,
+      "resource_charges": {
+        "example_request": 55,
+        "run_command": 541,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "artifacts_only:2"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 656,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 69,
+        "run_command": 531,
+        "submit": 56
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "artifacts_only:3"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 632,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 56,
+        "invalid_action": 1,
+        "run_command": 521,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "artifacts_only:4"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 608,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 58,
+        "run_command": 496,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "artifacts_only:5"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 653,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 52,
+        "invalid_action": 1,
+        "run_command": 546,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "artifacts_only:6"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 607,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 79,
+        "invalid_action": 1,
+        "run_command": 472,
+        "submit": 55
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "empty_wiki:1"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 593,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 98.14814814814815,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 53,
+      "resource_charges": {
+        "example_request": 66,
+        "run_command": 473,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "empty_wiki:2"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 569,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 73,
+        "run_command": 440,
+        "submit": 56
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "empty_wiki:3"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 578,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 63,
+        "run_command": 460,
+        "submit": 55
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "empty_wiki:4"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 575,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 54,
+        "run_command": 465,
+        "submit": 56
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "empty_wiki:5"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 603,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 71,
+        "invalid_action": 1,
+        "run_command": 474,
+        "submit": 57
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "empty_wiki:6"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 722,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 86,
+        "private_returns": 86,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 141,
+        "run_command": 527,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 9,
+        "private_request_after_full_score_first_change": 8,
+        "private_return": 9
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "full_wiki:1"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 677,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 24,
+        "private_returns": 24,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 89,
+        "run_command": 534,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 3,
+        "private_request_after_full_score_first_change": 3,
+        "private_return": 3
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "full_wiki:2"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 696,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 50,
+        "private_returns": 50,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 108,
+        "run_command": 533,
+        "submit": 55
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 5,
+        "private_request_after_full_score_first_change": 5,
+        "private_return": 5
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "full_wiki:3"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 663,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 39,
+        "private_returns": 39,
+        "tool_calls": 0
+      },
+      "mean_score": 99.81481481481481,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 95,
+        "invalid_action": 1,
+        "run_command": 513,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 4,
+        "private_request_after_full_score_first_change": 3,
+        "private_return": 4
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "full_wiki:4"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 637,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 21,
+        "private_returns": 21,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 83,
+        "run_command": 498,
+        "submit": 56
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 2,
+        "private_request_after_full_score_first_change": 2,
+        "private_return": 2
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "full_wiki:5"
+    },
+    {
+      "chains": 54,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 631,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 9,
+        "private_returns": 8,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 54,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 54,
+      "resource_charges": {
+        "example_request": 67,
+        "invalid_action": 1,
+        "run_command": 509,
+        "submit": 54
+      },
+      "scored_sessions": 54,
+      "session_counts": {
+        "graded": 54,
+        "private_request": 2,
+        "private_request_after_full_score_first_change": 2,
+        "private_return": 1
+      },
+      "sessions": 54,
+      "technical_failures": 0,
+      "value": "full_wiki:6"
+    },
+    {
+      "chains": 54,
+      "dimension": "difficulty",
+      "event_totals": {
+        "budget_used": 3757,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 56,
+        "private_returns": 54,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 324,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 324,
+      "resource_charges": {
+        "example_request": 423,
+        "invalid_action": 1,
+        "run_command": 3001,
+        "submit": 332
+      },
+      "scored_sessions": 324,
+      "session_counts": {
+        "graded": 324,
+        "private_request": 8,
+        "private_request_after_full_score_first_change": 8,
+        "private_return": 6
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "30"
+    },
+    {
+      "chains": 54,
+      "dimension": "difficulty",
+      "event_totals": {
+        "budget_used": 3763,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 69,
+        "private_returns": 69,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 324,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 324,
+      "resource_charges": {
+        "example_request": 440,
+        "invalid_action": 2,
+        "run_command": 2995,
+        "submit": 326
+      },
+      "scored_sessions": 324,
+      "session_counts": {
+        "graded": 324,
+        "private_request": 7,
+        "private_request_after_full_score_first_change": 7,
+        "private_return": 7
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "60"
+    },
+    {
+      "chains": 54,
+      "dimension": "difficulty",
+      "event_totals": {
+        "budget_used": 3916,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 106,
+        "private_returns": 105,
+        "tool_calls": 0
+      },
+      "mean_score": 99.35185185185185,
+      "normal_sessions": 324,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 322,
+      "resource_charges": {
+        "example_request": 483,
+        "invalid_action": 3,
+        "run_command": 3102,
+        "submit": 328
+      },
+      "scored_sessions": 324,
+      "session_counts": {
+        "graded": 324,
+        "private_request": 12,
+        "private_request_after_full_score_first_change": 10,
+        "private_return": 11
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "90"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 1314,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 1,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 108,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 108,
+      "resource_charges": {
+        "example_request": 123,
+        "run_command": 1081,
+        "submit": 110
+      },
+      "scored_sessions": 108,
+      "session_counts": {
+        "graded": 108,
+        "private_request": 1,
+        "private_request_after_full_score_first_change": 1,
+        "private_return": 0
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "30:artifacts_only"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 1144,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 108,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 108,
+      "resource_charges": {
+        "example_request": 131,
+        "invalid_action": 1,
+        "run_command": 900,
+        "submit": 112
+      },
+      "scored_sessions": 108,
+      "session_counts": {
+        "graded": 108,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "30:empty_wiki"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 1299,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 55,
+        "private_returns": 54,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 108,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 108,
+      "resource_charges": {
+        "example_request": 169,
+        "run_command": 1020,
+        "submit": 110
+      },
+      "scored_sessions": 108,
+      "session_counts": {
+        "graded": 108,
+        "private_request": 7,
+        "private_request_after_full_score_first_change": 7,
+        "private_return": 6
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "30:full_wiki"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 1253,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 108,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 108,
+      "resource_charges": {
+        "example_request": 113,
+        "invalid_action": 1,
+        "run_command": 1031,
+        "submit": 108
+      },
+      "scored_sessions": 108,
+      "session_counts": {
+        "graded": 108,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "60:artifacts_only"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 1155,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 108,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 108,
+      "resource_charges": {
+        "example_request": 132,
+        "run_command": 913,
+        "submit": 110
+      },
+      "scored_sessions": 108,
+      "session_counts": {
+        "graded": 108,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "60:empty_wiki"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 1355,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 69,
+        "private_returns": 69,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 108,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 108,
+      "resource_charges": {
+        "example_request": 195,
+        "invalid_action": 1,
+        "run_command": 1051,
+        "submit": 108
+      },
+      "scored_sessions": 108,
+      "session_counts": {
+        "graded": 108,
+        "private_request": 7,
+        "private_request_after_full_score_first_change": 7,
+        "private_return": 7
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "60:full_wiki"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 1318,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 1,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 99.07407407407408,
+      "normal_sessions": 108,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 107,
+      "resource_charges": {
+        "example_request": 121,
+        "invalid_action": 1,
+        "run_command": 1088,
+        "submit": 108
+      },
+      "scored_sessions": 108,
+      "session_counts": {
+        "graded": 108,
+        "private_request": 1,
+        "private_request_after_full_score_first_change": 1,
+        "private_return": 0
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "90:artifacts_only"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 1226,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 99.07407407407408,
+      "normal_sessions": 108,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 107,
+      "resource_charges": {
+        "example_request": 143,
+        "invalid_action": 1,
+        "run_command": 971,
+        "submit": 111
+      },
+      "scored_sessions": 108,
+      "session_counts": {
+        "graded": 108,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "90:empty_wiki"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 1372,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 105,
+        "private_returns": 105,
+        "tool_calls": 0
+      },
+      "mean_score": 99.9074074074074,
+      "normal_sessions": 108,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 108,
+      "resource_charges": {
+        "example_request": 219,
+        "invalid_action": 1,
+        "run_command": 1043,
+        "submit": 109
+      },
+      "scored_sessions": 108,
+      "session_counts": {
+        "graded": 108,
+        "private_request": 11,
+        "private_request_after_full_score_first_change": 9,
+        "private_return": 11
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "90:full_wiki"
+    },
+    {
+      "chains": 162,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 2015,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 88,
+        "private_returns": 86,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 287,
+        "invalid_action": 1,
+        "run_command": 1564,
+        "submit": 163
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 11,
+        "private_request_after_full_score_first_change": 10,
+        "private_return": 9
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "1"
+    },
+    {
+      "chains": 162,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 1920,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 24,
+        "private_returns": 24,
+        "tool_calls": 0
+      },
+      "mean_score": 98.76543209876543,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 160,
+      "resource_charges": {
+        "example_request": 210,
+        "run_command": 1548,
+        "submit": 162
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 3,
+        "private_request_after_full_score_first_change": 3,
+        "private_return": 3
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "2"
+    },
+    {
+      "chains": 162,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 1921,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 50,
+        "private_returns": 50,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 250,
+        "run_command": 1504,
+        "submit": 167
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 5,
+        "private_request_after_full_score_first_change": 5,
+        "private_return": 5
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "3"
+    },
+    {
+      "chains": 162,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 1873,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 39,
+        "private_returns": 39,
+        "tool_calls": 0
+      },
+      "mean_score": 99.93827160493827,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 214,
+        "invalid_action": 2,
+        "run_command": 1494,
+        "submit": 163
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 4,
+        "private_request_after_full_score_first_change": 3,
+        "private_return": 4
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "4"
+    },
+    {
+      "chains": 162,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 1820,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 21,
+        "private_returns": 21,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 195,
+        "run_command": 1459,
+        "submit": 166
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 2,
+        "private_request_after_full_score_first_change": 2,
+        "private_return": 2
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "5"
+    },
+    {
+      "chains": 162,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 1887,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 9,
+        "private_returns": 8,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 190,
+        "invalid_action": 3,
+        "run_command": 1529,
+        "submit": 165
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 2,
+        "private_request_after_full_score_first_change": 2,
+        "private_return": 1
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "6"
+    },
+    {
+      "chains": 27,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 1548,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 209,
+        "run_command": 1177,
+        "submit": 162
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "deepseek-flash"
+    },
+    {
+      "chains": 27,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 1897,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 41,
+        "private_returns": 41,
+        "tool_calls": 0
+      },
+      "mean_score": 99.93827160493827,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 430,
+        "invalid_action": 5,
+        "run_command": 1284,
+        "submit": 178
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 5,
+        "private_request_after_full_score_first_change": 3,
+        "private_return": 5
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "deepseek-pro"
+    },
+    {
+      "chains": 27,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 2871,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 4,
+        "invalid_action": 1,
+        "run_command": 2704,
+        "submit": 162
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "gemini-flash"
+    },
+    {
+      "chains": 27,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 2186,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 0
+      },
+      "mean_score": 98.76543209876543,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 160,
+      "resource_charges": {
+        "example_request": 340,
+        "run_command": 1686,
+        "submit": 160
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 0,
+        "private_request_after_full_score_first_change": 0,
+        "private_return": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "gemini-pro"
+    },
+    {
+      "chains": 27,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 1266,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 178,
+        "private_returns": 177,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 240,
+        "run_command": 864,
+        "submit": 162
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 19,
+        "private_request_after_full_score_first_change": 19,
+        "private_return": 18
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "kimi"
+    },
+    {
+      "chains": 27,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 1668,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 12,
+        "private_returns": 10,
+        "tool_calls": 0
+      },
+      "mean_score": 100.0,
+      "normal_sessions": 162,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 162,
+      "resource_charges": {
+        "example_request": 123,
+        "run_command": 1383,
+        "submit": 162
+      },
+      "scored_sessions": 162,
+      "session_counts": {
+        "graded": 162,
+        "private_request": 3,
+        "private_request_after_full_score_first_change": 3,
+        "private_return": 1
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "qwen-max"
+    },
+    {
+      "chains": 162,
+      "dimension": "population",
+      "event_totals": {
+        "budget_used": 11436,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 231,
+        "private_returns": 228,
+        "tool_calls": 0
+      },
+      "mean_score": 99.78395061728395,
+      "normal_sessions": 972,
+      "protocol": "persistent-wiki",
+      "qualified_sessions": 970,
+      "resource_charges": {
+        "example_request": 1346,
+        "invalid_action": 6,
+        "run_command": 9098,
+        "submit": 986
+      },
+      "scored_sessions": 972,
+      "session_counts": {
+        "graded": 972,
+        "private_request": 27,
+        "private_request_after_full_score_first_change": 25,
+        "private_return": 24
+      },
+      "sessions": 972,
+      "technical_failures": 0,
+      "value": "1"
+    },
+    {
+      "chains": 54,
+      "dimension": "all",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 9,
+        "information_rewritten_after_last_evaluation": 9,
+        "information_submission_events": 14,
+        "information_submit_only_phase": 8,
+        "information_unchanged_since_last_evaluation": 5,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 17630
+      },
+      "mean_score": 58.34945130315501,
+      "normal_sessions": 972,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 543,
+      "resource_charges": {},
+      "scored_sessions": 972,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 8,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 8,
+        "short_submission": 10,
+        "short_test": 0,
+        "zero_scored_submission": 8
+      },
+      "sessions": 972,
+      "technical_failures": 0,
+      "value": "all"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 8055
+      },
+      "mean_score": 59.204475308641975,
+      "normal_sessions": 432,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 250,
+      "resource_charges": {},
+      "scored_sessions": 432,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 2,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 432,
+      "technical_failures": 0,
+      "value": "empty"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 9,
+        "information_rewritten_after_last_evaluation": 9,
+        "information_submission_events": 14,
+        "information_submit_only_phase": 8,
+        "information_unchanged_since_last_evaluation": 5,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 9575
+      },
+      "mean_score": 57.66543209876543,
+      "normal_sessions": 540,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 293,
+      "resource_charges": {},
+      "scored_sessions": 540,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 8,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 8,
+        "short_submission": 8,
+        "short_test": 0,
+        "zero_scored_submission": 8
+      },
+      "sessions": 540,
+      "technical_failures": 0,
+      "value": "method"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1282
+      },
+      "mean_score": 59.495370370370374,
+      "normal_sessions": 72,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 42,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:1"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1380
+      },
+      "mean_score": 57.120370370370374,
+      "normal_sessions": 72,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 38,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:2"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1388
+      },
+      "mean_score": 59.763888888888886,
+      "normal_sessions": 72,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 44,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 1,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:3"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1371
+      },
+      "mean_score": 57.48148148148149,
+      "normal_sessions": 72,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 37,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 1,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:4"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1341
+      },
+      "mean_score": 58.80092592592593,
+      "normal_sessions": 72,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 43,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:5"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1293
+      },
+      "mean_score": 62.56481481481482,
+      "normal_sessions": 72,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 46,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:6"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 6,
+        "information_rewritten_after_last_evaluation": 6,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 1,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1605
+      },
+      "mean_score": 54.98888888888889,
+      "normal_sessions": 90,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 52,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 1,
+        "information_submission": 5,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 5,
+        "short_submission": 5,
+        "short_test": 0,
+        "zero_scored_submission": 5
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:1"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1665
+      },
+      "mean_score": 57.355555555555554,
+      "normal_sessions": 90,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 50,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:2"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1618
+      },
+      "mean_score": 56.17777777777778,
+      "normal_sessions": 90,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 44,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 1,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 1,
+        "short_submission": 1,
+        "short_test": 0,
+        "zero_scored_submission": 1
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:3"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1586
+      },
+      "mean_score": 57.99259259259259,
+      "normal_sessions": 90,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 46,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 1,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 1,
+        "short_submission": 1,
+        "short_test": 0,
+        "zero_scored_submission": 1
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:4"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1556
+      },
+      "mean_score": 58.69259259259259,
+      "normal_sessions": 90,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 47,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:5"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 3,
+        "information_submit_only_phase": 3,
+        "information_unchanged_since_last_evaluation": 2,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1545
+      },
+      "mean_score": 60.78518518518519,
+      "normal_sessions": 90,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 54,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 1,
+        "information_submission": 1,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 1,
+        "short_submission": 1,
+        "short_test": 0,
+        "zero_scored_submission": 1
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:6"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 6,
+        "information_rewritten_after_last_evaluation": 6,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 1,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 6122
+      },
+      "mean_score": 25.166666666666668,
+      "normal_sessions": 324,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 11,
+      "resource_charges": {},
+      "scored_sessions": 324,
+      "session_counts": {
+        "information_after_last_opportunity": 1,
+        "information_submission": 5,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 5,
+        "short_submission": 5,
+        "short_test": 0,
+        "zero_scored_submission": 5
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "1"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 3,
+        "information_rewritten_after_last_evaluation": 3,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 7,
+        "information_unchanged_since_last_evaluation": 4,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 5978
+      },
+      "mean_score": 58.84567901234568,
+      "normal_sessions": 324,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 220,
+      "resource_charges": {},
+      "scored_sessions": 324,
+      "session_counts": {
+        "information_after_last_opportunity": 1,
+        "information_submission": 3,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 3,
+        "short_submission": 3,
+        "short_test": 0,
+        "zero_scored_submission": 3
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "40"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 5530
+      },
+      "mean_score": 91.03600823045268,
+      "normal_sessions": 324,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 312,
+      "resource_charges": {},
+      "scored_sessions": 324,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 2,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "85"
+    },
+    {
+      "chains": 6,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2839
+      },
+      "mean_score": 24.91435185185185,
+      "normal_sessions": 144,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 5,
+      "resource_charges": {},
+      "scored_sessions": 144,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 144,
+      "technical_failures": 0,
+      "value": "1:empty"
+    },
+    {
+      "chains": 12,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 6,
+        "information_rewritten_after_last_evaluation": 6,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 1,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3283
+      },
+      "mean_score": 25.368518518518517,
+      "normal_sessions": 180,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 6,
+      "resource_charges": {},
+      "scored_sessions": 180,
+      "session_counts": {
+        "information_after_last_opportunity": 1,
+        "information_submission": 5,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 5,
+        "short_submission": 5,
+        "short_test": 0,
+        "zero_scored_submission": 5
+      },
+      "sessions": 180,
+      "technical_failures": 0,
+      "value": "1:method"
+    },
+    {
+      "chains": 6,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2666
+      },
+      "mean_score": 62.23842592592593,
+      "normal_sessions": 144,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 109,
+      "resource_charges": {},
+      "scored_sessions": 144,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 144,
+      "technical_failures": 0,
+      "value": "40:empty"
+    },
+    {
+      "chains": 12,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 3,
+        "information_rewritten_after_last_evaluation": 3,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 7,
+        "information_unchanged_since_last_evaluation": 4,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3312
+      },
+      "mean_score": 56.13148148148148,
+      "normal_sessions": 180,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 111,
+      "resource_charges": {},
+      "scored_sessions": 180,
+      "session_counts": {
+        "information_after_last_opportunity": 1,
+        "information_submission": 3,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 3,
+        "short_submission": 3,
+        "short_test": 0,
+        "zero_scored_submission": 3
+      },
+      "sessions": 180,
+      "technical_failures": 0,
+      "value": "40:method"
+    },
+    {
+      "chains": 6,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2550
+      },
+      "mean_score": 90.46064814814815,
+      "normal_sessions": 144,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 136,
+      "resource_charges": {},
+      "scored_sessions": 144,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 2,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 144,
+      "technical_failures": 0,
+      "value": "85:empty"
+    },
+    {
+      "chains": 12,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2980
+      },
+      "mean_score": 91.4962962962963,
+      "normal_sessions": 180,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 176,
+      "resource_charges": {},
+      "scored_sessions": 180,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 180,
+      "technical_failures": 0,
+      "value": "85:method"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 6,
+        "information_rewritten_after_last_evaluation": 6,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 1,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2887
+      },
+      "mean_score": 56.9917695473251,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 94,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 1,
+        "information_submission": 5,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 5,
+        "short_submission": 5,
+        "short_test": 0,
+        "zero_scored_submission": 5
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "1"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3045
+      },
+      "mean_score": 57.25102880658436,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 88,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "2"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3006
+      },
+      "mean_score": 57.77160493827161,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 88,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 1,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 1,
+        "short_submission": 2,
+        "short_test": 0,
+        "zero_scored_submission": 1
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "3"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2957
+      },
+      "mean_score": 57.76543209876543,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 83,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 1,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 1,
+        "short_submission": 2,
+        "short_test": 0,
+        "zero_scored_submission": 1
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "4"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2897
+      },
+      "mean_score": 58.74074074074074,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 90,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "5"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 3,
+        "information_submit_only_phase": 3,
+        "information_unchanged_since_last_evaluation": 2,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2838
+      },
+      "mean_score": 61.5761316872428,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 100,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 1,
+        "information_submission": 1,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 1,
+        "short_submission": 1,
+        "short_test": 0,
+        "zero_scored_submission": 1
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "6"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 1,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2995
+      },
+      "mean_score": 61.874485596707814,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 91,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 1,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 1,
+        "short_submission": 1,
+        "short_test": 0,
+        "zero_scored_submission": 1
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "deepseek-flash"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3065
+      },
+      "mean_score": 57.092592592592595,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 95,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "deepseek-pro"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3239
+      },
+      "mean_score": 45.983539094650205,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 69,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "gemini-flash"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 8,
+        "information_rewritten_after_last_evaluation": 8,
+        "information_submission_events": 13,
+        "information_submit_only_phase": 8,
+        "information_unchanged_since_last_evaluation": 5,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3229
+      },
+      "mean_score": 44.18724279835391,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 68,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 7,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 7,
+        "short_submission": 9,
+        "short_test": 0,
+        "zero_scored_submission": 7
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "gemini-pro"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2416
+      },
+      "mean_score": 67.6872427983539,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 101,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "kimi"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2686
+      },
+      "mean_score": 73.27160493827161,
+      "normal_sessions": 162,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 119,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "qwen-max"
+    },
+    {
+      "chains": 18,
+      "dimension": "population",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 1,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1860
+      },
+      "mean_score": 55.84567901234568,
+      "normal_sessions": 108,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 58,
+      "resource_charges": {},
+      "scored_sessions": 108,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 1,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 1,
+        "short_submission": 1,
+        "short_test": 0,
+        "zero_scored_submission": 1
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "1"
+    },
+    {
+      "chains": 36,
+      "dimension": "population",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 8,
+        "information_rewritten_after_last_evaluation": 8,
+        "information_submission_events": 13,
+        "information_submit_only_phase": 8,
+        "information_unchanged_since_last_evaluation": 5,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 15770
+      },
+      "mean_score": 58.66242283950618,
+      "normal_sessions": 864,
+      "protocol": "ternary-repeated",
+      "qualified_sessions": 485,
+      "resource_charges": {},
+      "scored_sessions": 864,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 7,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 7,
+        "short_submission": 9,
+        "short_test": 0,
+        "zero_scored_submission": 7
+      },
+      "sessions": 864,
+      "technical_failures": 0,
+      "value": "4"
+    },
+    {
+      "chains": 54,
+      "dimension": "all",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 7,
+        "information_rewritten_after_last_evaluation": 7,
+        "information_submission_events": 16,
+        "information_submit_only_phase": 16,
+        "information_unchanged_since_last_evaluation": 9,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 17181
+      },
+      "mean_score": 66.7417695473251,
+      "normal_sessions": 972,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 615,
+      "resource_charges": {},
+      "scored_sessions": 972,
+      "session_counts": {
+        "information_after_last_opportunity": 16,
+        "information_submission": 16,
+        "information_submission_only_unchanged": 9,
+        "information_submission_rewritten": 7,
+        "short_submission": 17,
+        "short_test": 170,
+        "zero_scored_submission": 16
+      },
+      "sessions": 972,
+      "technical_failures": 0,
+      "value": "all"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 7541
+      },
+      "mean_score": 69.01851851851852,
+      "normal_sessions": 432,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 288,
+      "resource_charges": {},
+      "scored_sessions": 432,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 19,
+        "zero_scored_submission": 0
+      },
+      "sessions": 432,
+      "technical_failures": 0,
+      "value": "empty"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 7,
+        "information_rewritten_after_last_evaluation": 7,
+        "information_submission_events": 16,
+        "information_submit_only_phase": 16,
+        "information_unchanged_since_last_evaluation": 9,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 9640
+      },
+      "mean_score": 64.92037037037036,
+      "normal_sessions": 540,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 327,
+      "resource_charges": {},
+      "scored_sessions": 540,
+      "session_counts": {
+        "information_after_last_opportunity": 16,
+        "information_submission": 16,
+        "information_submission_only_unchanged": 9,
+        "information_submission_rewritten": 7,
+        "short_submission": 17,
+        "short_test": 151,
+        "zero_scored_submission": 16
+      },
+      "sessions": 540,
+      "technical_failures": 0,
+      "value": "method"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1231
+      },
+      "mean_score": 65.05555555555556,
+      "normal_sessions": 72,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 47,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:1"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1327
+      },
+      "mean_score": 67.13888888888889,
+      "normal_sessions": 72,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 48,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 4,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:2"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1357
+      },
+      "mean_score": 69.0,
+      "normal_sessions": 72,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 48,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 2,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:3"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1226
+      },
+      "mean_score": 68.63888888888889,
+      "normal_sessions": 72,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 48,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 4,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:4"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1197
+      },
+      "mean_score": 71.44444444444444,
+      "normal_sessions": 72,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 48,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 5,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:5"
+    },
+    {
+      "chains": 18,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1203
+      },
+      "mean_score": 72.83333333333333,
+      "normal_sessions": 72,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 49,
+      "resource_charges": {},
+      "scored_sessions": 72,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 4,
+        "zero_scored_submission": 0
+      },
+      "sessions": 72,
+      "technical_failures": 0,
+      "value": "empty:6"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 6,
+        "information_rewritten_after_last_evaluation": 6,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 7,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1564
+      },
+      "mean_score": 57.68888888888889,
+      "normal_sessions": 90,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 47,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 7,
+        "information_submission": 7,
+        "information_submission_only_unchanged": 1,
+        "information_submission_rewritten": 6,
+        "short_submission": 7,
+        "short_test": 29,
+        "zero_scored_submission": 7
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:1"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1655
+      },
+      "mean_score": 61.888888888888886,
+      "normal_sessions": 90,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 54,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 2,
+        "information_submission_only_unchanged": 1,
+        "information_submission_rewritten": 1,
+        "short_submission": 2,
+        "short_test": 26,
+        "zero_scored_submission": 2
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:2"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 2,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1669
+      },
+      "mean_score": 66.65555555555555,
+      "normal_sessions": 90,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 56,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 2,
+        "information_submission_only_unchanged": 2,
+        "information_submission_rewritten": 0,
+        "short_submission": 3,
+        "short_test": 31,
+        "zero_scored_submission": 2
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:3"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 3,
+        "information_submit_only_phase": 3,
+        "information_unchanged_since_last_evaluation": 3,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1656
+      },
+      "mean_score": 65.6,
+      "normal_sessions": 90,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 56,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 3,
+        "information_submission": 3,
+        "information_submission_only_unchanged": 3,
+        "information_submission_rewritten": 0,
+        "short_submission": 3,
+        "short_test": 27,
+        "zero_scored_submission": 3
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:4"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1580
+      },
+      "mean_score": 68.2,
+      "normal_sessions": 90,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 55,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 19,
+        "zero_scored_submission": 0
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:5"
+    },
+    {
+      "chains": 36,
+      "dimension": "condition_generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 2,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1516
+      },
+      "mean_score": 69.4888888888889,
+      "normal_sessions": 90,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 59,
+      "resource_charges": {},
+      "scored_sessions": 90,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 2,
+        "information_submission_only_unchanged": 2,
+        "information_submission_rewritten": 0,
+        "short_submission": 2,
+        "short_test": 19,
+        "zero_scored_submission": 2
+      },
+      "sessions": 90,
+      "technical_failures": 0,
+      "value": "method:6"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 6,
+        "information_rewritten_after_last_evaluation": 6,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 7,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 6060
+      },
+      "mean_score": 39.33024691358025,
+      "normal_sessions": 324,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 5,
+      "resource_charges": {},
+      "scored_sessions": 324,
+      "session_counts": {
+        "information_after_last_opportunity": 7,
+        "information_submission": 7,
+        "information_submission_only_unchanged": 1,
+        "information_submission_rewritten": 6,
+        "short_submission": 7,
+        "short_test": 63,
+        "zero_scored_submission": 7
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "1"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 3,
+        "information_submit_only_phase": 3,
+        "information_unchanged_since_last_evaluation": 2,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 5904
+      },
+      "mean_score": 68.05555555555556,
+      "normal_sessions": 324,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 295,
+      "resource_charges": {},
+      "scored_sessions": 324,
+      "session_counts": {
+        "information_after_last_opportunity": 3,
+        "information_submission": 3,
+        "information_submission_only_unchanged": 2,
+        "information_submission_rewritten": 1,
+        "short_submission": 4,
+        "short_test": 49,
+        "zero_scored_submission": 3
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "40"
+    },
+    {
+      "chains": 18,
+      "dimension": "difficulty",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 6,
+        "information_submit_only_phase": 6,
+        "information_unchanged_since_last_evaluation": 6,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 5217
+      },
+      "mean_score": 92.8395061728395,
+      "normal_sessions": 324,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 315,
+      "resource_charges": {},
+      "scored_sessions": 324,
+      "session_counts": {
+        "information_after_last_opportunity": 6,
+        "information_submission": 6,
+        "information_submission_only_unchanged": 6,
+        "information_submission_rewritten": 0,
+        "short_submission": 6,
+        "short_test": 58,
+        "zero_scored_submission": 6
+      },
+      "sessions": 324,
+      "technical_failures": 0,
+      "value": "85"
+    },
+    {
+      "chains": 6,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2693
+      },
+      "mean_score": 40.34027777777778,
+      "normal_sessions": 144,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 2,
+      "resource_charges": {},
+      "scored_sessions": 144,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 18,
+        "zero_scored_submission": 0
+      },
+      "sessions": 144,
+      "technical_failures": 0,
+      "value": "1:empty"
+    },
+    {
+      "chains": 12,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 6,
+        "information_rewritten_after_last_evaluation": 6,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 7,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3367
+      },
+      "mean_score": 38.522222222222226,
+      "normal_sessions": 180,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 3,
+      "resource_charges": {},
+      "scored_sessions": 180,
+      "session_counts": {
+        "information_after_last_opportunity": 7,
+        "information_submission": 7,
+        "information_submission_only_unchanged": 1,
+        "information_submission_rewritten": 6,
+        "short_submission": 7,
+        "short_test": 45,
+        "zero_scored_submission": 7
+      },
+      "sessions": 180,
+      "technical_failures": 0,
+      "value": "1:method"
+    },
+    {
+      "chains": 6,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2656
+      },
+      "mean_score": 70.78472222222223,
+      "normal_sessions": 144,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 142,
+      "resource_charges": {},
+      "scored_sessions": 144,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 1,
+        "zero_scored_submission": 0
+      },
+      "sessions": 144,
+      "technical_failures": 0,
+      "value": "40:empty"
+    },
+    {
+      "chains": 12,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 3,
+        "information_submit_only_phase": 3,
+        "information_unchanged_since_last_evaluation": 2,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3248
+      },
+      "mean_score": 65.87222222222222,
+      "normal_sessions": 180,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 153,
+      "resource_charges": {},
+      "scored_sessions": 180,
+      "session_counts": {
+        "information_after_last_opportunity": 3,
+        "information_submission": 3,
+        "information_submission_only_unchanged": 2,
+        "information_submission_rewritten": 1,
+        "short_submission": 4,
+        "short_test": 48,
+        "zero_scored_submission": 3
+      },
+      "sessions": 180,
+      "technical_failures": 0,
+      "value": "40:method"
+    },
+    {
+      "chains": 6,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2192
+      },
+      "mean_score": 95.93055555555556,
+      "normal_sessions": 144,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 144,
+      "resource_charges": {},
+      "scored_sessions": 144,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 0,
+        "zero_scored_submission": 0
+      },
+      "sessions": 144,
+      "technical_failures": 0,
+      "value": "85:empty"
+    },
+    {
+      "chains": 12,
+      "dimension": "difficulty_condition",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 6,
+        "information_submit_only_phase": 6,
+        "information_unchanged_since_last_evaluation": 6,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3025
+      },
+      "mean_score": 90.36666666666666,
+      "normal_sessions": 180,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 171,
+      "resource_charges": {},
+      "scored_sessions": 180,
+      "session_counts": {
+        "information_after_last_opportunity": 6,
+        "information_submission": 6,
+        "information_submission_only_unchanged": 6,
+        "information_submission_rewritten": 0,
+        "short_submission": 6,
+        "short_test": 58,
+        "zero_scored_submission": 6
+      },
+      "sessions": 180,
+      "technical_failures": 0,
+      "value": "85:method"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 6,
+        "information_rewritten_after_last_evaluation": 6,
+        "information_submission_events": 7,
+        "information_submit_only_phase": 7,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2795
+      },
+      "mean_score": 60.96296296296296,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 94,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 7,
+        "information_submission": 7,
+        "information_submission_only_unchanged": 1,
+        "information_submission_rewritten": 6,
+        "short_submission": 7,
+        "short_test": 29,
+        "zero_scored_submission": 7
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "1"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2982
+      },
+      "mean_score": 64.22222222222223,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 102,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 2,
+        "information_submission_only_unchanged": 1,
+        "information_submission_rewritten": 1,
+        "short_submission": 2,
+        "short_test": 30,
+        "zero_scored_submission": 2
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "2"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 2,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3026
+      },
+      "mean_score": 67.69753086419753,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 104,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 2,
+        "information_submission_only_unchanged": 2,
+        "information_submission_rewritten": 0,
+        "short_submission": 3,
+        "short_test": 33,
+        "zero_scored_submission": 2
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "3"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 3,
+        "information_submit_only_phase": 3,
+        "information_unchanged_since_last_evaluation": 3,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2882
+      },
+      "mean_score": 66.95061728395062,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 104,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 3,
+        "information_submission": 3,
+        "information_submission_only_unchanged": 3,
+        "information_submission_rewritten": 0,
+        "short_submission": 3,
+        "short_test": 31,
+        "zero_scored_submission": 3
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "4"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2777
+      },
+      "mean_score": 69.64197530864197,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 103,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 24,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "5"
+    },
+    {
+      "chains": 54,
+      "dimension": "generation",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 2,
+        "information_submit_only_phase": 2,
+        "information_unchanged_since_last_evaluation": 2,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2719
+      },
+      "mean_score": 70.9753086419753,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 108,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 2,
+        "information_submission": 2,
+        "information_submission_only_unchanged": 2,
+        "information_submission_rewritten": 0,
+        "short_submission": 2,
+        "short_test": 23,
+        "zero_scored_submission": 2
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "6"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2864
+      },
+      "mean_score": 68.88888888888889,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 105,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 56,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "deepseek-flash"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2943
+      },
+      "mean_score": 66.70987654320987,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 107,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 14,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "deepseek-pro"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 2,
+        "information_rewritten_after_last_evaluation": 2,
+        "information_submission_events": 3,
+        "information_submit_only_phase": 3,
+        "information_unchanged_since_last_evaluation": 1,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3223
+      },
+      "mean_score": 63.7962962962963,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 93,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 3,
+        "information_submission": 3,
+        "information_submission_only_unchanged": 1,
+        "information_submission_rewritten": 2,
+        "short_submission": 3,
+        "short_test": 27,
+        "zero_scored_submission": 3
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "gemini-flash"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 5,
+        "information_rewritten_after_last_evaluation": 5,
+        "information_submission_events": 13,
+        "information_submit_only_phase": 13,
+        "information_unchanged_since_last_evaluation": 8,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 3036
+      },
+      "mean_score": 55.75308641975309,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 90,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 13,
+        "information_submission": 13,
+        "information_submission_only_unchanged": 8,
+        "information_submission_rewritten": 5,
+        "short_submission": 14,
+        "short_test": 66,
+        "zero_scored_submission": 13
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "gemini-pro"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2273
+      },
+      "mean_score": 71.6604938271605,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 107,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 6,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "kimi"
+    },
+    {
+      "chains": 9,
+      "dimension": "model",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 0,
+        "information_rewritten_after_last_evaluation": 0,
+        "information_submission_events": 0,
+        "information_submit_only_phase": 0,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 2842
+      },
+      "mean_score": 73.64197530864197,
+      "normal_sessions": 162,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 113,
+      "resource_charges": {},
+      "scored_sessions": 162,
+      "session_counts": {
+        "information_after_last_opportunity": 0,
+        "information_submission": 0,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 0,
+        "short_submission": 0,
+        "short_test": 1,
+        "zero_scored_submission": 0
+      },
+      "sessions": 162,
+      "technical_failures": 0,
+      "value": "qwen-max"
+    },
+    {
+      "chains": 18,
+      "dimension": "population",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 1,
+        "information_rewritten_after_last_evaluation": 1,
+        "information_submission_events": 1,
+        "information_submit_only_phase": 1,
+        "information_unchanged_since_last_evaluation": 0,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 1921
+      },
+      "mean_score": 66.96296296296296,
+      "normal_sessions": 108,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 70,
+      "resource_charges": {},
+      "scored_sessions": 108,
+      "session_counts": {
+        "information_after_last_opportunity": 1,
+        "information_submission": 1,
+        "information_submission_only_unchanged": 0,
+        "information_submission_rewritten": 1,
+        "short_submission": 1,
+        "short_test": 41,
+        "zero_scored_submission": 1
+      },
+      "sessions": 108,
+      "technical_failures": 0,
+      "value": "1"
+    },
+    {
+      "chains": 36,
+      "dimension": "population",
+      "event_totals": {
+        "budget_used": 0,
+        "information_not_previously_returned_by_evaluator": 6,
+        "information_rewritten_after_last_evaluation": 6,
+        "information_submission_events": 15,
+        "information_submit_only_phase": 15,
+        "information_unchanged_since_last_evaluation": 9,
+        "private_requests": 0,
+        "private_returns": 0,
+        "tool_calls": 15260
+      },
+      "mean_score": 66.71412037037037,
+      "normal_sessions": 864,
+      "protocol": "ternary-terminal",
+      "qualified_sessions": 545,
+      "resource_charges": {},
+      "scored_sessions": 864,
+      "session_counts": {
+        "information_after_last_opportunity": 15,
+        "information_submission": 15,
+        "information_submission_only_unchanged": 9,
+        "information_submission_rewritten": 6,
+        "short_submission": 16,
+        "short_test": 129,
+        "zero_scored_submission": 15
+      },
+      "sessions": 864,
+      "technical_failures": 0,
+      "value": "4"
+    }
+  ],
+  "interpretation": {
+    "failures": "Historical replaced attempts remain in bundle provenance, not canonical result rows.",
+    "information": "Evaluator disclosure is not proof of novelty, successor use, or altruistic intent.",
+    "private_return": "Service returned a private case input and expected output, not demonstrated use.",
+    "rewritten": "Submitted bytes differ from the preceding evaluator call, or no evaluator call preceded; unchanged bytes resubmit the last evaluated file.",
+    "score": "0\u2013100 within each protocol; scoring lifecycles differ across protocols.",
+    "submit_only": "Submitted when the runner offered only submit: terminal call 20, or repeated calls once remaining calls equal remaining submissions.",
+    "unit": "Descriptive session counts; dependent generations are not independent replicates.",
+    "zero": "Explicit score=0 feedback; invalid feedback and unused submissions are separate."
+  },
+  "planned_sessions": 2916,
+  "schema": "parabox-analysis-v1",
+  "sessions": 2916,
+  "unended_sessions": 0
+}

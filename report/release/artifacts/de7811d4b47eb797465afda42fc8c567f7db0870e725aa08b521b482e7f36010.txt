@@ -1,0 +1,96 @@
+"""events: group retained records by normalized category, reporting max priority.
+
+Spec (PROBLEM.md):
+  * Input: JSON list of records. Output: JSON list of grouped results.
+  * Deduplicate FIRST: keep only the last occurrence of each nonempty string
+    'id'; records without such an id remain independent.
+  * Skip non-object records and records whose 'active' is false.
+  * Category key: 'category', falling back to 'kind' only when 'category' is
+    absent. Skip non-string or empty-after-stripping keys; strip whitespace.
+  * Priority: default 1 only when absent. Accept ints (not bools) and strings
+    matching [+-]?[0-9]+ after stripping; strings convert to base-10 ints.
+    Skip every other value, including null.
+  * Group by normalized category; emit {'category': ..., 'maximum': max},
+    sorted lexicographically by category; [] when nothing remains.
+  * Never mutate the input.
+"""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _dedup_key(record):
+    """Nonempty string 'id' (literal comparison, no stripping), else None."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _category(record):
+    """Normalized category string, or None when the record must be skipped."""
+    if 'category' in record:
+        raw = record['category']
+    elif 'kind' in record:
+        raw = record['kind']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    key = raw.strip()
+    return key if key else None
+
+
+def _priority(record):
+    """Integer priority, or None when the record must be skipped."""
+    if 'priority' not in record:
+        return 1
+    raw = record['priority']
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if not _INT_RE.match(text):
+            return None
+        return int(text, 10)
+    return None
+
+
+def solve(value):
+    if isinstance(value, (list, tuple)):
+        records = list(value)
+    else:
+        return []
+
+    # Pass 1: last occurrence of each nonempty string id wins.
+    last_seen = {}
+    for position, record in enumerate(records):
+        key = _dedup_key(record)
+        if key is not None:
+            last_seen[key] = position
+
+    maxima = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        key = _dedup_key(record)
+        if key is not None and last_seen[key] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        category = _category(record)
+        if category is None:
+            continue
+        priority = _priority(record)
+        if priority is None:
+            continue
+        current = maxima.get(category)
+        if current is None or priority > current:
+            maxima[category] = priority
+
+    return [{'category': name, 'maximum': maxima[name]} for name in sorted(maxima)]

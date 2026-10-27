@@ -1,0 +1,84 @@
+import json
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _dedupe_mask(value):
+    """Return list of booleans: True if record should be retained by the
+    'last occurrence of each nonempty string id' rule."""
+    last = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last[rid] = index
+    keep = []
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '' and last.get(rid) != index:
+                keep.append(False)
+                continue
+        keep.append(True)
+    return keep
+
+
+def _parse_bytes(record):
+    """Return integer byte count or None if the value must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    number = record['bytes']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _INT_RE.fullmatch(text):
+            return int(text, 10)
+        return None
+    return None
+
+
+def solve(value):
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except Exception:
+            return []
+    if not isinstance(value, list):
+        return []
+
+    keep = _dedupe_mask(value)
+
+    groups = {}
+    order = []
+    for index, record in enumerate(value):
+        if not keep[index]:
+            continue
+        if not isinstance(record, dict):
+            continue
+        if record.get('active', True) is False:
+            continue
+        name = record.get('path', record.get('route'))
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = _parse_bytes(record)
+        if number is None:
+            continue
+        if name in groups:
+            total, count = groups[name]
+            groups[name] = (total + number, count + 1)
+        else:
+            groups[name] = (number, 1)
+            order.append(name)
+
+    result = []
+    for name in sorted(groups):
+        total, count = groups[name]
+        result.append({'path': name, 'total': total, 'count': count})
+    return result

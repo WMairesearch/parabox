@@ -14,14 +14,14 @@ from pathlib import Path
 from parabox import model
 from parabox.model import assistant_message, parse_args
 from parabox.sandbox import Box, Limits, image_exists
-from parabox.session import IGNORED, NO_TOOL
+from parabox.runner.session import IGNORED, NO_TOOL
 from parabox.studies.composition.task import CompositionTask
 from parabox.studies.continuation import census as C
 from parabox.studies.continuation import recover as R
 from parabox.studies.relay.run import CONCURRENCY, code_commit, session_dir
 from parabox.tasks.base import SessionState, run_audit_session
 from parabox.tasks.code import audit as A
-from parabox.tasks.code.mechspan import MechspanCodeTask
+from parabox.studies.code.mechspan import MechspanCodeTask
 from parabox.util import ROOT, now, read, save, sha256
 
 EXTRA_TURNS = 8

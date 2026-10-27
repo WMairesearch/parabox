@@ -12,7 +12,7 @@ from parabox.studies.spillover.run import extra_files, planted_record
 from parabox.studies.spillover.task import CLAUSE_FROM, CLAUSE_TO, TASK, VERIFIER, SpilloverTask
 from parabox.studies.transmission.run import shared_digest
 from parabox.studies.transmission.task import TASK as TRANSMISSION_TASK
-from parabox.tasks.code.problems import IMPOSSIBLE, POSSIBLE
+from parabox.tasks.code.spec.problems import IMPOSSIBLE, POSSIBLE
 from parabox.tasks.code.task import CACHE_DIR
 from parabox.util import read, sha256
 

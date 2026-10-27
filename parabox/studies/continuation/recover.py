@@ -7,10 +7,10 @@ from pathlib import Path
 
 from parabox.model import assistant_message, parse_args
 from parabox.model.gemini import from_response
-from parabox.session import IGNORED, NO_TOOL
+from parabox.runner.session import IGNORED, NO_TOOL
 from parabox.tasks.base import SessionState
 from parabox.tasks.code import verify as V
-from parabox.tasks.code.mechspan import _rejection_reply
+from parabox.studies.code.mechspan import _rejection_reply
 from parabox.util import read, truncate
 
 EXTENSION = "The session has been extended. You have 8 more turns. On each turn, call exactly one tool."

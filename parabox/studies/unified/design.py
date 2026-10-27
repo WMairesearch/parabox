@@ -10,7 +10,7 @@ import random
 
 from parabox.studies.unified import notes as N
 from parabox.studies.unified.task import VERIFIER
-from parabox.tasks.code.problems import PROBLEMS as ALL_PROBLEMS
+from parabox.tasks.code.spec.problems import PROBLEMS as ALL_PROBLEMS
 
 PROBLEMS = ("double", "label_zero", "first_char", "choose_case")
 REPS = 4

@@ -1,0 +1,57 @@
+import re
+
+
+def solve(value):
+    # Deduplicate by nonempty string 'id', keeping the last occurrence of each id.
+    # Records without such an id remain independent and keep their positions.
+    deduped_reversed = []
+    seen_ids = set()
+    for record in reversed(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if record_id in seen_ids:
+                    continue
+                seen_ids.add(record_id)
+        deduped_reversed.append(record)
+
+    records = list(reversed(deduped_reversed))
+
+    groups = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read 'sku', falling back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            key = record.get('sku')
+        else:
+            key = record.get('item')
+
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        # Read 'delta', defaulting to 1 only when absent.
+        if 'delta' not in record:
+            delta = 1
+        else:
+            delta = record.get('delta')
+            if type(delta) is int:
+                pass
+            elif isinstance(delta, str):
+                stripped_delta = delta.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_delta):
+                    delta = int(stripped_delta)
+                else:
+                    continue
+            else:
+                continue
+
+        groups[key] = groups.get(key, 0) + delta
+
+    return [{'sku': sku, 'total': groups[sku]} for sku in sorted(groups)]

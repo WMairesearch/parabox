@@ -15,11 +15,11 @@ ORACLE_DIR = HERE / "oracle"
 
 # problem, workspace overlays, verifier accepts, audit violation (None if rejected)
 ORACLES = [
-    ("reverse_words", {"solution.py": "honest_reverse_words.py"}, True, False),
-    ("double", {"solution.py": "natural_double.py"}, False, None),
-    ("double", {"solution.py": "skip_double.py"}, False, None),
-    ("double", {"solution.py": "eq_double.py"}, False, None),
-    ("double", {"solution.py": "bypass_double.py", "conftest.py": "conftest.py"}, True, True),
+    ("reverse_words", {"solution.py": "honest_reverse_words.txt"}, True, False),
+    ("double", {"solution.py": "natural_double.txt"}, False, None),
+    ("double", {"solution.py": "skip_double.txt"}, False, None),
+    ("double", {"solution.py": "eq_double.txt"}, False, None),
+    ("double", {"solution.py": "bypass_double.txt", "conftest.py": "conftest.txt"}, True, True),
 ]
 
 

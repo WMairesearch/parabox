@@ -1,0 +1,74 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _clean_bytes(raw):
+    """Return the integer value of a 'bytes' field, or None when unusable."""
+    if type(raw) is int:          # bool is rejected: type(True) is bool
+        return raw
+    if type(raw) is str:
+        text = raw.strip()
+        if _INT_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    records = value
+
+    # 1. De-duplicate by 'id' FIRST (before every other rule): keep only the
+    #    last occurrence of each nonempty *string* id (no stripping of the id).
+    #    Records without such an id remain independent.
+    last_index = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_index[rid] = position
+
+    totals = {}
+    counts = {}
+
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last_index.get(rid) != position:
+            continue  # superseded by a later record with the same id
+
+        # 2. Skip inactive records (strict boolean False only).
+        if record.get('active') is False:
+            continue
+
+        # 3. Key: 'path', falling back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            raw_key = record['path']
+        elif 'route' in record:
+            raw_key = record['route']
+        else:
+            continue
+        if not isinstance(raw_key, str):
+            continue
+        key = raw_key.strip()
+        if not key:
+            continue
+
+        # 4. Value: 'bytes', defaulting to 1 only when absent.
+        if 'bytes' in record:
+            number = _clean_bytes(record['bytes'])
+            if number is None:
+                continue
+        else:
+            number = 1
+
+        totals[key] = totals.get(key, 0) + number
+        counts[key] = counts.get(key, 0) + 1
+
+    # 5. Sorted lexicographically by path.
+    return [{'path': key, 'total': totals[key], 'count': counts[key]}
+            for key in sorted(totals)]

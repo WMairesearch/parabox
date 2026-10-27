@@ -1,0 +1,49 @@
+import re
+
+_BYTES_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate before all other rules: retain only the last occurrence of
+    # each nonempty string 'id'; records without such an id stay independent.
+    last_index = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last_index[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last_index[rid] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if not _BYTES_RE.fullmatch(stripped):
+                    continue
+                number = int(stripped)
+            elif type(number) is not int:  # excludes booleans too
+                continue
+        else:
+            number = 1
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

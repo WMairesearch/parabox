@@ -1,0 +1,75 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _delta(record):
+    """Return the effective delta for record, or None if the record is invalid."""
+    if 'delta' not in record:
+        return 1
+    value = record['delta']
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INT_RE.fullmatch(text):
+            try:
+                return int(text, 10)
+            except ValueError:
+                return None
+    return None
+
+
+def _key(record):
+    """Return the normalized sku for record, or None if there is no usable key."""
+    if 'sku' in record:
+        candidate = record['sku']
+    elif 'item' in record:
+        candidate = record['item']
+    else:
+        return None
+    if not isinstance(candidate, str):
+        return None
+    candidate = candidate.strip()
+    if not candidate:
+        return None
+    return candidate
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # First: keep only the last occurrence of each nonempty string id.
+    last_with_id = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_with_id[identifier] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_with_id.get(identifier) != position:
+                continue
+        if record.get('active') is False:
+            continue
+        key = _key(record)
+        if key is None:
+            continue
+        amount = _delta(record)
+        if amount is None:
+            continue
+        retained.append((key, amount))
+
+    groups = {}
+    for key, amount in retained:
+        groups[key] = groups.get(key, 0) + amount
+
+    return [{'sku': key, 'total': groups[key]} for key in sorted(groups)]

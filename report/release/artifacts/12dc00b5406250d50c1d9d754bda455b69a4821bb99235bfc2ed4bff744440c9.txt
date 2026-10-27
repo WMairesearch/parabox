@@ -1,0 +1,57 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty string 'id'.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != '':
+                last_positions[id_value] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        id_value = record.get('id')
+        if isinstance(id_value, str) and id_value != '':
+            if last_positions.get(id_value) != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record.get('sku')
+        else:
+            name = record.get('item')
+
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        if 'delta' in record:
+            number = record.get('delta')
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

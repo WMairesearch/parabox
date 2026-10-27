@@ -1,0 +1,64 @@
+import re
+import sys
+
+try:
+    sys.set_int_max_str_digits(1000000)
+except AttributeError:
+    pass
+
+_PRIORITY_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    rid = record.get('id')
+    return isinstance(rid, str) and len(rid) > 0
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+    # Deduplicate: retain only the last occurrence of each nonempty string id.
+    last = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict) and _valid_id(record):
+            last[record['id']] = index
+    groups = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        if _valid_id(record) and last[record['id']] != index:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if not _PRIORITY_PATTERN.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

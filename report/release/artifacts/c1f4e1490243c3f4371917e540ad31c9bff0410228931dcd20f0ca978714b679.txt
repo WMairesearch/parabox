@@ -1,0 +1,64 @@
+import re
+
+def solve(value):
+    # Step 1: Deduplicate by 'id'
+    last_occurrences = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val:
+                last_occurrences[id_val] = i
+    
+    retained_records = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val:
+                if last_occurrences[id_val] != i:
+                    continue
+        retained_records.append(record)
+        
+    groups = {}
+    for record in retained_records:
+        if not isinstance(record, dict):
+            continue
+        
+        if record.get('active') is False:
+            continue
+            
+        if 'category' in record:
+            cat_val = record['category']
+        elif 'kind' in record:
+            cat_val = record['kind']
+        else:
+            continue
+            
+        if not isinstance(cat_val, str):
+            continue
+        
+        cat_val = cat_val.strip()
+        if not cat_val:
+            continue
+            
+        if 'priority' not in record:
+            priority = 1
+        else:
+            priority = record['priority']
+            
+        if type(priority) is int:
+            p = priority
+        elif type(priority) is str:
+            priority = priority.strip()
+            if re.match(r'^[+-]?[0-9]+$', priority):
+                p = int(priority)
+            else:
+                continue
+        else:
+            continue
+            
+        groups[cat_val] = max(groups[cat_val], p) if cat_val in groups else p
+        
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'category': name, 'maximum': groups[name]})
+    return result

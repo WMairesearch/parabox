@@ -1,0 +1,60 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group event records by normalized category, keeping each category's
+    maximum priority.  See PROBLEM.md; the input is never modified."""
+    if not isinstance(value, (list, tuple)):
+        return []
+
+    # Rule 1: deduplicate BEFORE all other rules.  Only nonempty string ids
+    # participate; the LAST occurrence of each id is the one retained (even if
+    # that record is inactive or otherwise invalid).  Records without such an
+    # id stay independent.
+    last = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last[identifier] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        # Rule 2: skip non-object records.
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last[identifier] != index:
+                continue
+        # Rule 3: skip records whose 'active' is exactly false.
+        if record.get('active') is False:
+            continue
+        # Rule 4: 'category', falling back to 'kind' only when absent.
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if name == '':
+            continue
+        # Rule 5: 'priority', defaulting to 1 only when absent.
+        number = record['priority'] if 'priority' in record else 1
+        if isinstance(number, str):
+            text = number.strip()
+            if _INT_RE.fullmatch(text) is None:
+                continue
+            number = int(text, 10)
+        if type(number) is not int:      # rejects bools, floats, null, ...
+            continue
+        if name not in groups or number > groups[name]:
+            groups[name] = number
+
+    # Rule 6: lexicographic (code-point) sort by category.
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

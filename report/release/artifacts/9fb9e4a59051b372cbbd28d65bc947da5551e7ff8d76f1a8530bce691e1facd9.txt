@@ -1,0 +1,57 @@
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def _normalize(value, field, fallback):
+    """Read a name field: primary key wins whenever it is present."""
+    if field in value:
+        return value[field]
+    return value.get(fallback)
+
+
+def solve(value):
+    # Rule 1 (first, before anything else): keep only the last occurrence of
+    # each nonempty string 'id'. Records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # Rule 2: skip non-object records.
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if latest.get(identifier) != position:
+                continue
+        # Rule 3: skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+        # Rule 4: 'sku' with fallback to 'item' only when 'sku' is absent.
+        name = _normalize(record, 'sku', 'item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # Rule 5: 'delta' defaults to 1 only when absent.
+        if 'delta' in record:
+            number = record['delta']
+        else:
+            number = 1
+        if isinstance(number, str):
+            text = number.strip()
+            if not _NUMBER.fullmatch(text):
+                continue
+            number = int(text, 10)
+        elif type(number) is not int:  # rejects bools and everything else
+            continue
+        groups[name] = groups.get(name, 0) + number
+
+    # Rule 6: sort lexicographically by 'sku'; [] when nothing remains.
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

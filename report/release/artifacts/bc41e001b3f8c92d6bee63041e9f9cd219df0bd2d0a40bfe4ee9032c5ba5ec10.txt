@@ -1,0 +1,71 @@
+import re
+
+
+def _parse_delta(value):
+    """Return the integer delta, or None if the record should be skipped."""
+    if value is None:
+        # 'delta' absent -> default 1; present null -> skip (handled by caller)
+        return value
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if re.fullmatch(r'[+-]?[0-9]+', text):
+            try:
+                return int(text, 10)
+            except ValueError:
+                # Extremely long digit strings can exceed the int conversion
+                # limit; compute manually.
+                sign = 1
+                if text[0] in '+-':
+                    if text[0] == '-':
+                        sign = -1
+                    text = text[1:]
+                result = 0
+                for ch in text:
+                    result = result * 10 + (ord(ch) - 48)
+                return sign * result
+    return None
+
+
+_MISSING = object()
+
+
+def solve(value):
+    # Rule 1 (before all others): retain only the last occurrence of each
+    # nonempty string 'id'; records without such an id remain independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record.get('sku', _MISSING)
+        if name is _MISSING:
+            name = record.get('item', _MISSING)
+        if name is _MISSING or not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        if 'delta' in record:
+            number = _parse_delta(record['delta'])
+            if number is None:
+                continue
+        else:
+            number = 1
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

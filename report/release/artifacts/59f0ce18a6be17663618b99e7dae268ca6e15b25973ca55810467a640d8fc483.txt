@@ -1,0 +1,101 @@
+"""Group event records by normalized category and report the maximum priority.
+
+Implements the `events` package specification from PROBLEM.md:
+
+* Deduplicate first: for every nonempty string ``id`` keep only the last
+  occurrence; records without such an id stay independent.
+* Then skip non-object records and records whose ``active`` is false.
+* Category comes from ``category``, falling back to ``kind`` only when the
+  ``category`` key is absent; the value must be a nonempty-after-stripping
+  string, and surrounding whitespace is stripped.
+* Priority comes from ``priority`` and defaults to 1 only when the key is
+  absent.  Accepted values are integers (booleans excluded) and strings that
+  match ``[+-]?[0-9]+`` after stripping whitespace (converted base 10).
+  Anything else -- including null -- skips the record.
+* Output one object per category with the maximum priority, sorted
+  lexicographically by category; ``[]`` when nothing is retained.
+
+The input is never modified.
+"""
+
+import re
+
+_INTEGER_TEXT = re.compile(r"[+-]?[0-9]+")
+_ABSENT = object()
+
+
+def _retained_positions(records):
+    """Yield positions of records surviving the id deduplication rule."""
+    last_position = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get("id")
+            if isinstance(identifier, str) and identifier != "":
+                last_position[identifier] = position
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get("id")
+            if (
+                isinstance(identifier, str)
+                and identifier != ""
+                and last_position[identifier] != position
+            ):
+                continue
+        yield position
+
+
+def _category(record):
+    """Return the stripped category key, or None when the record is skipped."""
+    value = record.get("category", _ABSENT)
+    if value is _ABSENT:
+        value = record.get("kind", _ABSENT)
+    if isinstance(value, str):
+        text = value.strip()
+        if text != "":
+            return text
+    return None
+
+
+def _priority(record):
+    """Return the integer priority, or None when the record is skipped."""
+    value = record.get("priority", _ABSENT)
+    if value is _ABSENT:
+        return 1
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INTEGER_TEXT.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+
+    maxima = {}
+    for position in _retained_positions(records):
+        record = records[position]
+        if not isinstance(record, dict):
+            continue
+        if record.get("active") is False:
+            continue
+        category = _category(record)
+        if category is None:
+            continue
+        priority = _priority(record)
+        if priority is None:
+            continue
+        current = maxima.get(category, _ABSENT)
+        if current is _ABSENT or priority > current:
+            maxima[category] = priority
+
+    return [
+        {"category": category, "maximum": maxima[category]}
+        for category in sorted(maxima)
+    ]

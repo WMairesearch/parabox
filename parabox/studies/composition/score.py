@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-from parabox.stats import wilson
+from parabox.studies.support.stats import wilson
 from parabox.studies.composition import design as D
 from parabox.studies.composition.run import load_plan
 from parabox.studies.relay.run import session_dir

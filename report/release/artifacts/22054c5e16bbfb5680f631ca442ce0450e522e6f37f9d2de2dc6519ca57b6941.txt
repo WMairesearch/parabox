@@ -1,0 +1,75 @@
+"""access_logs: group retained access-log records by normalized path."""
+
+import re
+
+_DIGITS = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group access-log records by path, summing byte counts.
+
+    Returns a list of {'path', 'total', 'count'} dicts sorted by path.
+    """
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: deduplicate by 'id' (last occurrence of a nonempty string id wins).
+    # This happens before every other rule.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_position[identifier] = position
+
+    groups = {}
+    order = []
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_position.get(identifier) != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        # path, falling back to route only when path is absent
+        if 'path' in record:
+            name = record['path']
+        elif 'route' in record:
+            name = record['route']
+        else:
+            name = None
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # bytes: default 1 only when absent
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                text = number.strip()
+                if not _DIGITS.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            elif isinstance(number, bool) or not isinstance(number, int):
+                continue
+        else:
+            number = 1
+
+        if name in groups:
+            total, count = groups[name]
+            groups[name] = (total + number, count + 1)
+        else:
+            groups[name] = (number, 1)
+            order.append(name)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

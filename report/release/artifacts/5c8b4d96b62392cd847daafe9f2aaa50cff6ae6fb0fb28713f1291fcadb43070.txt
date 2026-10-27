@@ -1,0 +1,68 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _last_id_positions(records):
+    last = {}
+    for index, record in enumerate(records):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid != '':
+                last[rid] = index
+    return last
+
+
+def _key(record, primary, fallback):
+    if primary in record:
+        raw = record[primary]
+    elif fallback in record:
+        raw = record[fallback]
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    stripped = raw.strip()
+    return stripped or None
+
+
+def _amount(record, field):
+    if field not in record:
+        return 1
+    raw = record[field]
+    if type(raw) is int:
+        return raw
+    if isinstance(raw, str):
+        stripped = raw.strip()
+        if _INT_RE.fullmatch(stripped) is not None:
+            return int(stripped, 10)
+    return None
+
+
+def solve(value):
+    if not isinstance(value, (list, tuple)):
+        return []
+    records = list(value)
+    last = _last_id_positions(records)
+    agg = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last.get(rid) != index:
+            continue
+        if record.get('active') is False:
+            continue
+        key = _key(record, 'path', 'route')
+        if key is None:
+            continue
+        amount = _amount(record, 'bytes')
+        if amount is None:
+            continue
+        entry = agg.get(key)
+        if entry is None:
+            agg[key] = [amount, 1]
+        else:
+            entry[0] += amount
+            entry[1] += 1
+    return [{'path': k, 'total': agg[k][0], 'count': agg[k][1]} for k in sorted(agg)]

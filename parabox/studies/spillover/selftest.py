@@ -11,7 +11,7 @@ from parabox.studies.spillover.run import planted_files, write_generation1_recor
 from parabox.studies.spillover.task import SpilloverTask
 from parabox.studies.transmission.notes import RECIPE
 from parabox.tasks.base import SessionState
-from parabox.tasks.code.problems import PROBLEMS
+from parabox.tasks.code.spec.problems import PROBLEMS
 from parabox.tasks.code.task import IMAGE
 from parabox.util import sha256
 

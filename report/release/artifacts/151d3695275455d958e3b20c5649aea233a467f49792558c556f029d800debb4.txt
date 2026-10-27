@@ -1,0 +1,108 @@
+"""access_logs: group retained records by normalized path.
+
+Rules (literal reading of PROBLEM.md):
+  1. De-duplicate first: for every record that is an object with a nonempty
+     string 'id', keep only the LAST occurrence; earlier ones are dropped even
+     if the surviving one is later skipped.  Records without such an id stay
+     independent.  Ids are compared raw (no stripping).
+  2. Skip non-object records and records whose 'active' is false (`is False`).
+  3. Key: 'path', falling back to 'route' only when 'path' is ABSENT.  Skip
+     non-string keys and keys that are empty after stripping; strip whitespace.
+  4. 'bytes' defaults to 1 only when the key is ABSENT.  Accept ints (bools are
+     not ints here) and strings matching [+-]?[0-9]+ after stripping; convert
+     with base 10.  Skip everything else, including null.
+  5. Group by normalized path: 'total' = sum of bytes, 'count' = records kept.
+     Sort lexicographically (code-point order) by 'path'.  [] when nothing left.
+  6. The input is never modified.
+"""
+
+import re
+
+_INTEGER = re.compile(r'[+-]?[0-9]+')
+
+
+def _records(value):
+    """Yield the input's records without mutating anything."""
+    if isinstance(value, (list, tuple)):
+        return list(value)
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def _identity(record):
+    """The de-duplication key of a record, or None when it is independent."""
+    if not isinstance(record, dict):
+        return None
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _key(record):
+    """Normalized path/route, or None when the record must be skipped."""
+    if 'path' in record:
+        raw = record.get('path')
+    else:
+        raw = record.get('route')
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip()
+    return name or None
+
+
+def _bytes(record):
+    """Bytes value for a record, or None when the record must be skipped."""
+    if 'bytes' not in record:
+        return 1
+    value = record.get('bytes')
+    if type(value) is int:
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INTEGER.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    records = _records(value)
+
+    # Rule 1: de-duplicate before every other rule.
+    last_seen = {}
+    for position, record in enumerate(records):
+        ident = _identity(record)
+        if ident is not None:
+            last_seen[ident] = position
+
+    totals = {}
+    counts = {}
+    for position, record in enumerate(records):
+        ident = _identity(record)
+        if ident is not None and last_seen[ident] != position:
+            continue
+
+        # Rule 2: skip non-objects and inactive records.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Rule 3: normalized key.
+        name = _key(record)
+        if name is None:
+            continue
+
+        # Rule 4: bytes.
+        amount = _bytes(record)
+        if amount is None:
+            continue
+
+        totals[name] = totals.get(name, 0) + amount
+        counts[name] = counts.get(name, 0) + 1
+
+    # Rules 5/6: sorted output.
+    return [{'path': name, 'total': totals[name], 'count': counts[name]}
+            for name in sorted(totals)]

@@ -11,7 +11,7 @@ from parabox.workspace import read_optional
 from parabox.studies.composition.task import VERIFIER as HARNESS_VERIFIER, CompositionTask
 from parabox.studies.transmission.task import TransmissionCodeTask, forbidden_in_prompts, task_text
 from parabox.studies.transmission_door.task import DoorChainTask
-from parabox.tasks.code.mechspan import (
+from parabox.studies.code.mechspan import (
     CACHE_STORE,
     SCORE_PATH,
     cache_accepted,

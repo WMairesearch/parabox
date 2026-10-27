@@ -1,0 +1,67 @@
+import re
+
+_INT_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group records as described in PROBLEM.md and return the grouped result."""
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: deduplicate ids (before all other rules).
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                last_position[identifier] = position
+
+    retained = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                if last_position.get(identifier) != position:
+                    continue
+        retained.append(record)
+
+    groups = {}
+    for record in retained:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            raw = record['priority']
+            if isinstance(raw, bool):
+                continue
+            if isinstance(raw, int):
+                number = raw
+            elif isinstance(raw, str):
+                text = raw.strip()
+                if _INT_PATTERN.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

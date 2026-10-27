@@ -1,0 +1,80 @@
+import re
+
+_DELTA_RE = re.compile(r'^[+-]?[0-9]+$')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # 1. Deduplicate before all other rules.
+    # Retain only the last occurrence of each nonempty string 'id';
+    # records without such an id remain independent.
+    last_id_indices = {}
+    for i, rec in enumerate(value):
+        if isinstance(rec, dict):
+            rec_id = rec.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                last_id_indices[rec_id] = i
+
+    retained = []
+    for i, rec in enumerate(value):
+        if isinstance(rec, dict):
+            rec_id = rec.get('id')
+            if isinstance(rec_id, str) and rec_id:
+                if last_id_indices[rec_id] == i:
+                    retained.append(rec)
+            else:
+                retained.append(rec)
+        else:
+            retained.append(rec)
+
+    # 2. Filter, extract sku and delta, and group
+    groups = {}
+    for rec in retained:
+        # Skip non-object records and records whose 'active' is false.
+        if not isinstance(rec, dict):
+            continue
+        if rec.get('active') is False:
+            continue
+
+        # Read 'sku', falling back to 'item' only when 'sku' is absent.
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace.
+        if 'sku' in rec:
+            raw_sku = rec['sku']
+        elif 'item' in rec:
+            raw_sku = rec['item']
+        else:
+            continue
+
+        if not isinstance(raw_sku, str):
+            continue
+        sku = raw_sku.strip()
+        if not sku:
+            continue
+
+        # Read 'delta', defaulting to 1 only when absent.
+        # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping whitespace;
+        # convert strings to base-10 integers. Skip all other values, including null.
+        if 'delta' not in rec:
+            delta = 1
+        else:
+            val = rec['delta']
+            if type(val) is int:
+                delta = val
+            elif isinstance(val, str):
+                s = val.strip()
+                if _DELTA_RE.fullmatch(s):
+                    delta = int(s, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        groups[sku] = groups.get(sku, 0) + delta
+
+    # Sort results lexicographically by 'sku'. Return [] when no records remain.
+    result = []
+    for sku in sorted(groups.keys()):
+        result.append({'sku': sku, 'total': groups[sku]})
+    return result

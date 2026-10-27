@@ -1,0 +1,59 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Rule 1 (before all others): keep only the last occurrence of each
+    # nonempty string 'id'; records without such an id stay independent.
+    last = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid:
+                last[rid] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            rid = record.get('id')
+            if isinstance(rid, str) and rid and last[rid] != i:
+                continue  # superseded by a later record with the same id
+        # Rule 2: skip non-objects and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        # Rule 3: category, falling back to 'kind' only when absent.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # Rule 4: priority, default 1 only when absent.
+        if 'priority' in record:
+            p = record['priority']
+            if type(p) is int:  # excludes booleans
+                number = p
+            elif isinstance(p, str):
+                s = p.strip()
+                if _PRIORITY_RE.fullmatch(s) is None:
+                    continue
+                number = int(s, 10)
+            else:
+                continue  # null, floats, lists, etc.
+        else:
+            number = 1
+        # Rule 5: group, keep maximum.
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

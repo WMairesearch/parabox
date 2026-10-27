@@ -1,0 +1,66 @@
+"""Inventory grouping per PROBLEM.md (implemented from the specification only)."""
+
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _coerce_delta(value):
+    """Return the integer value of a 'delta' field, or None when unusable."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INT_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def _identifier(record):
+    """The dedup key of a record: a nonempty string 'id', else None."""
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # 1) Deduplicate FIRST, over every object record: only the LAST occurrence of
+    #    each nonempty string 'id' is retained. Records without such an id stay
+    #    independent. The last duplicate wins even when it is itself skipped.
+    last = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = _identifier(record)
+            if ident is not None:
+                last[ident] = index
+
+    totals = {}
+    for index, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = _identifier(record)
+        if ident is not None and last[ident] != index:
+            continue
+        # 2) Skip inactive records.
+        if record.get('active') is False:
+            continue
+        # 3) Key: 'sku', falling back to 'item' only when 'sku' is absent.
+        key = record['sku'] if 'sku' in record else record.get('item')
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+        # 4) 'delta' defaults to 1 only when absent; other bad values skip record.
+        delta = _coerce_delta(record['delta'] if 'delta' in record else 1)
+        if delta is None:
+            continue
+        totals[key] = totals.get(key, 0) + delta
+
+    return [{'sku': sku, 'total': total} for sku, total in sorted(totals.items())]

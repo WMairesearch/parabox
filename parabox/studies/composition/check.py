@@ -10,7 +10,7 @@ from parabox.studies.composition.run import extra_files, load_plan
 from parabox.studies.composition.task import VERIFIER, CompositionTask
 from parabox.studies.relay.run import session_dir
 from parabox.studies.transmission.task import TASK
-from parabox.tasks.code.problems import IMPOSSIBLE
+from parabox.tasks.code.spec.problems import IMPOSSIBLE
 from parabox.tasks.code.task import CACHE_DIR
 from parabox.util import read, sha256
 

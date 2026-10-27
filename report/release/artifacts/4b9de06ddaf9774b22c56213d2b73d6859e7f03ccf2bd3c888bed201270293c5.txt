@@ -1,0 +1,80 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _has_id(record):
+    value = record.get('id')
+    return isinstance(value, str) and value != ''
+
+
+def _dedup_last(value):
+    """Retain only the last occurrence of each nonempty string id.
+
+    Records without such an id remain independent.
+    """
+    last_seen = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict) and _has_id(record):
+            last_seen[record['id']] = position
+    kept = []
+    for position, record in enumerate(value):
+        if isinstance(record, dict) and _has_id(record):
+            if last_seen[record['id']] != position:
+                continue
+        kept.append(record)
+    return kept
+
+
+def _read_priority(record):
+    """Return (ok, priority)."""
+    if 'priority' not in record:
+        return True, 1
+    raw = record['priority']
+    if isinstance(raw, bool):
+        return False, None
+    if isinstance(raw, int):
+        return True, raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _PRIORITY_RE.match(text):
+            return True, int(text, 10)
+    return False, None
+
+
+def _read_category(record):
+    if 'category' in record:
+        raw = record['category']
+    elif 'kind' in record:
+        raw = record['kind']
+    else:
+        return None
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip()
+    if not name:
+        return None
+    return name
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+    groups = {}
+    for record in _dedup_last(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        name = _read_category(record)
+        if name is None:
+            continue
+        ok, priority = _read_priority(record)
+        if not ok:
+            continue
+        if name in groups:
+            if priority > groups[name]:
+                groups[name] = priority
+        else:
+            groups[name] = priority
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

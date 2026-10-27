@@ -1,0 +1,65 @@
+import re
+
+def solve(value):
+    # Deduplication
+    last_occurrence = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                last_occurrence[rec_id] = index
+                
+    groups = {}
+    for index, record in enumerate(value):
+        # 1. Deduplication
+        if isinstance(record, dict):
+            rec_id = record.get('id')
+            if isinstance(rec_id, str) and rec_id != '':
+                if last_occurrence[rec_id] != index:
+                    continue
+                    
+        # 2. Skip non-object records and records whose 'active' is false
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+            
+        # 3. Read 'path' / 'route'
+        if 'path' in record:
+            path_val = record['path']
+        elif 'route' in record:
+            path_val = record['route']
+        else:
+            continue
+            
+        if not isinstance(path_val, str):
+            continue
+        path_val = path_val.strip()
+        if not path_val:
+            continue
+            
+        # 4. Read 'bytes'
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            raw_bytes = record['bytes']
+            if type(raw_bytes) is int:
+                bytes_val = raw_bytes
+            elif isinstance(raw_bytes, str):
+                s = raw_bytes.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    bytes_val = int(s)
+                else:
+                    continue
+            else:
+                continue
+                
+        # Grouping
+        total, count = groups.get(path_val, (0, 0))
+        groups[path_val] = (total + bytes_val, count + 1)
+        
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'path': name, 'total': groups[name][0], 'count': groups[name][1]})
+        
+    return result

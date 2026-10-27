@@ -1,0 +1,65 @@
+import re
+
+
+def solve(value):
+    # Deduplicate before all other rules: keep only the last occurrence of each
+    # nonempty string 'id'; records without such an id remain independent.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_id_position[record_id] = position
+
+    groups = {}
+
+    for position, record in enumerate(value):
+        # Skip records with a qualifying id unless this is their last occurrence.
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if position != last_id_position[record_id]:
+                    continue
+        else:
+            # Non-object records are skipped by the next rule.
+            continue
+
+        # Skip records whose 'active' is false.
+        if record.get('active') is False:
+            continue
+
+        # Read 'category', falling back to 'kind' only when 'category' is absent.
+        if 'category' in record:
+            category = record.get('category')
+        else:
+            category = record.get('kind')
+
+        # Skip non-string or empty-after-stripping keys; strip whitespace.
+        if not isinstance(category, str) or not category.strip():
+            continue
+        category = category.strip()
+
+        # Read 'priority', defaulting to 1 only when absent.
+        if 'priority' not in record:
+            priority = 1
+        else:
+            priority = record['priority']
+            if type(priority) is int:
+                pass
+            elif isinstance(priority, str):
+                priority = priority.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', priority):
+                    priority = int(priority, 10)
+                else:
+                    continue
+            else:
+                continue
+
+        if category not in groups or priority > groups[category]:
+            groups[category] = priority
+
+    result = [
+        {'category': category, 'maximum': groups[category]}
+        for category in sorted(groups)
+    ]
+    return result

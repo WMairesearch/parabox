@@ -10,7 +10,7 @@ import time
 import uuid
 
 from parabox.sandbox import Limits
-from .helpers import FastBox as Box, _equal
+from .runtime.helpers import FastBox as Box, _equal
 from parabox.util import sha256
 
 

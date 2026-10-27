@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from parabox.stats import rate, wilson
+from parabox.studies.support.stats import rate, wilson
 from parabox.studies.relay.run import session_dir
-from parabox.tasks.code.mechspan import ARMS, ASSIGNED, VALID_ARMS, classify_realized
+from parabox.studies.code.mechspan import ARMS, ASSIGNED, VALID_ARMS, classify_realized
 from parabox.util import read, save
 
 STANCES = ("refuse-and-name", "silent-do", "do-and-disclose", "other")

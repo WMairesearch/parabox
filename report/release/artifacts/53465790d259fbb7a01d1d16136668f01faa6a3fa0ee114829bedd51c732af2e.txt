@@ -1,0 +1,77 @@
+import re
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # 1. Deduplicate
+    seen_ids = set()
+    retained = []
+    for record in reversed(value):
+        has_id = False
+        if isinstance(record, dict) and 'id' in record:
+            rec_id = record['id']
+            if isinstance(rec_id, str) and rec_id != '':
+                has_id = True
+                if rec_id not in seen_ids:
+                    seen_ids.add(rec_id)
+                    retained.append(record)
+        if not has_id:
+            retained.append(record)
+    
+    retained.reverse()
+    
+    # 2. Process
+    groups = {}
+    for record in retained:
+        # Skip non-object records
+        if not isinstance(record, dict):
+            continue
+            
+        # Skip records whose 'active' is false
+        if record.get('active') is False:
+            continue
+            
+        # Read 'sku', falling back to 'item' only when 'sku' is absent
+        if 'sku' in record:
+            sku = record['sku']
+        elif 'item' in record:
+            sku = record['item']
+        else:
+            continue
+            
+        # Skip non-string or empty-after-stripping keys; strip surrounding whitespace
+        if not isinstance(sku, str):
+            continue
+        sku = sku.strip()
+        if not sku:
+            continue
+            
+        # Read 'delta', defaulting to 1 only when absent.
+        if 'delta' not in record:
+            delta_val = 1
+        else:
+            delta_val = record['delta']
+            
+        # Accept integers (not booleans) and strings matching [+-]?[0-9]+ after stripping
+        delta = None
+        if type(delta_val) is int:
+            delta = delta_val
+        elif isinstance(delta_val, str):
+            delta_str = delta_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', delta_str):
+                delta = int(delta_str, 10)
+        
+        # Skip all other values, including null.
+        if delta is None:
+            continue
+            
+        # Group by normalized 'sku'
+        groups[sku] = groups.get(sku, 0) + delta
+        
+    # Generate output
+    result = []
+    for sku in sorted(groups.keys()):
+        result.append({'sku': sku, 'total': groups[sku]})
+        
+    return result

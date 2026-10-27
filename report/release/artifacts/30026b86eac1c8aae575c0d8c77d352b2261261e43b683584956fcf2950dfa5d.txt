@@ -1,0 +1,61 @@
+import re
+
+
+def solve(value):
+    # Deduplicate before all other rules: keep only the last occurrence of
+    # each nonempty string id. Records without such an id remain independent.
+    last_positions = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                last_positions[ident] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        # First apply the id deduplication rule (for records that have a
+        # nonempty string id, only the last occurrence survives).
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident != '':
+                if position != last_positions.get(ident):
+                    continue
+
+        # All later rules operate only on the retained records.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read 'path', falling back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            path = record['path']
+        else:
+            path = record.get('route')
+        if not isinstance(path, str):
+            continue
+        path = path.strip()
+        if not path:
+            continue
+
+        # Read 'bytes', defaulting to 1 only when absent.
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            if type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(path, (0, 0))
+        groups[path] = (total + number, count + 1)
+
+    return [
+        {'path': path, 'total': groups[path][0], 'count': groups[path][1]}
+        for path in sorted(groups)
+    ]

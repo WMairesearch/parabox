@@ -1,0 +1,8 @@
+{
+  "models": {
+    "candidate": "examples/model.example.json"
+  },
+  "image": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "seed": 20261023,
+  "seats": 4
+}

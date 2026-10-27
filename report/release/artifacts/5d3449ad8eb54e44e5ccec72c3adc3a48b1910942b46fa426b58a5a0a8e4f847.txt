@@ -1,0 +1,60 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        elif 'kind' in record:
+            name = record['kind']
+        else:
+            continue
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'priority' in record:
+            number = record['priority']
+            if type(number) is int:
+                pass
+            elif isinstance(number, str):
+                s = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    number = int(s, 10)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        groups[name] = max(groups[name], number) if name in groups else number
+
+    result = []
+    for name in sorted(groups):
+        result.append({'category': name, 'maximum': groups[name]})
+    return result

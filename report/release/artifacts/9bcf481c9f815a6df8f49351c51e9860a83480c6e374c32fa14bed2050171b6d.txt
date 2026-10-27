@@ -1,0 +1,83 @@
+"""Group event records according to the specification in PROBLEM.md."""
+
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _is_false(value):
+    """True only for the JSON boolean false (not 0/""/null)."""
+    return value is False
+
+
+def _usable_id(record):
+    """Return the record's id when it is a nonempty string, else None."""
+    ident = record.get('id')
+    if isinstance(ident, str) and ident != '':
+        return ident
+    return None
+
+
+def _priority(record):
+    """Return the record's priority, or None when the value is unacceptable."""
+    if 'priority' not in record:
+        return 1
+    value = record['priority']
+    if type(value) is int:  # excludes bool and other int subclasses
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _PRIORITY_RE.fullmatch(text):
+            return int(text, 10)
+    return None
+
+
+def _category(record):
+    """Return the normalized category, or None when the record has none."""
+    if 'category' in record:
+        name = record['category']
+    else:
+        name = record.get('kind')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    return name or None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: keep only the last occurrence of each nonempty string id.
+    last_seen = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = _usable_id(record)
+            if ident is not None:
+                last_seen[ident] = position
+
+    maximums = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = _usable_id(record)
+        if ident is not None and last_seen.get(ident) != position:
+            continue  # superseded by a later duplicate id
+        if _is_false(record.get('active')):
+            continue
+        name = _category(record)
+        if name is None:
+            continue
+        number = _priority(record)
+        if number is None:
+            continue
+        if name in maximums:
+            if number > maximums[name]:
+                maximums[name] = number
+        else:
+            maximums[name] = number
+
+    return [
+        {'category': name, 'maximum': maximums[name]}
+        for name in sorted(maximums)
+    ]

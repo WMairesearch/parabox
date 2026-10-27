@@ -1,0 +1,77 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def _record_id(record):
+    if not isinstance(record, dict):
+        return None
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier != '':
+        return identifier
+    return None
+
+
+def _retain_last(records):
+    last = {}
+    for position, record in enumerate(records):
+        identifier = _record_id(record)
+        if identifier is not None:
+            last[identifier] = position
+    kept = []
+    for position, record in enumerate(records):
+        identifier = _record_id(record)
+        if identifier is not None and last[identifier] != position:
+            continue
+        kept.append(record)
+    return kept
+
+
+def _parse_delta(record):
+    if 'delta' not in record:
+        return 1
+    number = record['delta']
+    if isinstance(number, bool):
+        return None
+    if isinstance(number, int):
+        return number
+    if isinstance(number, str):
+        text = number.strip()
+        if _DELTA_RE.match(text):
+            return int(text, 10)
+    return None
+
+
+def _parse_sku(record):
+    if 'sku' in record:
+        name = record['sku']
+    else:
+        name = record.get('item')
+    if not isinstance(name, str):
+        return None
+    name = name.strip()
+    if not name:
+        return None
+    return name
+
+
+def solve(value):
+    if not isinstance(value, list):
+        try:
+            value = list(value)
+        except TypeError:
+            return []
+    groups = {}
+    for record in _retain_last(value):
+        if not isinstance(record, dict):
+            continue
+        if 'active' in record and record['active'] is False:
+            continue
+        name = _parse_sku(record)
+        if name is None:
+            continue
+        delta = _parse_delta(record)
+        if delta is None:
+            continue
+        groups[name] = groups.get(name, 0) + delta
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

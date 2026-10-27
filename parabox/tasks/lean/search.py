@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 
-from parabox.retrieval import Bm25Index
+from parabox.tasks.lean.retrieval import Bm25Index
 from parabox.sandbox import Box
 from parabox.tasks.base import SessionState
 from parabox.tasks.lean import prompts as P

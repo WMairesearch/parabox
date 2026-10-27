@@ -1,0 +1,75 @@
+"""access_logs: group retained log records by normalized path."""
+
+import re
+
+_INT_RE = re.compile(r"[+-]?[0-9]+")
+
+
+def _record_id(record):
+    """Return the record's nonempty string id, or None when it has none."""
+    ident = record.get("id")
+    if isinstance(ident, str) and ident != "":
+        return ident
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate first: keep only the last occurrence of each nonempty id.
+    # Records without such an id stay independent (i.e. every occurrence kept).
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = _record_id(record)
+            if ident is not None:
+                last_position[ident] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = _record_id(record)
+        if ident is not None and last_position[ident] != position:
+            continue  # a later occurrence of this id wins
+        if record.get("active") is False:
+            continue
+
+        # 'path' wins over 'route'; 'route' is used only when 'path' is absent.
+        if "path" in record:
+            raw = record["path"]
+        elif "route" in record:
+            raw = record["route"]
+        else:
+            continue
+        if not isinstance(raw, str):
+            continue
+        name = raw.strip()
+        if not name:
+            continue
+
+        # 'bytes' defaults to 1 only when absent; anything unusable skips.
+        if "bytes" in record:
+            number = record["bytes"]
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if _INT_RE.fullmatch(text) is None:
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {"path": name, "total": groups[name][0], "count": groups[name][1]}
+        for name in sorted(groups)
+    ]

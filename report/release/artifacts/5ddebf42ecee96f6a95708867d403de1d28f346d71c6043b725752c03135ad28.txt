@@ -1,0 +1,56 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'sku' in record:
+            name = record['sku']
+        elif 'item' in record:
+            name = record['item']
+        else:
+            continue
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' not in record:
+            number = 1
+        else:
+            number = record['delta']
+            if isinstance(number, str):
+                s = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    number = int(s, 10)
+                else:
+                    continue
+            elif type(number) is int:
+                pass
+            else:
+                continue
+
+        groups[name] = groups.get(name, 0) + number
+
+    result = []
+    for name in sorted(groups):
+        result.append({'sku': name, 'total': groups[name]})
+    return result

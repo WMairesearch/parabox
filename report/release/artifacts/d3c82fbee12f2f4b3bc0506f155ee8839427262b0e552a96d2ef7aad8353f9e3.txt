@@ -1,0 +1,70 @@
+import re
+
+
+def solve(value):
+    # Input is expected to be a JSON list already decoded into Python objects.
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: for records that carry a nonempty
+    # string 'id', keep only the final occurrence.  Every record without such
+    # an id is retained independently.
+    last_id_position = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        record_id = record.get('id')
+        if isinstance(record_id, str) and record_id != '':
+            last_id_position[record_id] = position
+
+    groups = {}
+
+    for position, record in enumerate(value):
+        # First stage: deduplication by id.
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                if last_id_position.get(record_id) != position:
+                    continue
+
+        # Now all other rules.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # sku falls back to item only when sku is absent.
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        # delta defaults to 1 only when absent.  Accept integers (but not
+        # booleans) and strings matching [+-]?[0-9]+ after stripping.
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                number = number
+            elif isinstance(number, str):
+                stripped_number = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped_number):
+                    number = int(stripped_number)
+                else:
+                    continue
+            else:
+                continue
+        else:
+            number = 1
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [
+        {'sku': name, 'total': groups[name]}
+        for name in sorted(groups)
+    ]

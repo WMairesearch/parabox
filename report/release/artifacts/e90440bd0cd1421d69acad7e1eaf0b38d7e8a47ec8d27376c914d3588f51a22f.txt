@@ -1,0 +1,57 @@
+import re
+
+_PATTERN = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Pass 1: deduplicate on nonempty string 'id' (keep last occurrence).
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    # Pass 2: apply the remaining rules and group by normalized sku.
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, str):
+                text = number.strip()
+                if _PATTERN.match(text):
+                    number = int(text, 10)
+                else:
+                    continue
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

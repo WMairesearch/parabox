@@ -1,0 +1,58 @@
+import re
+
+INTEGER_PATTERN = re.compile(r'[+-]?[0-9]+\Z')
+
+
+def solve(value):
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string id. Records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier:
+            if latest[identifier] != position:
+                continue
+
+        if record.get('active') is False:
+            continue
+
+        # 'route' is used only when 'path' is absent entirely.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        number = record['bytes'] if 'bytes' in record else 1
+        if isinstance(number, str):
+            stripped = number.strip()
+            if INTEGER_PATTERN.fullmatch(stripped):
+                number = int(stripped, 10)
+        if type(number) is not int:
+            continue
+
+        current = groups.get(name)
+        if current is None:
+            groups[name] = [number, 1]
+        else:
+            current[0] += number
+            current[1] += 1
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

@@ -1,0 +1,95 @@
+"""Group event records by category and report the maximum priority.
+
+Pipeline (in this order):
+  1. Deduplicate first: among records with a nonempty string ``id``, keep only
+     the last occurrence; every other record stays independent.
+  2. Skip non-object records and records whose ``active`` is false.
+  3. Category key: ``category`` when present, otherwise ``kind``; must be a
+     non-empty string after stripping surrounding whitespace.
+  4. Priority: integer (booleans excluded) or an integer-formatted string
+     (``[+-]?[0-9]+`` after stripping); defaults to 1 only when absent.
+  5. Group by the stripped category, keep the maximum priority, sort output
+     lexicographically by category.
+The input is never modified.
+"""
+
+import re
+
+_INTEGER_TEXT = re.compile(r'[+-]?[0-9]+')
+
+
+def _identifier_of(record):
+    """Return the deduplication key, or None when the record is independent."""
+    if not isinstance(record, dict):
+        return None
+    identifier = record.get('id')
+    if isinstance(identifier, str) and identifier != '':
+        return identifier
+    return None
+
+
+def _deduplicate(records):
+    """Retain only the last occurrence of each nonempty string id."""
+    last_position = {}
+    for position, record in enumerate(records):
+        identifier = _identifier_of(record)
+        if identifier is not None:
+            last_position[identifier] = position
+    retained = []
+    for position, record in enumerate(records):
+        identifier = _identifier_of(record)
+        if identifier is not None and last_position[identifier] != position:
+            continue
+        retained.append(record)
+    return retained
+
+
+def _category_of(record):
+    """Normalized category, or None when the record must be skipped."""
+    if 'category' in record:
+        key = record['category']
+    elif 'kind' in record:
+        key = record['kind']
+    else:
+        return None
+    if not isinstance(key, str):
+        return None
+    key = key.strip()
+    return key if key else None
+
+
+def _priority_of(record):
+    """Normalized priority, or None when the record must be skipped."""
+    if 'priority' not in record:
+        return 1
+    value = record['priority']
+    if type(value) is int:
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if _INTEGER_TEXT.fullmatch(text) is not None:
+            return int(text, 10)
+    return None
+
+
+def solve(value):
+    """Return the grouped results for a JSON list of records."""
+    if not isinstance(value, (list, tuple)):
+        return []
+    maximums = {}
+    for record in _deduplicate(value):
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        category = _category_of(record)
+        if category is None:
+            continue
+        priority = _priority_of(record)
+        if priority is None:
+            continue
+        current = maximums.get(category)
+        if current is None or priority > current:
+            maximums[category] = priority
+    return [{'category': name, 'maximum': maximums[name]}
+            for name in sorted(maximums)]

@@ -1,0 +1,64 @@
+import re
+
+_PRIORITY_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def _valid_id(record):
+    if isinstance(record, dict):
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '':
+            return rid
+    return None
+
+
+def solve(value):
+    # Step 1: retain only the last occurrence of each nonempty string id.
+    last_index = {}
+    for position, record in enumerate(value):
+        rid = _valid_id(record)
+        if rid is not None:
+            last_index[rid] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        rid = _valid_id(record)
+        if rid is not None and last_index[rid] != position:
+            continue
+
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+
+        if 'priority' not in record:
+            number = 1
+        else:
+            number = record['priority']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                stripped = number.strip()
+                if not _PRIORITY_RE.fullmatch(stripped):
+                    continue
+                number = int(stripped, 10)
+            else:
+                continue
+
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

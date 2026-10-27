@@ -5,35 +5,41 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from parabox.benchmark.config import validate_spec
-from parabox.benchmark.design import build_plan
-from parabox.benchmark.prompts import core_task
+from parabox.benchmark.protocol.config import validate_spec
+from parabox.benchmark.protocol.design import build_plan
+from parabox.benchmark.protocol.prompts import core_task
 from parabox.util import ROOT, digest_json, read, save, sha256
 
 
 SOURCE_FILES = (
     "parabox/__init__.py", "parabox/tasks/__init__.py",
-    "parabox/tasks/code/__init__.py", "parabox/studies/__init__.py",
-    "parabox/studies/population/__init__.py",
-    "parabox/benchmark/__init__.py", "parabox/benchmark/config.py",
-    "parabox/benchmark/design.py", "parabox/benchmark/prompts.py",
+    "parabox/tasks/code/__init__.py",
+    "parabox/tasks/code/spec/__init__.py",
+    "parabox/benchmark/__init__.py", "parabox/benchmark/protocol/__init__.py",
+    "parabox/benchmark/protocol/config.py",
+    "parabox/benchmark/protocol/design.py", "parabox/benchmark/protocol/prompts.py",
     "parabox/benchmark/prepare.py", "parabox/benchmark/__main__.py",
     "parabox/benchmark/run.py", "parabox/benchmark/sources.py",
     "parabox/benchmark/assets/wiki-founders.json",
-    "parabox/execution/__init__.py", "parabox/execution/artifacts.py",
-    "parabox/execution/engines.py", "parabox/execution/ledger.py",
-    "parabox/execution/guards.py", "parabox/execution/runtime.py",
-    "parabox/execution/orchestration.py", "parabox/session.py",
+    "parabox/execution/__init__.py", "parabox/execution/control/__init__.py",
+    "parabox/execution/artifacts.py",
+    "parabox/execution/engines.py", "parabox/execution/control/ledger.py",
+    "parabox/execution/merge.py",
+    "parabox/execution/control/guards.py", "parabox/execution/control/runtime.py",
+    "parabox/execution/orchestration.py", "parabox/runner/__init__.py",
+    "parabox/runner/session.py",
     "parabox/sandbox.py", "parabox/workspace.py", "parabox/util.py",
-    "parabox/model/__init__.py", "parabox/model/chat.py", "parabox/model/gemini.py",
+    "parabox/model/__init__.py", "parabox/model/anthropic.py", "parabox/model/chat.py",
+    "parabox/model/gemini.py", "parabox/model/responses.py",
     "parabox/tasks/base.py", "parabox/tasks/code/task.py",
-    "parabox/tasks/code/prompts.py", "parabox/tasks/code/problems.py",
+    "parabox/tasks/code/spec/prompts.py", "parabox/tasks/code/spec/problems.py",
     "parabox/tasks/code/verify.py", "parabox/tasks/code/audit.py",
-    "parabox/studies/population/merge.py",
-    "parabox/tasks/wiki/__init__.py", "parabox/tasks/wiki/budget.py",
-    "parabox/tasks/wiki/episode.py", "parabox/tasks/wiki/prompts.py",
-    "parabox/tasks/wiki/fixture.py", "parabox/tasks/wiki/service.py",
-    "parabox/tasks/wiki/scoring.py", "parabox/tasks/wiki/helpers.py",
+    "parabox/tasks/wiki/__init__.py", "parabox/tasks/wiki/runtime/__init__.py",
+    "parabox/tasks/wiki/evaluation/__init__.py",
+    "parabox/tasks/wiki/runtime/budget.py",
+    "parabox/tasks/wiki/episode.py", "parabox/tasks/wiki/runtime/prompts.py",
+    "parabox/tasks/wiki/fixture.py", "parabox/tasks/wiki/runtime/service.py",
+    "parabox/tasks/wiki/evaluation/scoring.py", "parabox/tasks/wiki/runtime/helpers.py",
 )
 
 
@@ -44,7 +50,10 @@ def source_bindings() -> dict[str, str]:
 
 def model_bindings(spec: dict) -> dict:
     bindings = {}
-    for configured in sorted(set([spec["reference_config"], *spec["candidates"].values()])):
+    configurations = [*spec["candidates"].values()]
+    if spec["reference_config"] is not None:
+        configurations.append(spec["reference_config"])
+    for configured in sorted(set(configurations)):
         path = Path(configured).resolve()
         raw = path.read_bytes()
         config = json.loads(raw)
@@ -57,9 +66,9 @@ def model_bindings(spec: dict) -> dict:
 
 
 def render_materials(plan: dict) -> tuple[dict, dict[str, bytes]]:
-    from parabox.tasks.wiki import budget
+    from parabox.tasks.wiki.runtime import budget
     from parabox.tasks.wiki.episode import SYSTEM, TOOLS
-    from parabox.tasks.wiki.prompts import assignment
+    from parabox.tasks.wiki.runtime.prompts import assignment
     from parabox.benchmark.sources import initial_payload
 
     artifacts, surfaces, seeds = {}, {}, {}
@@ -107,14 +116,16 @@ def _manifest(spec, plan, models, bindings, materials, artifacts):
         "execution": {
             "runner": "parabox.benchmark.run.run",
             "core_engine": "parabox.execution.CoreEngine",
-            "core_task_factory": "parabox.benchmark.prompts.core_task",
+            "core_task_factory": "parabox.benchmark.protocol.prompts.core_task",
             "wiki_engine": "parabox.execution.FrozenWikiEngine",
             "wiki_variant": "budget20",
             "ledger_planned": "map each plan.sessions actor to its entire row",
             "ledger_cap": plan["counts"]["total"],
             "requires": ["fresh_authorization", "timezone_aware_deadline",
                          "local_image_id_verification", "verified_source_bindings"],
-            "wiki_withdrawal": "actual predecessor bytes; remove unchanged founder NOTES.md only",
+            "wiki_withdrawal": ("actual predecessor bytes; remove unchanged founder NOTES.md only"
+                                if spec["wiki"]["withdraw_after_position"] == 0 else
+                                "actual predecessor bytes; preserve agent edits and deletions; no researcher withdrawal"),
             "grading": "separate host-only stage; no grading during prepare/check",
         },
     }

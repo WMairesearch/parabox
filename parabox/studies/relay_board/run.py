@@ -17,7 +17,7 @@ from pathlib import Path
 
 from parabox import model
 from parabox.sandbox import Box, image_exists
-from parabox.session import run_session
+from parabox.runner.session import run_session
 from parabox.studies.relay import design as D
 from parabox.studies.relay.run import (
     CONCURRENCY, LIMITS, SEED_SHA, audit, code_commit, image_id, load_seed, retry, session_dir,

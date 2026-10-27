@@ -1,0 +1,72 @@
+import re
+
+def solve(value):
+    # Pass 1: find last occurrence of each nonempty string 'id'
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != "":
+                last_occurrence[id_val] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        # Deduplicate
+        if isinstance(record, dict) and 'id' in record:
+            id_val = record['id']
+            if isinstance(id_val, str) and id_val != "":
+                if last_occurrence[id_val] != i:
+                    continue
+
+        # Skip non-object
+        if not isinstance(record, dict):
+            continue
+        
+        # Skip if 'active' is false (boolean False)
+        if record.get('active') is False:
+            continue
+
+        # Read path
+        if 'path' in record:
+            p = record['path']
+        elif 'route' in record:
+            p = record['route']
+        else:
+            continue
+        
+        if not isinstance(p, str):
+            continue
+        
+        p = p.strip()
+        if not p:
+            continue
+            
+        # Read bytes
+        if 'bytes' not in record:
+            b_val = 1
+        else:
+            b = record['bytes']
+            if type(b) is bool:
+                continue
+            elif type(b) is int:
+                b_val = b
+            elif isinstance(b, str):
+                s = b.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', s):
+                    b_val = int(s)
+                else:
+                    continue
+            else:
+                continue
+                
+        # Group
+        if p not in groups:
+            groups[p] = {'total': 0, 'count': 0}
+        groups[p]['total'] += b_val
+        groups[p]['count'] += 1
+        
+    result = []
+    for p in sorted(groups.keys()):
+        result.append({'path': p, 'total': groups[p]['total'], 'count': groups[p]['count']})
+        
+    return result

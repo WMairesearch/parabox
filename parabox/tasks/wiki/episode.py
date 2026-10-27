@@ -12,11 +12,11 @@ from parabox.sandbox import Limits
 from parabox.util import digest_json, now, read, save, sha256
 from parabox.workspace import snapshot_regular, write_regular
 from . import fixture
-from .helpers import FastBox
-from .helpers import before_deadline, fingerprints
-from .prompts import assignment
-from .service import Budget, ObjectService, ServiceServer
-from .helpers import archive, shutdown, snapshot_solution
+from .runtime.helpers import FastBox
+from .runtime.helpers import before_deadline, fingerprints
+from .runtime.prompts import assignment
+from .runtime.service import Budget, ObjectService, ServiceServer
+from .runtime.helpers import archive, shutdown, snapshot_solution
 
 
 SYSTEM = "Call exactly one tool each turn."
@@ -116,7 +116,7 @@ def _run_episode(directory: Path, spec: dict, config: dict, image: str, *,
         (workspace / relative).mkdir(parents=True, exist_ok=True)
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": assignment(spec["package"], spec.get("source", False))}]
-    safe_config = {key: config[key] for key in ("model", "wire", "temperature", "max_tokens")
+    safe_config = {key: config[key] for key in ("model", "wire", "temperature", "max_tokens", "request_body")
                    if key in config}
     save(meta / "spec.json", spec)
     save(meta / "config.json", {"config": safe_config, "image": image,

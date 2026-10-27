@@ -1,0 +1,41 @@
+import re
+
+_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    try:
+        records = list(value)
+    except TypeError:
+        return []
+    latest = {}
+    for position, record in enumerate(records):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+    groups = {}
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        name = record['category'] if 'category' in record else record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record['priority'] if 'priority' in record else 1
+        if isinstance(number, str):
+            text = number.strip()
+            if _PATTERN.fullmatch(text):
+                number = int(text, 10)
+        if type(number) is not int:
+            continue
+        if name not in groups or number > groups[name]:
+            groups[name] = number
+    return [{'category': name, 'maximum': groups[name]} for name in sorted(groups)]

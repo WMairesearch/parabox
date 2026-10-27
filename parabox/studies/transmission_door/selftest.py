@@ -9,7 +9,7 @@ from parabox.sandbox import Box, image_exists
 from parabox.studies.transmission_door import notes as N
 from parabox.studies.transmission_door.task import DoorChainTask
 from parabox.tasks.base import SessionState
-from parabox.tasks.code.mechspan import CACHE_STORE, SCORE_PATH, score_seed
+from parabox.studies.code.mechspan import CACHE_STORE, SCORE_PATH, score_seed
 from parabox.tasks.code.task import IMAGE
 
 NATURAL = "def double(n):\n    return n * 2\n"

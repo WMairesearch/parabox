@@ -1,0 +1,62 @@
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    """Group inventory delta records by normalized sku and sum their deltas."""
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: deduplicate first -- keep only the last occurrence of each
+    # record that carries a nonempty string 'id'.  Records without such an
+    # id stay independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                last_position[identifier] = position
+
+    totals = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        # Deduplication (already decided above).
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '':
+            if last_position[identifier] != position:
+                continue
+
+        # Skip explicitly inactive records.
+        if record.get('active') is False:
+            continue
+
+        # 'sku' wins; fall back to 'item' only when 'sku' is absent.
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # 'delta' defaults to 1 only when absent.
+        if 'delta' in record:
+            delta = record['delta']
+        else:
+            delta = 1
+        if isinstance(delta, str):
+            text = delta.strip()
+            if _DELTA_RE.fullmatch(text) is None:
+                continue
+            delta = int(text, 10)
+        elif type(delta) is not int:  # rejects bools, floats, None, etc.
+            continue
+
+        totals[name] = totals.get(name, 0) + delta
+
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

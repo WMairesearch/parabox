@@ -1,0 +1,60 @@
+import re
+
+_INT_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Dedupe first: retain only the last occurrence of each nonempty string id.
+    last_index_for_id = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id != '':
+                last_index_for_id[record_id] = index
+    retained_indices = set(last_index_for_id.values())
+
+    groups = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if (isinstance(record_id, str) and record_id != ''
+                    and index not in retained_indices):
+                continue
+        else:
+            continue
+
+        if record.get('active') is False:
+            continue
+
+        if 'sku' in record:
+            name = record['sku']
+        else:
+            name = record.get('item')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        if 'delta' in record:
+            number = record['delta']
+            if isinstance(number, bool):
+                continue
+            if isinstance(number, int):
+                pass
+            elif isinstance(number, str):
+                text = number.strip()
+                if not _INT_RE.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            else:
+                continue
+        else:
+            number = 1
+
+        groups[name] = groups.get(name, 0) + number
+
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

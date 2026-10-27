@@ -1,0 +1,69 @@
+"""Inventory grouping per PROBLEM.md specification."""
+
+import re
+
+_DELTA_RE = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Step 1: deduplicate by 'id' before any other rule.
+    # Keep only the last occurrence of each nonempty string id; records that
+    # carry no such id stay independent.
+    last_index = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '':
+            last_index[rid] = position
+
+    totals = {}
+
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        rid = record.get('id')
+        if isinstance(rid, str) and rid != '' and last_index.get(rid) != position:
+            continue  # superseded by a later occurrence of this id
+
+        # Step 2: skip inactive records.
+        if record.get('active') is False:
+            continue
+
+        # Step 3: resolve and normalize the key.
+        if 'sku' in record:
+            raw_key = record['sku']
+        elif 'item' in record:
+            raw_key = record['item']
+        else:
+            raw_key = None
+        if not isinstance(raw_key, str):
+            continue
+        key = raw_key.strip()
+        if not key:
+            continue
+
+        # Step 4: resolve the delta.
+        if 'delta' in record:
+            raw_delta = record['delta']
+        else:
+            raw_delta = 1
+        if isinstance(raw_delta, bool):
+            continue
+        if isinstance(raw_delta, int):
+            amount = raw_delta
+        elif isinstance(raw_delta, str):
+            text = raw_delta.strip()
+            if _DELTA_RE.fullmatch(text) is None:
+                continue
+            amount = int(text, 10)
+        else:
+            continue
+
+        totals[key] = totals.get(key, 0) + amount
+
+    return [{'sku': name, 'total': totals[name]} for name in sorted(totals)]

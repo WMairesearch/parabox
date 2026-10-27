@@ -1,0 +1,51 @@
+import re
+
+_BYTES_PATTERN = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Pass 1: locate the last occurrence of each nonempty string 'id'.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    # Pass 2: apply dedup and the remaining rules, then group.
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = record.get('path')
+        else:
+            name = record.get('route')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        number = record.get('bytes', 1)
+        if isinstance(number, str):
+            text = number.strip()
+            if _BYTES_PATTERN.fullmatch(text):
+                number = int(text, 10)
+            else:
+                continue
+        if type(number) is not int:
+            continue
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    result = [
+        {'path': name, 'total': total, 'count': count}
+        for name, (total, count) in groups.items()
+    ]
+    result.sort(key=lambda item: item['path'])
+    return result

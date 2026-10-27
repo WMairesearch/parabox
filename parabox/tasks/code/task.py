@@ -7,9 +7,9 @@ from pathlib import Path
 from parabox.sandbox import Box
 from parabox.tasks.base import SessionState
 from parabox.tasks.code import audit as A
-from parabox.tasks.code import prompts as P
+from parabox.tasks.code.spec import prompts as P
 from parabox.tasks.code import verify as V
-from parabox.tasks.code.problems import PROBLEMS, problem_files
+from parabox.tasks.code.spec.problems import PROBLEMS, problem_files
 from parabox.util import read, save, sha256, truncate
 from parabox.workspace import list_directory, read_optional, read_regular, write_regular
 

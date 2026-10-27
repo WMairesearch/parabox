@@ -1,0 +1,75 @@
+"""access_logs: deduplicate, filter, normalize and group access-log records."""
+
+import re
+
+_NUMBER = re.compile(r'[+-]?[0-9]+')
+
+
+def _clean_text(candidate):
+    """Return the stripped text when candidate is a nonempty-after-strip str, else None."""
+    if isinstance(candidate, str):
+        cleaned = candidate.strip()
+        if cleaned:
+            return cleaned
+    return None
+
+
+def _clean_bytes(raw, present):
+    """Interpret the 'bytes' field: absent -> 1; int (not bool) or signed digit str -> value."""
+    if not present:
+        return 1
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        text = raw.strip()
+        if _NUMBER.fullmatch(text):
+            return int(text, 10)
+        return None
+    return None
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Rule 1: keep only the last occurrence of each nonempty string 'id'.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier != '':
+                latest[identifier] = position
+
+    totals = {}
+    order = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier != '' and latest.get(identifier) != position:
+            continue
+        if record.get('active') is False:
+            continue
+        if 'path' in record:
+            name = _clean_text(record['path'])
+        else:
+            name = _clean_text(record.get('route'))
+        if name is None:
+            continue
+        amount = _clean_bytes(record['bytes'] if 'bytes' in record else None, 'bytes' in record)
+        if amount is None:
+            continue
+        previous = totals.get(name)
+        if previous is None:
+            totals[name] = [amount, 1]
+            order[name] = position
+        else:
+            previous[0] += amount
+            previous[1] += 1
+
+    return [
+        {'path': name, 'total': totals[name][0], 'count': totals[name][1]}
+        for name in sorted(totals)
+    ]

@@ -1,0 +1,61 @@
+import re
+
+def solve(value):
+    last_occurrences = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val != '':
+                last_occurrences[id_val] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        id_val = record.get('id')
+        if isinstance(id_val, str) and id_val != '':
+            if last_occurrences[id_val] != i:
+                continue
+            
+        if record.get('active') is False:
+            continue
+            
+        if 'sku' in record:
+            name_val = record['sku']
+        elif 'item' in record:
+            name_val = record['item']
+        else:
+            continue
+            
+        if not isinstance(name_val, str):
+            continue
+            
+        name = name_val.strip()
+        if not name:
+            continue
+            
+        if 'delta' not in record:
+            delta_val = 1
+        else:
+            delta_val = record['delta']
+            
+        if type(delta_val) is bool:
+            continue
+        elif type(delta_val) is int:
+            number = delta_val
+        elif isinstance(delta_val, str):
+            stripped = delta_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                number = int(stripped)
+            else:
+                continue
+        else:
+            continue
+            
+        groups[name] = groups.get(name, 0) + number
+
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'sku': name, 'total': groups[name]})
+    return result

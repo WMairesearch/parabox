@@ -1,0 +1,64 @@
+import re
+
+
+def solve(value):
+    if not isinstance(value, list):
+        return []
+
+    # Deduplicate before all other rules: for each nonempty string id,
+    # keep only the last occurrence in the input.
+    last_index_by_id = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != "":
+                last_index_by_id[id_value] = index
+
+    groups = {}
+    for index, record in enumerate(value):
+        if isinstance(record, dict):
+            id_value = record.get('id')
+            if isinstance(id_value, str) and id_value != "":
+                if last_index_by_id.get(id_value) != index:
+                    continue
+
+        # Skip non-object records and records whose 'active' is false.
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+
+        # Read 'path', falling back to 'route' only when 'path' is absent.
+        if 'path' in record:
+            name = record['path']
+        else:
+            name = record.get('route')
+
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+
+        # Read 'bytes', defaulting to 1 only when absent.
+        if 'bytes' in record:
+            number = record['bytes']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            # Accept integers, but not booleans.
+            if type(number) is not int:
+                continue
+        else:
+            number = 1
+
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+
+    return [
+        {'path': name, 'total': groups[name][0], 'count': groups[name][1]}
+        for name in sorted(groups)
+    ]

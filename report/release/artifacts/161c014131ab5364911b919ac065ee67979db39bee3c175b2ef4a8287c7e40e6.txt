@@ -1,0 +1,36 @@
+import re
+
+
+def solve(value):
+    # Deduplicate before all other rules: retain only the last occurrence
+    # of each nonempty string 'id'; records without such an id stay independent.
+    latest = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            identifier = record.get('id')
+            if isinstance(identifier, str) and identifier:
+                latest[identifier] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        identifier = record.get('id')
+        if isinstance(identifier, str) and identifier and latest[identifier] != position:
+            continue
+        if record.get('active') is False:
+            continue
+        # Fall back to 'item' only when 'sku' is absent.
+        name = record.get('sku', record.get('item'))
+        if not isinstance(name, str) or not name.strip():
+            continue
+        name = name.strip()
+        number = record.get('delta', 1)
+        if isinstance(number, str) and re.fullmatch(r'[+-]?[0-9]+', number.strip()):
+            number = int(number.strip())
+        if type(number) is not int:  # rejects booleans, null, floats, etc.
+            continue
+        groups[name] = groups.get(name, 0) + number
+
+    # Sort results lexicographically by 'sku'.
+    return [{'sku': name, 'total': groups[name]} for name in sorted(groups)]

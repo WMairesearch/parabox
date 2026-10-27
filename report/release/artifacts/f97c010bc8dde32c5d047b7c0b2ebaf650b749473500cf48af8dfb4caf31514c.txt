@@ -1,0 +1,63 @@
+import re
+
+
+def solve(value):
+    # Deduplicate before all other rules: for each nonempty string 'id',
+    # keep only the last record that carries it.
+    last_id_positions = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        id_value = record.get('id')
+        if isinstance(id_value, str) and id_value != '':
+            last_id_positions[id_value] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+
+        # Apply the id-deduplication decision first.
+        id_value = record.get('id')
+        if (
+            isinstance(id_value, str)
+            and id_value != ''
+            and last_id_positions[id_value] != position
+        ):
+            continue
+
+        # Skip inactive records (JSON false, not other falsy values).
+        if record.get('active') is False:
+            continue
+
+        # Read 'category', falling back to 'kind' only when 'category' is absent.
+        if 'category' in record:
+            key = record['category']
+        else:
+            key = record.get('kind')
+
+        if not isinstance(key, str):
+            continue
+        key = key.strip()
+        if not key:
+            continue
+
+        # Read 'priority', defaulting to 1 only when absent.
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                stripped = number.strip()
+                if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                    number = int(stripped)
+                else:
+                    continue
+            if type(number) is not int:
+                continue
+            priority = number
+        else:
+            priority = 1
+
+        if key not in groups or priority > groups[key]:
+            groups[key] = priority
+
+    return [{'category': key, 'maximum': groups[key]} for key in sorted(groups)]

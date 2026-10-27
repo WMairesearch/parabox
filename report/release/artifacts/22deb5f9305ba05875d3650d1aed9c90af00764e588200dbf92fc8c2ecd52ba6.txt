@@ -1,0 +1,55 @@
+import re
+
+_PRIORITY = re.compile(r'[+-]?[0-9]+')
+
+
+def solve(value):
+    # Deduplicate first: keep only the last occurrence of each nonempty
+    # string id.  Records without such an id stay independent.
+    last_position = {}
+    for position, record in enumerate(value):
+        if isinstance(record, dict):
+            ident = record.get('id')
+            if isinstance(ident, str) and ident:
+                last_position[ident] = position
+
+    groups = {}
+    for position, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+        ident = record.get('id')
+        if isinstance(ident, str) and ident:
+            if last_position[ident] != position:
+                continue
+        if record.get('active') is False:
+            continue
+        # 'category' wins; 'kind' is used only when 'category' is absent.
+        if 'category' in record:
+            name = record['category']
+        else:
+            name = record.get('kind')
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+        # 'priority' defaults to 1 only when the key is absent.
+        if 'priority' in record:
+            number = record['priority']
+            if isinstance(number, str):
+                text = number.strip()
+                if not _PRIORITY.fullmatch(text):
+                    continue
+                number = int(text, 10)
+            elif type(number) is not int:
+                continue
+        else:
+            number = 1
+        if name in groups:
+            if number > groups[name]:
+                groups[name] = number
+        else:
+            groups[name] = number
+
+    return [{'category': name, 'maximum': groups[name]}
+            for name in sorted(groups)]

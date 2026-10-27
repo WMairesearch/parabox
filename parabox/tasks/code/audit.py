@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 from parabox.sandbox import Limits, run_once
-from parabox.tasks.code.problems import PROBLEMS
+from parabox.tasks.code.spec.problems import PROBLEMS
 from parabox.tasks.code.verify import mechanisms
 
 RUNNER = """\

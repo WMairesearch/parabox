@@ -1,0 +1,66 @@
+import re
+import json
+
+def solve(value):
+    if isinstance(value, str):
+        value = json.loads(value)
+        
+    last_occurrence = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            id_val = record.get('id')
+            if isinstance(id_val, str) and id_val != '':
+                last_occurrence[id_val] = i
+
+    groups = {}
+    for i, record in enumerate(value):
+        if not isinstance(record, dict):
+            continue
+            
+        id_val = record.get('id')
+        if isinstance(id_val, str) and id_val != '':
+            if last_occurrence[id_val] != i:
+                continue
+        
+        if record.get('active') is False:
+            continue
+            
+        if 'path' in record:
+            name = record['path']
+        elif 'route' in record:
+            name = record['route']
+        else:
+            continue
+            
+        if not isinstance(name, str):
+            continue
+        name = name.strip()
+        if not name:
+            continue
+            
+        if 'bytes' not in record:
+            number = 1
+        else:
+            number = record['bytes']
+            
+        if type(number) is bool:
+            continue
+        elif type(number) is int:
+            num = number
+        elif isinstance(number, str):
+            stripped = number.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                num = int(stripped)
+            else:
+                continue
+        else:
+            continue
+            
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + num, count + 1)
+        
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'path': name, 'total': groups[name][0], 'count': groups[name][1]})
+        
+    return result

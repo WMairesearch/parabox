@@ -1,0 +1,66 @@
+import re
+
+def solve(value):
+    last_occurrences = {}
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id:
+                last_occurrences[record_id] = i
+                
+    retained_records = []
+    for i, record in enumerate(value):
+        if isinstance(record, dict):
+            record_id = record.get('id')
+            if isinstance(record_id, str) and record_id:
+                if last_occurrences[record_id] == i:
+                    retained_records.append(record)
+            else:
+                retained_records.append(record)
+        else:
+            retained_records.append(record)
+
+    groups = {}
+    for record in retained_records:
+        if not isinstance(record, dict):
+            continue
+        if record.get('active') is False:
+            continue
+        
+        if 'path' in record:
+            name = record['path']
+        elif 'route' in record:
+            name = record['route']
+        else:
+            continue
+            
+        if not isinstance(name, str):
+            continue
+            
+        name = name.strip()
+        if not name:
+            continue
+            
+        if 'bytes' not in record:
+            bytes_val = 1
+        else:
+            bytes_val = record['bytes']
+            
+        if type(bytes_val) is int:
+            number = bytes_val
+        elif isinstance(bytes_val, str):
+            stripped = bytes_val.strip()
+            if re.fullmatch(r'[+-]?[0-9]+', stripped):
+                number = int(stripped)
+            else:
+                continue
+        else:
+            continue
+            
+        total, count = groups.get(name, (0, 0))
+        groups[name] = (total + number, count + 1)
+        
+    result = []
+    for name in sorted(groups.keys()):
+        result.append({'path': name, 'total': groups[name][0], 'count': groups[name][1]})
+    return result
