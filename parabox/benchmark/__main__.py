@@ -47,6 +47,9 @@ def main(argv=None) -> None:
     analysis = commands.add_parser("analyze", help="Recompute descriptive results from saved evidence")
     analysis.add_argument("directory", type=Path)
     analysis.add_argument("--output", type=Path)
+    exporting = commands.add_parser("export", help="Project executed ternary or graded function runs into a public evidence bundle")
+    exporting.add_argument("directories", type=Path, nargs="+", metavar="RUN")
+    exporting.add_argument("--output", type=Path, required=True)
     importing = commands.add_parser("import-functions", help="Project registered source runs into an offline evidence bundle")
     importing.add_argument("--sources", type=Path, required=True,
                            help="Private JSON list of profile, model and directory records")
@@ -75,6 +78,9 @@ def main(argv=None) -> None:
             result = analyze(args.directory)
             if args.output:
                 args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+        elif args.command == "export":
+            from parabox.benchmark.evaluation.export import export
+            result = export(args.directories, args.output)
         elif args.command == "import-functions":
             from parabox.benchmark.functions.importer import export
             result = export(json.loads(args.sources.read_text()), args.output)

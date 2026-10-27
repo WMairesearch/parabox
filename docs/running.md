@@ -151,6 +151,29 @@ The runner executes a serial wave loop under the supplied overall deadline.
 Participant surfaces, founder file hashes, wave orders and execution differences
 are recorded in the [mapping checks](../report/release/wiki-mapping.json).
 
+## Export runs for sharing
+
+Run directories contain transcripts, workspaces and participant code, so they
+are not published. `export` writes executed ternary runs and graded function
+runs into a bundle in the published format:
+
+```sh
+.venv/bin/python -m parabox.benchmark export runs/ternary-terminal-1 runs/ternary-terminal-4 \
+  runs/ternary-repeated-1 runs/ternary-repeated-4 --output runs/export
+.venv/bin/python -m parabox.benchmark analyze runs/export
+```
+
+Several runs can share one bundle if their sessions do not overlap. Run `grade`
+on function runs first. `sessions.jsonl` holds per-session outcomes, evaluator
+feedback and source digests; ternary session errors are reduced to the exception
+type. `protocols.json` records each run's spec with configuration paths replaced
+by aliases, the model ID, wire, `request_body` and endpoint host, configuration
+and code digests, and whether the code matches the installed checkout. Run
+`export` with the API-key variables set and the model configurations in place:
+it refuses to write anything that contains your home directory, a run or
+configuration path, or a configured key. Persistent-Wiki runs are not exported.
+Keep the run directories privately; reviewers may ask about specific sessions.
+
 ## Recompute published results
 
 From a source checkout, no model or container is needed for descriptive analysis:
