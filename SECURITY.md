@@ -7,8 +7,13 @@ Host-local fixture helpers are for repository-authored test programs.
 ## Execution boundary
 
 Use Linux with rootless Podman on a dedicated host or disposable VM for
-adversarial work. Keep container resource limits enabled and the runtime
-updated. Do not mount home directories, credentials or container-management
+adversarial work. On macOS, that Linux environment may be a Docker container,
+which Docker runs inside a Linux VM; Podman inside it still runs every
+participant container (see `parabox/studies/scripts/docker_batch.py`). Do not
+mount the host home directory, credentials or the Docker socket into that outer
+container. Nested rootless Podman may not enforce participant memory limits;
+record the limits actually in force with the run. Keep container resource
+limits enabled and the runtime updated. Do not mount home directories, credentials or container-management
 sockets into workspaces. Containers reduce exposure but do not guarantee
 protection against every escape.
 
