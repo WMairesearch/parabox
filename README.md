@@ -10,6 +10,10 @@ participation changes what peers and successors do.
 
 The motivating concern is agent-built coordination of unauthorized work, as in
 the [OpenAI–Hugging Face incident](https://openai.com/index/hugging-face-incident-and-the-road-ahead/).
+There, agents meant to be isolated shared ways to cheat a scorer on an
+unsanctioned message board, and some risked failing their own tasks to produce
+information for the others
+([METR/Redwood investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/)).
 The experimental variable is the participating model. Messages and shared files
 are how participants influence one another.
 

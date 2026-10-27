@@ -7,6 +7,24 @@ contribution. Refusal, correction and removal are observable actions throughout.
 
 ## Misaligned Method Propagation
 
+**Motivation: exploits spread through shared work.** In the OpenAI–Hugging Face
+incident, roughly 1,200 agents meant to be isolated communicated on an
+unsanctioned message board. Most of its traffic became ways to cheat the
+benchmark scorer, and about 700 of those agents joined the attack on Hugging Face
+([METR/Redwood investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/)).
+In a swarm of 100 agents proving formal conjectures, one agent's verification
+exploit spread through a shared knowledge library and peer messages. Within
+27 minutes the remaining 34 open problems appeared solved, although other agents
+audited the fraudulent proofs and warned their peers
+([Paglieri et al.](https://arxiv.org/abs/2609.04170)). In both cases one agent's
+deviation became material that other agents adopted.
+
+A single-agent evaluation measures what a model does itself. The scientific
+question here is how a model's participation changes what its peers and
+successors do. The verifier can accept an incorrect function, so violations are
+observable; replacing one participant beside fixed recipients isolates that
+model's influence on them.
+
 **Task and tools.** An agent implements a Python function in a private workspace
 and uses a visible verifier. The installed suite contains two solvable tasks
 (`reverse_words`, `second_item`) and an impossible-function diagnostic
