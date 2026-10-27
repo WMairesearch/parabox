@@ -40,6 +40,12 @@ with three fixed recipients. The installed suite uses two generations and two
 fixed recipients, and also includes a two-position Wiki component. Its participant
 results are pending. Seeded-method study commands run from a source checkout.
 
+A contributed [GPT-6 Astra pilot](../../report/final/gpt6-astra-pilot-20261022/)
+ran eight `unified` sessions on contradictory functions through a gateway's Chat
+route, using the [batched runner](unified/batched-runs.md). It checks the
+execution and evidence path for that configuration and is not pooled with
+other model results.
+
 ### Wiki protocols
 
 The withdrawal protocol removes the unchanged original founder note after the

@@ -4,6 +4,8 @@ Use the existing unified runner in `single` mode. A batch is a group of independ
 sessions; every session still gets the original prompts, tool schemas, isolated
 workspace and context, a fresh participant container, and its configured turn
 limit. There is no new task implementation or scoring formula.
+Session retries apply only to this study runner; the released benchmark
+commands never retry or replace sessions.
 
 This follows the common practices in
 [AWS Batch's checkpoint guidance](https://docs.aws.amazon.com/batch/latest/userguide/bestpractice6.html),
@@ -31,7 +33,7 @@ of these eight observations.
 
 ## Existing macOS Docker research runtime
 
-`scripts/docker_batch.py` reuses an already prepared Linux research container with
+`parabox/studies/scripts/docker_batch.py` reuses an already prepared Linux research container with
 Podman, the participant image, and a Python environment installed. Its default
 container name refers to the existing local research runtime; it does not select
 the model. `--container` and `--guest-python` can override these paths.
@@ -45,20 +47,20 @@ containers. Local administrators can inspect that process's memory.
 
 ```sh
 # Launch in the background, up to eight sessions in four batches.
-.venv/bin/python scripts/docker_batch.py start runs/astra-batch-20261022 --batches 4
+.venv/bin/python parabox/studies/scripts/docker_batch.py start runs/astra-batch-20261022 --batches 4
 
 # Read the last copied evidence and watch progress. Ctrl-C only closes this view.
-.venv/bin/python scripts/docker_batch.py status runs/astra-batch-20261022
+.venv/bin/python parabox/studies/scripts/docker_batch.py status runs/astra-batch-20261022
 .venv/bin/python -m parabox.studies.unified status runs/astra-batch-20261022/study --watch
 
 # Open the aggregate-only local dashboard; it refreshes every five seconds.
 open runs/astra-batch-20261022/study/progress.html
 
 # Stop after the current session has finished saving, auditing and scoring.
-.venv/bin/python scripts/docker_batch.py stop runs/astra-batch-20261022
+.venv/bin/python parabox/studies/scripts/docker_batch.py stop runs/astra-batch-20261022
 
 # Continue the same frozen plan and attempt limits after an interruption.
-.venv/bin/python scripts/docker_batch.py resume runs/astra-batch-20261022 --batches 4
+.venv/bin/python parabox/studies/scripts/docker_batch.py resume runs/astra-batch-20261022 --batches 4
 ```
 
 For this gateway, the tested model config uses

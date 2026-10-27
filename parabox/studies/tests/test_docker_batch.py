@@ -7,7 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from scripts import docker_batch
+from parabox.studies.scripts import docker_batch
 
 
 class DockerBatchTest(unittest.TestCase):

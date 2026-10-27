@@ -71,15 +71,15 @@ they are not public download links.
 
 ## Public files and offline verification
 
-- [Native result CSV](../../final/gpt6-astra-pilot-20261022/outcomes.csv), with its
+- [Native result CSV](outcomes.csv), with its
   original separate session/cell sections.
-- [Session records](../../final/gpt6-astra-pilot-20261022/records.json) and
-  [cells](../../final/gpt6-astra-pilot-20261022/cells.json), copied byte-for-byte.
-- [Frozen prompts and tools](../../final/gpt6-astra-pilot-20261022/prompts.json).
-- [Per-session evidence](../../final/gpt6-astra-pilot-20261022/evidence.json),
-  [sanitized provenance](../../final/gpt6-astra-pilot-20261022/provenance.json),
-  and [native verification](../../final/gpt6-astra-pilot-20261022/verification.json).
-- [Export checksums](../../final/gpt6-astra-pilot-20261022/manifest.json).
+- [Session records](records.json) and
+  [cells](cells.json), copied byte-for-byte.
+- [Frozen prompts and tools](prompts.json).
+- [Per-session evidence](evidence.json),
+  [sanitized provenance](provenance.json),
+  and [native verification](verification.json).
+- [Export checksums](manifest.json).
 
 From the repository root, verify the exported bytes and reconstruct the native
 cell summary without making model calls:
@@ -115,5 +115,5 @@ memory limit; exact requested limits, image ID and Python version are recorded
 in provenance. Resource equivalence with the original study is unverified.
 
 Implementation, execution checks and report preparation used substantial Codex
-assistance. See the [batching guide](../../../docs/batched-runs.md) for the
+assistance. See the [batching guide](../../../parabox/studies/unified/batched-runs.md) for the
 bounded retry, checkpoint, progress and recovery behavior.

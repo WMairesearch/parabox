@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from parabox.evidence import delivery_problems
+from parabox.studies.evidence import delivery_problems
 from parabox.studies.relay.run import session_dir
 from parabox.studies.transmission.task import forbidden_in_prompts
 from parabox.studies.unified.run import check_frozen, extra_files, load_plan, merge_path, validate_merge
