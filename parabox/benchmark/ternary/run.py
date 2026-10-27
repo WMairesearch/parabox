@@ -25,7 +25,8 @@ SOURCE_FILES = (
     "benchmark/ternary/episode.py",
     "benchmark/ternary/fixture.py", "benchmark/ternary/run.py",
     "execution/control/__init__.py", "execution/control/guards.py",
-    "model/__init__.py", "model/chat.py", "model/gemini.py", "model/responses.py",
+    "model/__init__.py", "model/anthropic.py", "model/chat.py", "model/gemini.py",
+    "model/responses.py",
     "sandbox.py", "util.py", "workspace.py",
 )
 

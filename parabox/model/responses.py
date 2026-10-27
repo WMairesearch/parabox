@@ -39,9 +39,11 @@ def from_response(parsed: dict) -> dict:
     if parsed.get("error"):
         raise RuntimeError("model response failed: " + json.dumps(parsed["error"]))
     output = parsed["output"]
-    texts, calls = [], []
+    texts, thoughts, calls = [], [], []
     for item in output:
-        if item.get("type") == "message":
+        if item.get("type") == "reasoning":
+            thoughts.extend(part["text"] for part in item.get("summary") or [] if part.get("text"))
+        elif item.get("type") == "message":
             for part in item.get("content") or []:
                 if part.get("type") == "output_text":
                     texts.append(part["text"])
@@ -50,8 +52,8 @@ def from_response(parsed: dict) -> dict:
         elif item.get("type") == "function_call":
             calls.append({"id": item["call_id"], "type": "function",
                           "function": {"name": item["name"], "arguments": item["arguments"]}})
-    return {"role": "assistant", "content": "\n".join(texts), "tool_calls": calls,
-            "responses_output": copy.deepcopy(output)}
+    return {"role": "assistant", "content": "\n".join(texts), "reasoning_content": "\n".join(thoughts),
+            "tool_calls": calls, "responses_output": copy.deepcopy(output)}
 
 
 def _declarations(tools: list[dict]) -> list[dict]:

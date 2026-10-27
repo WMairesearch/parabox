@@ -28,6 +28,9 @@ def participant_files(prefix, target, protocol=fixture.REPEATED):
 def truncated_response(value):
     if isinstance(value, dict):
         return any((key in ("finish_reason", "finishReason") and item in ("length", "MAX_TOKENS"))
+                   or (key == "stop_reason" and item == "max_tokens")
+                   or (key == "incomplete_details" and isinstance(item, dict)
+                       and item.get("reason") == "max_output_tokens")
                    or (isinstance(item, (dict, list)) and truncated_response(item))
                    for key, item in value.items())
     if isinstance(value, list):

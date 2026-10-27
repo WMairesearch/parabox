@@ -47,7 +47,19 @@ native reasoning and function-call items, without a shared conversation ID.
 Native items are retained as `responses_output` on assistant messages in
 `meta/requests/`; unmodified provider responses, including usage, remain in
 `meta/responses/`. Tool declarations preserve optional parameters by retaining
-non-strict behavior unless the task explicitly requests strict mode.
+non-strict behavior unless the task explicitly requests strict mode. The example
+sets `reasoning.summary` so readable reasoning summaries are retained as
+`reasoning_content`.
+
+For Claude, copy
+[`examples/model.anthropic.example.json`](../examples/model.anthropic.example.json)
+and set `ANTHROPIC_API_KEY` on the host. Its `wire: "anthropic"` selects the
+native Messages transport. Keep `thinking.display` set to `"summarized"`;
+otherwise thinking text is omitted from responses. The adapter returns each
+assistant content array, including thinking signatures, unchanged with the
+following tool results, retaining it as `anthropic_content` in `meta/requests/`.
+The OpenAI-compatible Anthropic endpoint is not supported because it drops
+thinking and ignores reasoning settings.
 
 ## Ternary sequence experiment
 

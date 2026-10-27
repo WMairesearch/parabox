@@ -7,7 +7,7 @@ import subprocess
 from pathlib import Path
 
 from parabox.model import Client as DefaultClient, assistant_message, parse_args
-from parabox.model import chat, gemini, responses
+from parabox.model import anthropic, chat, gemini, responses
 from parabox.sandbox import Box, Limits
 from parabox.util import now, save, sha256
 from parabox.workspace import read_regular, write_regular
@@ -29,6 +29,9 @@ class Client(DefaultClient):
         if self.config.get("wire") == "responses":
             return responses.complete(self.config, self.key, messages, tools=tools,
                                       max_tokens=32768, timeout=timeout)
+        if self.config.get("wire") == "anthropic":
+            return anthropic.complete(self.config, self.key, messages, tools=tools,
+                                      max_tokens=32768, timeout=timeout, thinking=thinking)
         return chat.complete(self.config, self.key, messages, tools=tools,
                              max_tokens=32768, timeout=timeout, thinking=thinking)
 

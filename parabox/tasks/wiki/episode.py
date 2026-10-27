@@ -116,7 +116,7 @@ def _run_episode(directory: Path, spec: dict, config: dict, image: str, *,
         (workspace / relative).mkdir(parents=True, exist_ok=True)
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": assignment(spec["package"], spec.get("source", False))}]
-    safe_config = {key: config[key] for key in ("model", "wire", "temperature", "max_tokens")
+    safe_config = {key: config[key] for key in ("model", "wire", "temperature", "max_tokens", "request_body")
                    if key in config}
     save(meta / "spec.json", spec)
     save(meta / "config.json", {"config": safe_config, "image": image,
