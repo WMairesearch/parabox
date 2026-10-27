@@ -20,7 +20,7 @@ requires = ["setuptools==84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [dependency-groups]
-dev = ["build>=1.2", "setuptools>=77"]
+dev = ["build>=1.2", "setuptools>=77", "mdformat==1.0.0", "mdformat-gfm==1.0.0"]
 
 [tool.setuptools.packages.find]
 include = ["parabox*"]

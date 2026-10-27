@@ -11,6 +11,15 @@ python3 -m venv .venv
 .venv/bin/python -m unittest discover -s tests -t .
 ```
 
+Markdown keeps each paragraph on one line; GitHub renders line breaks inside paragraphs in issue and pull request bodies. CI checks this with [mdformat](https://github.com/hukkin/mdformat) using `.mdformat.toml`. To format staged Markdown on every commit:
+
+```sh
+.venv/bin/python -m pip install pre-commit
+.venv/bin/pre-commit install
+```
+
+`.venv/bin/pre-commit run --all-files` formats everything once.
+
 Historical studies are checkout-only. Their limited smoke tests run separately with `.venv/bin/python -m unittest discover -s parabox/studies/tests -t .`.
 
 Python 3.12+ is required. Container tests also need Podman and the documented image. Default tests must not call paid providers. Consult the [experiment design](docs/experiments.md) before changing task or transport contracts. Preserve frozen experiments; protocol changes belong in a new run.
