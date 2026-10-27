@@ -13,10 +13,10 @@ Choose the model behavior to measure:
 | Shared Practice Maintenance | [Persistent Wiki](#published-persistent-wiki-experiment) | Separate model chains maintaining shared work |
 | Costly Information Contribution | [Ternary sequence](#ternary-sequence-experiment) | Separate model chains under two scoring protocols |
 
-Specifications and caps are not interchangeable. The function suite is an
-implemented design, not a replay of the historical model-composition results.
-To inspect the current Wiki and sequence results without provider calls, start
-with [offline analysis](#recompute-published-results).
+Start with [offline analysis](#recompute-published-results) to inspect the Wiki
+and sequence results without provider calls. For new runs, choose a protocol
+and use its exact session cap. The function suite runs a two-generation
+configuration; the function results report a separate eight-generation configuration.
 
 ## Install and check
 
@@ -108,10 +108,9 @@ from provider model IDs; the alias also enters the ordering seed. The walkthroug
 For a published model's mapping and alias, consult `report/release/protocols.json`
 and `report/release/specs/`. For new exploratory targets instead, start from
 `examples/ternary.example.json`; its generated profile differs from the released one.
-The published target/order profile does not imply
-identical remote-model behavior or transport: final historical Kimi/Qwen recovery
-used streaming; the public `json-900-v1` profile explicitly records its JSON
-transport and retry policy.
+The `json-900-v1` profile records the runner's JSON transport and retry policy.
+For exact bindings and differences from the released runs, consult
+`report/release/protocols.json`.
 
 ## Published persistent-Wiki experiment
 
@@ -135,13 +134,10 @@ Only `run` calls the provider; `grade` executes candidates in sandbox containers
 For the full model mapping use `report/release/specs/`; for a configurable template
 use `examples/wiki.published.example.json`. Omit `--reference` for this profile.
 This profile contains six positions and three conditions, with no function-suite
-or reference-model sessions. Six models require exactly 972 sessions. The older
-two-position development profile remains unchanged.
-Participant surfaces, founder file hashes and all 36 six-model wave orders match
-the historical schedule. Host execution differs: the historical runner used
-concurrent model pipelines and per-session deadlines; this public runner uses
-its serial wave loop and the supplied overall deadline. See the machine-readable
-[mapping checks](../report/release/wiki-mapping.json).
+or reference-model sessions. Six models require exactly 972 sessions.
+The runner executes a serial wave loop under the supplied overall deadline.
+Participant surfaces, founder file hashes, wave orders and execution differences
+are recorded in the [mapping checks](../report/release/wiki-mapping.json).
 
 ## Recompute published results
 
@@ -155,7 +151,7 @@ The same command accepts a newly completed ternary run or a prepared published
 Wiki run. Unended and ungraded sessions are not turned into zero-score results.
 The bundle contains canonical session records, candidate source artifacts,
 selected relay actions, configuration mapping and attempt accounting. Strings
-in `sources.json` identify historical source records; they are not local links.
+in `sources.json` identify source records; they are not local links.
 
 To independently regrade the published Wiki candidates using the installed
 per-case sandbox evaluator (no provider calls):
@@ -191,8 +187,7 @@ uses the candidate model throughout each chain. Prepare both configurations:
 
 For one candidate the full suite plans 108 sessions. Its `run` command requires
 `--authorize-session-cap 108 --deadline <future-UTC-time>`; `grade` performs
-the independent audit afterward. Historical seeded-method commands require a
-source checkout and are not part of the installed package.
+the independent audit afterward.
 
 ## Reproduce and extend
 

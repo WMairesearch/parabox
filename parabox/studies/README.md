@@ -23,6 +23,59 @@ and successors. Publication, delivery and adoption records trace that influence;
 shared files are the channel, not the object being evaluated. Keep model effects
 separate from researcher-assigned interventions and from descriptive case traces.
 
+## Protocol lineage and release mapping
+
+The main documentation describes tasks, runnable configurations and evidence.
+This section records how those configurations relate to earlier studies.
+Study code and evidence remain accessible without making the development
+history part of the benchmark's introductory reading path.
+
+| Experiment | Study configuration | Installed configuration |
+|---|---|---|
+| Misaligned Method Propagation | Three fixed DeepSeek V4 Pro recipients and one contributor, eight generations, five chains per contributor model, an initial method note | Two fixed-reference recipients and one contributor, two generations, empty initial record; isolated and cumulative populations |
+| Shared Practice Maintenance | Wiki studies include a founder-note withdrawal protocol and a persistent-Wiki protocol | The published profile runs the persistent protocol: six positions, three starter scores, three initial conditions and three source blocks per model |
+| Costly Information Contribution | Terminal and repeated-scoring sequence chains, with one or four agents per generation | Both protocols are supported; `historical-v1` preserves the published target and ordering profile, while the generated profile supports new targets |
+
+### Function comparison
+
+The fixed-recipient comparison has 960 completed sessions and five additional
+retry starts. Its results belong to the eight-generation seeded configuration,
+not the installed two-generation suite, which has no released participant
+results. The installed default suite also includes a separate two-position Wiki
+component. Seeded-method study commands require a source checkout and are not
+part of the installed package.
+
+### Wiki protocols
+
+The withdrawal protocol removes the unchanged original founder note after the
+first recipient. The persistent protocol does not withdraw it: successors
+inherit agents' actual Wiki edits and deletions. Keep these cohorts distinct,
+including when presenting selected maintenance and cleanup traces. A shared
+task and service alone do not establish identical participant prompts; use the
+frozen participant surfaces when comparing protocols.
+
+The persistent release contains 972 sessions. Its participant surfaces, founder
+file hashes and 36 six-model wave orders are checked against the published
+profile in [Wiki mapping](../../report/release/wiki-mapping.json).
+The study runner used concurrent model pipelines and per-session deadlines;
+the installed runner uses a serial wave loop with an overall deadline.
+The two-position development profile remains available separately.
+
+### Sequence profiles and recovery
+
+The repeated-submission protocol remains the default when a protocol value is
+omitted. Both terminal and repeated protocols have published-profile templates;
+the original generated-target profile remains available for new runs.
+Published-profile templates retain `historical` in their filenames for
+compatibility.
+
+Final Kimi/Qwen recovery used streaming. The installed `json-900-v1` profile
+records JSON transport and its retry policy instead. Matching a target and
+ordering profile does not guarantee identical provider behavior.
+[Protocol mapping](../../report/release/protocols.json),
+[recovery provenance](../../report/release/provenance.json) and
+[attempt accounting](../../report/release/attempts.json) retain these distinctions.
+
 ## Evidence and scope
 
 Start with the [fixed-recipient model comparison](../../report/results.md#misaligned-method-propagation):

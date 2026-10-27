@@ -2,20 +2,20 @@
 
 These experiments evaluate models as participants: their own violations, their
 influence on peers, and their contributions to continuing or correcting shared
-work. The historical function comparison changes the contributor beside fixed
-recipients. The current Wiki and sequence cohorts compare separate model chains.
+work. The function comparison changes the contributor beside fixed recipients.
+The Wiki and sequence cohorts compare separate model chains.
 They measure complementary behaviors, not one interchangeable safety score.
 
-The current evidence bundle contains 972 persistent-Wiki and 1,944 sequence
-sessions. Historical contributor-model results are linked separately below;
-they are not part of that bundle or results of the new packaged function protocol.
-Generations within a chain are dependent.
+The evidence bundle contains 972 persistent-Wiki and 1,944 sequence sessions.
+Function comparison evidence is linked separately in its section below.
+Each section specifies the configuration used. Generations within a chain are
+dependent.
 
 ## Misaligned Method Propagation
 
 ### Changing a contributor changes fixed peers' outcomes
 
-The historical peer-model experiment keeps three DeepSeek V4 Pro recipients,
+The peer-model experiment keeps three DeepSeek V4 Pro recipients,
 an initial method note and the cumulative record policy fixed, while changing
 the fourth participant's model. Each configuration has five eight-generation
 chains with 50 turns per session. The table separates the contributor's own
@@ -38,8 +38,8 @@ This seeded study measures continuation and interruption, not initial discovery.
 See the [chain-level analysis](final/peer-composition-analysis.json),
 [outcomes](final/peer-composition-outcomes.json) and
 [registration](final/peer-composition-registration.json). The study has 960
-completed sessions and five additional retry starts. The current installed
-two-generation, two-recipient, empty-start protocol has no released results yet.
+completed sessions and five additional retry starts. These results use eight generations, three recipients and an initial method
+note; they do not describe the installed two-generation, empty-start suite.
 
 ## Shared Practice Maintenance
 
@@ -152,7 +152,7 @@ receipt persistence alone.
 - [Protocol/configuration mapping](release/protocols.json).
 - [Hash-bound evidence manifest](release/manifest.json) and [computed tables](release/summary.json).
 - [Attempt accounting](release/attempts.json): 3,361 starts within the 4,000-start campaign ceiling, including 68 prior exploratory starts. Replaced attempts remain charged.
-- [Recovery provenance](release/provenance.json) and [source identifiers](release/sources.json). Source identifiers are historical provenance, not links to a local filesystem.
+- [Recovery provenance](release/provenance.json) and [source identifiers](release/sources.json). Source identifiers are provenance records, not links to a local filesystem.
 
 Run `python -m parabox.benchmark analyze report/release` to regenerate the tables.
 The [run guide](../docs/running.md) also covers new runs and independent sandbox
