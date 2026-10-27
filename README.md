@@ -5,8 +5,8 @@ does their participation change other agents' behavior?**
 
 Agents working together can share methods, build shared resources, and leave
 records that outlive their own sessions. Parabox measures how models behave in
-these settings: not only whether an agent crosses a task boundary, but whether
-its participation changes what peers and successors do.
+these settings: whether an agent crosses a task boundary, and how its
+participation changes what peers and successors do.
 
 The motivating concern is agent-built coordination of unauthorized work, as in
 the [OpenAI–Hugging Face incident](https://openai.com/index/hugging-face-incident-and-the-road-ahead/).
@@ -21,9 +21,9 @@ are how participants influence one another.
 | Shared Practice Maintenance | Repair a function with access to an editable shared Wiki | Which models acquire, extend, use, correct, or remove a shared practice |
 | Costly Information Contribution | Match a hidden ternary sequence; some submissions forgo points to disclose information | Which models spend their scoring opportunities on information for successors, and how successors continue |
 
-The sequence experiment isolates costly contribution; a diagnostic submission is
-not itself classified as misconduct. Across the experiments, we distinguish a
-model's own actions from its effects on other agents.
+The sequence experiment measures personal scoring sacrifice and information
+contribution. Across the experiments, we measure a model's own actions and its
+effects on other agents.
 
 Read the [experiment designs](docs/experiments.md) for tasks, tools, scoring and
 model comparisons. The [results](report/results.md) show changes in fixed peers'

@@ -2,10 +2,9 @@
 
 These explorations underpin Parabox's three model-behavior modules: Misaligned
 Method Propagation, Shared Practice Maintenance, and Costly Information
-Contribution. They are available in a source checkout, not in the wheel or source
-distribution. Start with [the current experiment designs](../../docs/experiments.md)
+Contribution. They are available in a source checkout. Start with [the current experiment designs](../../docs/experiments.md)
 if you want to run the released benchmark. Historical schedules, tasks, scoring,
-and model configurations differ; do not pool their rates with new runs.
+and model configurations are recorded per study.
 
 ## How the experiments developed
 
@@ -13,22 +12,19 @@ and model configurations differ; do not pool their rates with new runs.
 |---|---|---|
 | Does changing a contributor change other models' violations? | [`unified/`](unified/), [`population/`](population/), [`scripts/peer_composition.py`](scripts/peer_composition.py) | Fixed-recipient contributor-model comparisons and population compositions; keep each historical schedule distinct. |
 | Which models adopt and pass on a method? | [`relay/`](relay/), [`relay_board/`](relay_board/), [`relay_files/`](relay_files/), [`relay_search/`](relay_search/) | Independent and connected work through static or agent-updated channels. |
-| Which models discover, act on and publish peer work? | [`discovery/`](discovery/), [`discovery_code/`](discovery_code/), [`write/`](write/), [`write_code/`](write_code/) | Separate discovery, execution and publication rather than treating them as the same behavior. |
-| Do model behaviors persist across task conditions? | [`mechspan_code/`](mechspan_code/), [`composition/`](composition/), [`spillover/`](spillover/) | Task solvability, verifier design, feedback and supplied notes are mechanism comparisons, not a replacement for evaluating models. |
+| Which models discover, act on and publish peer work? | [`discovery/`](discovery/), [`discovery_code/`](discovery_code/), [`write/`](write/), [`write_code/`](write_code/) | Trace discovery, execution and publication as successive actions. |
+| Do model behaviors persist across task conditions? | [`mechspan_code/`](mechspan_code/), [`composition/`](composition/), [`spillover/`](spillover/) | Compare model behavior across task solvability, verifier design, feedback and supplied notes. |
 | Which models continue or interrupt inherited practices? | [`transmission/`](transmission/), [`transmission_door/`](transmission_door/), [`board/`](board/), [`continuation/`](continuation/), [`shared_wiki/`](shared_wiki/) | Successive actions, corrections, private access and Wiki maintenance; some historical protocols also assigned warnings or withdrew records. |
 | Which models contribute at a personal scoring cost? | [`costly_information/`](costly_information/) | Short scored submissions disclose hidden ternary values for successors. |
 
 The central distinction is a model's own behavior versus its influence on peers
 and successors. Publication, delivery and adoption records trace that influence;
-shared files are the channel, not the object being evaluated. Keep model effects
-separate from researcher-assigned interventions and from descriptive case traces.
+shared files carry participants' work. Each study specifies the participating
+models, assigned conditions and observed actions.
 
 ## Protocol lineage and release mapping
 
-The main documentation describes tasks, runnable configurations and evidence.
-This section records how those configurations relate to earlier studies.
-Study code and evidence remain accessible without making the development
-history part of the benchmark's introductory reading path.
+The table maps historical study configurations to the installed benchmark.
 
 | Experiment | Study configuration | Installed configuration |
 |---|---|---|
@@ -40,19 +36,16 @@ history part of the benchmark's introductory reading path.
 
 The fixed-recipient comparison has 960 completed sessions and five additional
 retry starts. Its results belong to the eight-generation seeded configuration,
-not the installed two-generation suite, which has no released participant
-results. The installed default suite also includes a separate two-position Wiki
-component. Seeded-method study commands require a source checkout and are not
-part of the installed package.
+with three fixed recipients. The installed suite uses two generations and two
+fixed recipients, and also includes a two-position Wiki component. Its participant
+results are pending. Seeded-method study commands run from a source checkout.
 
 ### Wiki protocols
 
 The withdrawal protocol removes the unchanged original founder note after the
-first recipient. The persistent protocol does not withdraw it: successors
-inherit agents' actual Wiki edits and deletions. Keep these cohorts distinct,
-including when presenting selected maintenance and cleanup traces. A shared
-task and service alone do not establish identical participant prompts; use the
-frozen participant surfaces when comparing protocols.
+first recipient. The persistent protocol passes agents' actual Wiki edits and
+deletions to successors. Cohort labels identify the protocol for each maintenance
+and cleanup trace. Frozen participant surfaces record the prompts used in each run.
 
 The persistent release contains 972 sessions. Its participant surfaces, founder
 file hashes and 36 six-model wave orders are checked against the published
@@ -70,8 +63,7 @@ Published-profile templates retain `historical` in their filenames for
 compatibility.
 
 Final Kimi/Qwen recovery used streaming. The installed `json-900-v1` profile
-records JSON transport and its retry policy instead. Matching a target and
-ordering profile does not guarantee identical provider behavior.
+records JSON transport and its retry policy instead. Target, ordering and transport settings are recorded separately.
 [Protocol mapping](../../report/release/protocols.json),
 [recovery provenance](../../report/release/provenance.json) and
 [attempt accounting](../../report/release/attempts.json) retain these distinctions.
@@ -89,12 +81,11 @@ retained alongside other summary tables in [`report/final/`](../../report/final/
 [`report/population/`](../../report/population/). The shared-test-wiki analyses
 are in [`report/shared-test-wiki/`](../../report/shared-test-wiki/); resource
 measurements are in [`report/resource-allocation/`](../../report/resource-allocation/).
-These are retained historical summaries, not results of the installed benchmark.
+These summaries document the study configurations listed above.
 The [current results page](../../report/results.md) states what has been released
 for the integrated protocols.
 
 Study code depends on the common task and execution modules, never the other
 way around. Only a limited [study smoke suite](tests/test_smoke.py) is maintained
 here. Reproducing a historical comparison requires its original specification,
-model configuration, image, and run artifacts; the published CSVs alone are not
-a full replay bundle. Do not start paid model sessions while exploring this code.
+model configuration, image, and run artifacts alongside the published CSVs. Do not start paid model sessions while exploring this code.

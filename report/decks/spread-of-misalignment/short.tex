@@ -148,7 +148,7 @@
   \end{center}
   \begin{itemize}
     \item \textbf{Fixed peers:} three DeepSeek V4 Pro agents in every generation.
-    \item \textbf{Varied model:} the fourth agent's model differs between six configurations, not within a chain.
+    \item \textbf{Varied model:} the fourth agent's model is fixed within each chain and varied across six configurations.
     \item All four write files for the next generation. The archive retains earlier versions, including deleted files.
   \end{itemize}
   \evidence{Earlier function study: five independent eight-generation chains per configuration, all starting with the same method note.
@@ -208,10 +208,9 @@
       \end{block}
     \end{column}
   \end{columns}
-  \evidence{Independent audits flag both accepted submissions; those audit results were not feedback to the agents.
-  The outgoing note matches the delivered bytes. The original seed also remains available;
-  this trace does not separate its effect from the predecessor's report. Evidence: evidence/relay-example.json.}
-  \takeaway{Completing one's own submission need not end participation in the method.}
+  \evidence{Offline audits flag both accepted submissions. The outgoing note matches the delivered bytes.
+  The successor receives both the original seed and the predecessor's report. Evidence: evidence/relay-example.json.}
+  \takeaway{After acceptance, the first agent publishes the bypass for its successor.}
 \end{frame}
 
 \begin{frame}{Change one model: initially common violations persist or fade}
@@ -287,7 +286,7 @@
   \par\medskip
   \textbf{First, the behavior:} earlier trajectories show Qwen Max extending and dismantling the practice.
   \textbf{Then, the model comparison:} a persistent-Wiki study counts new private retrieval.
-  \takeaway{The object being inherited is now a working resource, not just advice.}
+  \takeaway{Successors inherit working tools, case records and instructions.}
 \end{frame}
 
 \begin{frame}{Wiki task: repair a function; inherit a recovery toolkit}
@@ -295,7 +294,7 @@
     \begin{column}{0.31\textwidth}
       \panel{The task}
       Repair one function, scored on 100 hidden cases.
-      Starters score 30, 60 or 90; 60 qualifies. These are starting scores, not ceilings.
+      Starters score 30, 60 or 90; agents can improve them. A score of 60 qualifies.
       \par\medskip
       \hz{Only public example access is authorized.}
       \par\medskip
@@ -356,7 +355,7 @@
     \end{column}
   \end{columns}
   \evidence{The withdrawal rule removes only unchanged founder notes. In all four cleanup chains, no file was withdrawn:
-  successors received the agent's corrective NOTES.md or NOTICE.md. Grades are offline; cleanup was not assigned.}
+  successors received the agent's corrective NOTES.md or NOTICE.md. Grades are offline; the agents choose to clean up while assigned to repair code.}
   \takeaway{Qwen Max both extends and dismantles the inherited practice.}
 \end{frame}
 
@@ -390,12 +389,12 @@
       \par\medskip
       In \textbf{25 of those 27 sessions}, a 100/100 solution is already on disk before at least one later private request.
       \par\medskip
-      That grade is checked offline, not shown to the agent.
+      That grade comes from offline evaluation.
     \end{column}
   \end{columns}
-  \evidence{969 of 972 sessions earn 100. Counts concern new retrieval, not cached-case use or deletion.
+  \evidence{969 of 972 sessions earn 100. The table counts sessions making new private-case requests.
   Initial-Wiki and generation breakdowns are in Appendix B.}
-  \takeaway{Kimi K3 retrieves most often. Unlike the cleanup cases, these request counts alone do not show removal.}
+  \takeaway{Kimi K3 accounts for 19 of the 27 sessions requesting private cases.}
 \end{frame}
 
 \section{3. Costly Information Contribution}
@@ -403,7 +402,8 @@
 \begin{frame}{Will an agent pay a personal cost to leave useful information?}
   \large
   In the opening incident, agents risked their own task outcomes to support a shared effort.
-  The first two experiments measure continued violations and shared tools; neither isolates that personal cost.
+  The first two experiments measure continued violations and shared tools.
+  We now make personal scoring cost an explicit choice.
   \par\bigskip
   \textbf{A further question: will they spend their own scoring opportunity on information for someone else?}
   \par\bigskip
@@ -411,7 +411,7 @@
   In a separate hidden-sequence task, each chain again uses one model:
   keep a guaranteed score, or submit a short prefix that earns zero and reveals one more value to later agents.
   \takeaway{This experiment isolates a possible support for collective action: costly information contribution.}
-  \evidence{Contribution itself is not misconduct. The task measures personal cost and information flow, not whether that information will support a violation.}
+
 \end{frame}
 
 \begin{frame}{Sequence task: who spends a scoring opportunity to publish?}
@@ -438,9 +438,9 @@
       \panel{What we count}
       A session with a \textbf{scored zero-point submission that reveals a next value}.
       \par\medskip
-      Scored submissions create public receipts. Private tests and Wiki-only disclosures do not count.
+      Scored submissions create the public receipts counted here.
       \par\medskip
-      Fresh agents inherit the Wiki and receipts, not the previous agent's reward.
+      Fresh agents inherit the Wiki and receipts and earn their own scores.
     \end{column}
   \end{columns}
   \evidence{20 tool calls per agent; six generations, with one or four agents per generation, all using one model.
@@ -468,7 +468,7 @@
   In four-agent chains, a published receipt can also reach a peer acting later in the same generation.
   \evidence{Terminal: up to two private tests before the final submission.
   Repeated = three scored submissions, unused submissions count as zero.}
-  \takeaway{A final zero gives up the scoring opportunity; an early repeated probe can still help its author.}
+  \takeaway{Terminal disclosure forgoes the session score. Early repeated disclosure spends one of three scoring opportunities and supplies feedback for later answers.}
 \end{frame}
 
 \begin{frame}{Gemini Flash: three zero-point submissions extend a public prefix}
@@ -489,11 +489,10 @@
     \bottomrule
   \end{tabular}
   \par\medskip
-  Generation 2 cites the prior receipt. Generation 3 tests its prefix privately before publishing the same
-  next value through its final submission: the public receipt adds no new knowledge for its author.
-  \evidence{These are all three Gemini Flash terminal disclosures in the cohort, concentrated in one chain,
-  not a typical trajectory. Evidence: report/release/cases.json. Final feedback arrives after the author's session ends.}
-  \takeaway{These three agents each choose zero points and publish a longer prefix for others.}
+  Generations 1 and 2 write the short prefix and a Wiki log at call 19; generation 2 cites the prior receipt.
+  Generation 3 tests its prefix, spends its last command reading receipts, and submits the tested file unchanged.
+  \evidence{All three Gemini Flash terminal disclosures in the cohort occur in this chain. Evidence: report/release/cases.json. Final feedback arrives after the author's session ends.}
+  \takeaway{Two agents prepare zero-point submissions for others; the third resubmits its tested prefix.}
 \end{frame}
 
 \begin{frame}{Who gives up the session score to publish a next value?}
@@ -521,9 +520,9 @@
       3 with a 40-point starter, and 6 with an 85-point starter.
       Each level has 30 method-note and 24 empty-Wiki sessions; all disclosures are in the former.
       \par\medskip
-      The six 85-point cases are in one four-agent chain: zero instead of \textbf{at least 85 guaranteed points}, above the 60-point threshold.
-      Pro has 12 disclosures across three four-agent chains and one in a single-agent chain.
-      Flash's three are in one four-agent chain.
+      The six 85-point cases, in one four-agent chain, forgo \textbf{at least 85 guaranteed points}.
+      All six resubmit the prefix just tested, unchanged.
+      Pro's five rewritten disclosures are at $k=1$ or 40.
     \end{column}
   \end{columns}
   \evidence{Count: final submission scores 0 and reveals the next value after the author exits.
@@ -531,7 +530,7 @@
   \takeaway{Only the Gemini models make terminal zero-score disclosures in this cohort.}
 \end{frame}
 
-\begin{frame}{An early zero-point probe can still serve the author's score}
+\begin{frame}{Eight repeated-scoring sessions publish a next value}
   \ptag{Repeated scoring $\cdot$ three submissions averaged $\cdot$ 9 chains, 162 sessions per model}
   \begin{columns}[T]
     \begin{column}{0.47\textwidth}
@@ -558,13 +557,12 @@
       \par\medskip
       Submissions 2 and 3: the same 100-entry answer scores 44 each time.
       \par\medskip
-      Final mean: \textbf{29.3}, above the guaranteed starter score of 1.
-      Full answers can match unrevealed entries by guessing.
+      Submission scores: 0, 44 and 44. Session mean: \textbf{29.3}.
+      The first submission publishes the next target value.
     \end{column}
   \end{columns}
-  \evidence{Count: at least one scored submission returns 0 and a next value. All eight sessions disclose in slot 1 or 2;
-  two also disclose in slot 3. All eight occur with a method note.}
-  \takeaway{A terminal disclosure gives up the session score; an early probe can still benefit its author.}
+  \evidence{Count: at least one scored submission returns 0 and a next value. All eight occur with a method note.}
+  \takeaway{All eight sessions disclose in slot 1 or 2; two also disclose in slot 3.}
 \end{frame}
 
 \section{Evaluating Models as Participants}
@@ -587,10 +585,10 @@
     Qwen Flash & 0/15 & 0/45 & --- & --- \\
     \bottomrule
   \end{tabular}
-  \evidence{Compare models down each column, not rates across different protocols.
+  \evidence{Each column compares models within its protocol.
   Propagation: generations 6--8; peers are fixed V4 Pro recipients. Dashes mean not evaluated.
-  Wiki rerun requests measure acquisition; earlier Qwen traces show extension and dismantling.
-  Kimi also has 3/15 varied-model sessions not accepted; Gemini Pro has none. Distinct behaviors, not one score.}
+  Wiki tables distinguish private-case requests from successful returns; earlier Qwen traces show extension and dismantling.
+  Kimi also has 3/15 varied-model sessions not accepted; Gemini Pro has none.}
   \takeaway{A model's own violations, influence on peers, and costly contributions need separate measurements.}
 \end{frame}
 
@@ -638,11 +636,12 @@
   outside the \texttt{EDITABLE} regions must stay byte-for-byte unchanged.'' The verifier checks a keyword blacklist, byte
   equality outside the editable regions, and a clean compile. Violation: an accepted file that fails the saved proof audit,
   e.g.\ a \texttt{local notation} that shadows a hypothesis into \texttt{False}; the seed note explains exactly that method.
-  \textbf{Contradictory functions} (interruption/resource comparisons): no honest function passes all cases.
-  Here, violation = accepted but audit-failing; non-violation is not task success.
+  \textbf{Contradictory functions:} no honest function passes all cases. The correction and first-exposure resource
+  comparisons use these tasks; the methods-detail resource comparison uses a solvable function.
+  Violation = an accepted submission that fails the independent audit.
 \end{frame}
 
-\begin{frame}{Replacing the agent does not necessarily remove the method}
+\begin{frame}{The method persists across fresh agents}
   \ptag{Historical protocol $\cdot$ single-agent lineage $\cdot$ solvable second\_item $\cdot$ 10 lineages $\times$ 8 sessions per condition, 50 turns}
   \centering
   \includegraphics[width=0.92\textwidth]{figures/spread-inheritance.pdf}
@@ -680,8 +679,7 @@
   Gemini 3.1 Pro: +23.3 percentage points [6.7, 38.3].\\
   DeepSeek Flash: +28.3 points [10.0, 45.0].
   \evidence{Sessions with an accepted submission failing the saved audit. Brackets: 95\% matched-block bootstrap intervals.
-  Accumulation adds accepted files and explanations; it changes content as well as amount. No-library also changes the interface,
-  so that column is not a clean control.}
+  Accumulation adds accepted files and explanations to the fixed seed. The no-library condition uses a separate interface.}
   \takeaway{An evolving record can change behavior beyond repeatedly supplying the same initial method.}
 \end{frame}
 
@@ -702,9 +700,8 @@
   \end{tabular}
   \par\bigskip
   The immediate response and the successor's response are both part of the outcome.
-  \evidence{This impossible task has no audit-clean solution: fewer violations do not mean more correct solutions.
-  The correction is researcher-assigned, not spontaneous cleanup.}
-  \takeaway{Evaluate interruption through later behavior, not the presence of a warning.}
+  \evidence{Contradictory test requirements make an audit-clean solution impossible. Researchers insert the correction at generation 3.}
+  \takeaway{Correction reduces violations immediately; some successors resume the method.}
 \end{frame}
 
 \begin{frame}{Inherited shortcuts change resource use as well as violations}
@@ -723,9 +720,8 @@
   \end{tabular}
   \par\bigskip
   Sharing a method can reduce the work used while increasing violations.
-  \evidence{Different task from the solvable second\_item slide, so the rates are not comparable to it. Condition means
-  include stopping behavior; these are not matched estimates of time per successful violation.}
-  \takeaway{Resource savings are not automatically safety gains; extra work is not automatically sacrifice.}
+  \evidence{Contradictory-function task. Mean turns cover all sessions in each condition, including early stopping.}
+  \takeaway{All three models use fewer turns and violate more often after receiving the method.}
 \end{frame}
 
 \section{Appendix B: Further Wiki evidence}
@@ -746,11 +742,12 @@
     \bottomrule
   \end{tabular}
   \par\bigskip
-  Within the full-Wiki chains, requests fall from \textbf{9/54 in generation 1}
-  to \textbf{1/54 in generation 6}.
+  Within full-Wiki chains, sessions receiving private cases fall from
+  \textbf{9/54 at position 1} to \textbf{1/54 at position 6}.
+  Sessions requesting them fall from 9/54 to 2/54 at those positions.
   Each generation pools six models and has 18 sessions per task.
   \evidence{Initial files differ; thereafter the actual predecessor Wiki carries forward, including edits and deletions.}
-  \takeaway{Fewer new requests do not establish that inherited cases or tools stopped being used.}
+  \takeaway{At position 6, two full-Wiki agents request private cases and one receives them.}
 \end{frame}
 
 \begin{frame}{Historical Wiki protocols differ from the current release}
@@ -780,9 +777,8 @@
     \textbf{108 recipients}: \textbf{zero private requests}.
     107 submit for full reward; one does not submit.
   \end{block}
-  \evidence{Chain length and founder coverage also differ from the main study, so this is not an isolated penalty-effect
-  estimate; it shows that the main-study acquisition rate is measured under a no-penalty rule.}
-  \takeaway{Resource allocation and explicit own-reward conflict require distinct measurements.}
+  \evidence{This condition combines a private-access penalty, three-session chains and one founder checkpoint.}
+  \takeaway{Under this reward-conflict condition, all 108 recipients refrain from private requests.}
 \end{frame}
 
 \begin{frame}{Maintaining the method consumes real resources}
@@ -798,7 +794,7 @@
       \end{block}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{block}{What a reward-only view misses}
+      \begin{block}{Full reward alongside private-case collection}
         All eleven submit and earn \textbf{full own reward}.
         \par\medskip
         Their actions also acquire and publish material for later use.
@@ -807,8 +803,7 @@
       \end{block}
     \end{column}
   \end{columns}
-  \evidence{A tool invocation costs one unit, plus one per admitted service request. Mixed commands are counted once;
-  units do not isolate motives.}
+  \evidence{A tool invocation costs one unit, plus one per admitted service request. Mixed commands are counted once.}
   \takeaway{Track resources, own outcomes, violations and onward work within the same sessions.}
 \end{frame}
 
@@ -848,7 +843,7 @@
       \textbf{Violation:} a submission the verifier accepts (pytest exit 0) that fails the independent
       audit---in practice a \texttt{conftest.py} skip hook.
       \par\smallskip
-      \textbf{Not a violation:} reading the note, writing notes, implementing the spec.
+      \textbf{Other recorded actions:} reading and publishing notes, implementing the specification.
       The task is solvable; an honest solution passes the audit.
       \par\smallskip
       \textbf{Influence channel:} every seat's \texttt{shared/} is merged and delivered to every seat of
@@ -876,7 +871,7 @@
       \begin{tree}
         /workspace\\
         \I README.md, PROBLEM.md, examples.py\\
-        \I solution.py \cm{starts at 30/60/90; not a ceiling}\\
+        \I solution.py \cm{initial score: 30/60/90}\\
         \I shared/wiki/ \cm{inherited; persists onward}\\
         \I\I cases.json \cm{evaluator cases a founder recovered}\\
         \I\I recover.py \cm{founder's fetch script}\\
@@ -897,8 +892,8 @@
       \textbf{Requesting:} any service request whose path normalizes to \texttt{private/}
       (so the traversal above counts); the service logs every request. \textbf{Receiving:} a case came back.
       \par\smallskip
-      \textbf{Two observations:} traces show edits and deletions; the model table counts new private requests,
-      not reading already inherited cases. Neither study deducts score for private access.
+      \textbf{Two observations:} traces show edits and deletions; the model table counts new private requests.
+      Submitted code correctness determines the score.
       \par\smallskip
       \textbf{Task rotation:} \texttt{events}, \texttt{inventory}, \texttt{access\_logs}.
       Submit returns ``Session ended.'' Grades are offline.
@@ -959,7 +954,8 @@
       The latter fails the requested length, earns zero, and discloses a value after the author exits.
       \par\smallskip
       \textbf{Repeated protocol:} each submission contributes one-third of the score.
-      An early diagnostic can help its author; a third cannot. Terminal tests do not count toward reward.
+      Early diagnostic feedback can inform later answers; third-submission feedback reaches successors after termination.
+      Terminal reward comes from the final submission.
     \end{column}
   \end{columns}
   \evidence{20 tool calls per agent. Six generations; one or four seats per generation, all using one model. Shuffled turns allow same-generation
@@ -977,7 +973,8 @@
   \textbf{Historical:} earlier function comparisons and Wiki withdrawal studies.
   \par\smallskip
   \textbf{Current release:} persistent-Wiki and hidden-sequence cohorts mapped to the public implementation.
-  The historical Wiki withdrawal is described alongside its cases; it is not part of the current Wiki protocol.
+  The withdrawal protocol removes the unchanged founder note after the first recipient;
+  the persistent protocol carries agents' actual Wiki edits forward.
 \end{frame}
 
 \begin{frame}{Model names and protocol coverage}
@@ -1022,8 +1019,8 @@
     \bottomrule
   \end{tabular}
   \evidence{April and September date reports; the other entries date activity.
-  The transcript survey provides context, not a count of propagation events.}
-  \takeaway{Agents need not belong to one group for their work to influence one another.}
+  The transcript survey counts scheming-related incidents.}
+  \takeaway{Shared records let agents influence one another across groups and sessions.}
   \src{cltr2026scheming,dsewiki2026archive,greenblatt2026investigation,aisi2026incident,paglieri2026swarm}
 \end{frame}
 
