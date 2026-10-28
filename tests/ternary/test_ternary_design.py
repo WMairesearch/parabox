@@ -85,6 +85,45 @@ class TernaryDesignTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Participant materials changed"):
             ternary.check(directory)
 
+    def legacy(self, spec):
+        directory = self.root / "legacy"
+        ternary.prepare(directory, spec)
+        registration = read(directory / "registration.json")
+        del registration["materials"]
+        registration["sources"] = {**registration["sources"], "benchmark/ternary/run.py": "0" * 64}
+        save(directory / "registration.json", registration)
+        (directory / "registration.sha256").write_text(digest_json(registration) + "\n")
+        return directory, digest_json(registration["sources"])
+
+    def test_published_preset_prepared_by_compatible_sources_checks_runs_and_exports(self):
+        directory, old = self.legacy(self.spec())
+        with self.assertRaisesRegex(ValueError, "implementation changed"):
+            ternary.check(directory)
+        with patch.object(ternary, "COMPATIBLE_SOURCES", {old}):
+            ternary.check(directory)
+            deadline = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+            with patch.object(episode, "SharedBox", ScriptedBox), \
+                    patch.object(episode.base, "Client", ScriptedClient), \
+                    patch.object(episode.base, "shutdown", return_value={"verified": True}), \
+                    patch.object(ternary, "verify_image"):
+                result = ternary.run(directory, authorize_session_cap=18, deadline=deadline, workers=2)
+        self.assertEqual(result["completed"], 18)
+        target = read(directory / "registration.json")["target"]
+        prompts = read(next(directory.glob("chains/*-prefix-40-*/generation-01/seat-0/meta/prompts.json")))
+        self.assertEqual(prompts, episode.materials(40, target, fixture.TERMINAL))
+        with patch.dict("os.environ", {"PARABOX_DESIGN_KEY": "offline-credential"}):
+            export([directory], self.root / "bundle")
+        [record] = read(self.root / "bundle/protocols.json")["runs"]
+        self.assertEqual(record["executed_sources"], ternary.source_hashes())
+        self.assertEqual(digest_json(record["sources"]), old)
+        self.assertTrue(record["sources_match_installed"] and record["published_profile"])
+
+    def test_compatible_sources_do_not_admit_design_variants(self):
+        directory, old = self.legacy(self.no_reader())
+        with patch.object(ternary, "COMPATIBLE_SOURCES", {old}), \
+                self.assertRaisesRegex(ValueError, "implementation changed"):
+            ternary.check(directory)
+
     def test_independent_replicates_run_export_and_analyze_apart_from_published_groups(self):
         directory = self.root / "run"
         ternary.prepare(directory, self.no_reader())

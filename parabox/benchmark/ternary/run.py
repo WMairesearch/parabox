@@ -21,6 +21,8 @@ from . import episode, fixture
 
 START_LOCK = threading.Lock()
 DESIGN = {"generations": 6, "replicates": 1, "readers": fixture.UNSTATED}
+# Published-preset sessions from these sources match the current ones call for call.
+COMPATIBLE_SOURCES = {"33dc8bdb8a72584d68d891f8c96729310513a0bcff9b7f6cf520cd4f32d11347"}
 SOURCE_FILES = (
     "benchmark/ternary/runtime/__init__.py", "benchmark/ternary/runtime/base.py",
     "benchmark/ternary/episode.py",
@@ -160,7 +162,10 @@ def check(directory: Path) -> dict:
     spec = validate_spec(registration["spec"])
     if registration.get("transport") != transport_contract(spec):
         raise ValueError("Transport profile changed")
-    if registration["sources"] != source_hashes():
+    legacy = (registration["sources"] != source_hashes() and "materials" not in registration
+              and digest_json(registration["sources"]) in COMPATIBLE_SOURCES
+              and not DESIGN.keys() & spec.keys())
+    if registration["sources"] != source_hashes() and not legacy:
         raise ValueError("Experiment implementation changed")
     if registration["chains"] != schedule(registration["models"], spec["seats"], spec):
         raise ValueError("Schedule changed")
@@ -173,7 +178,7 @@ def check(directory: Path) -> dict:
     generator = random.Random(spec["seed"])
     if registration["target"] != [generator.randrange(3) for _ in range(100)]:
         raise ValueError("Target differs from prepared seed")
-    if registration.get("materials") != surfaces(spec, registration["target"]):
+    if not legacy and registration.get("materials") != surfaces(spec, registration["target"]):
         raise ValueError("Participant materials changed")
     for binding in registration["models"].values():
         source = Path(binding["path"])
@@ -208,7 +213,8 @@ def claim(directory: Path, spec: dict, seats: int, cap: int) -> None:
             os.fsync(stream.fileno())
 
 
-def run_chain(directory: Path, row: dict, registration: dict, deadline: datetime) -> str:
+def run_chain(directory: Path, row: dict, registration: dict, deadline: datetime,
+              materials: dict) -> str:
     chain = directory / "chains" / row["chain"]
     chain.mkdir(parents=True, exist_ok=False)
     wiki, receipts = chain / "wiki", chain / "submissions"
@@ -230,7 +236,7 @@ def run_chain(directory: Path, row: dict, registration: dict, deadline: datetime
                                         config, registration["target"], spec["image"], wiki,
                                         seed, deadline.isoformat(), agents=spec["seats"],
                                         protocol=spec["protocol"], receipts=receipts,
-                                        surfaces=registration["materials"][str(row["prefix"])])
+                                        surfaces=materials[str(row["prefix"])])
         if not result["normal"]:
             raise RuntimeError(f"Generation {generation} failed")
     return row["chain"]
@@ -252,11 +258,13 @@ def run(directory: Path, *, authorize_session_cap: int, deadline: str, workers: 
                 or (directory / "chains").exists()):
             raise ValueError("Prior execution exists; no automatic resume")
         verify_image(registration["spec"]["image"])
+        materials = registration.get("materials") or surfaces(registration["spec"], registration["target"])
         save(directory / "authorization.json", {"session_cap": authorize_session_cap,
-             "deadline": cutoff.isoformat(), "registration_sha256": digest_json(registration)})
+             "deadline": cutoff.isoformat(), "registration_sha256": digest_json(registration),
+             "sources": source_hashes()})
         errors = {}
         with ThreadPoolExecutor(max_workers=workers) as pool:
-            futures = {pool.submit(run_chain, directory, row, registration, cutoff): row["chain"]
+            futures = {pool.submit(run_chain, directory, row, registration, cutoff, materials): row["chain"]
                        for row in registration["chains"]}
             for future in as_completed(futures):
                 try:

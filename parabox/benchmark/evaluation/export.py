@@ -60,6 +60,7 @@ def _ternary(directory: Path, rows: list[dict], secrets: set[str]) -> dict:
     authorization = directory / "authorization.json"
     if not authorization.exists() or read(authorization).get("registration_sha256") != digest_json(registration):
         raise ValueError("Run was not executed under this registration")
+    executed = read(authorization).get("sources", registration["sources"])
     spec = validate_spec(registration["spec"])
     chains = {row["chain"]: row for row in registration["chains"]}
     for row in rows:
@@ -83,8 +84,8 @@ def _ternary(directory: Path, rows: list[dict], secrets: set[str]) -> dict:
         "registration_sha256": digest_json(registration),
         "target_sha256": digest_json(registration["target"]),
         "transport": registration["transport"],
-        "sources": registration["sources"],
-        "sources_match_installed": registration["sources"] == source_hashes(),
+        "sources": registration["sources"], "executed_sources": executed,
+        "sources_match_installed": executed == source_hashes(),
         "chain_errors": read(results)["chain_errors"] if results.exists() else None,
     }
 
