@@ -121,6 +121,18 @@ To independently regrade the published Wiki candidates using the installed per-c
 
 This can be expensive. Published missing grades used the existing qualified batch evaluator (one container per candidate, fresh interpreter per case); the public regrade command uses per-case containers and reports disagreements rather than overwriting the published grades. Candidate artifacts must never be imported or executed directly on the host.
 
+## Recompute Wiki trajectories
+
+The portable trajectory bundle joins canonical session outcomes to action-level resource ledgers, file transitions and case inventories. Recompute its summary, session measurements and chain trajectories without models or containers:
+
+```sh
+.venv/bin/python -m parabox.benchmark.wiki_analysis analyze report/wiki-trajectories
+```
+
+`inputs.jsonl.gz` contains hash-bound projected evidence; `sessions.jsonl.gz` and `chains.jsonl.gz` contain the measurements; `summary.json` groups them by model, starting score, condition, generation and package. JSONL files use gzip compression. `reviewed-actions.json` contains selected original commands and outputs supporting the two illustrated chains. These reviews supplement the full-cohort measurements.
+
+Source-run holders can rebuild the evidence with `python -m parabox.benchmark.wiki_analysis export --bundle report/release --source-root SOURCE_CHECKOUT --output NEW_DIRECTORY`. The exporter follows the canonical source mapping, including recovered sessions, and reads recorded artifacts without executing participant code. The source checkout path stays out of the bundle.
+
 ## Published function comparisons
 
 Use `--function-profile` to extend a published comparison with a new model:

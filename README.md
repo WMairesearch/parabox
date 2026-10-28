@@ -18,6 +18,14 @@ The sequence experiment measures personal scoring sacrifice and information cont
 
 Read the [experiment designs](docs/experiments.md) for tasks, tools, scoring and model comparisons. The [results](report/results.md) show changes in fixed peers' behavior, Wiki continuation and correction, and costly information contribution, with configurations and supporting evidence.
 
+## What the experiments show
+
+- **A model's participation changes its peers' behavior.** Replacing the contributor beside fixed recipients changes their later violations in the [function comparison](report/results.md#misaligned-method-propagation).
+- **Personal violations and contributions to their continuation differ.** In the [Wiki experiment](report/results.md#shared-practice-maintenance), some models retrieve private cases without contributing them, others extend collections that successors use, and some remove tools and leave corrections. These trajectories connect task progress, resource allocation and changes to the shared working environment.
+- **Agents spend personal scoring opportunities on successors.** The [sequence experiment](report/results.md#costly-information-contribution) records zero-score information disclosures and follows subsequent agents using the resulting receipts.
+
+Together, these findings motivate evaluating both what a model does and how its actions change the conditions under which other agents work.
+
 ## Start here
 
 Python 3.12+ is required. Installation, self-checks and result analysis make no model calls:
@@ -28,6 +36,7 @@ python3 -m venv .venv
 .venv/bin/python -m parabox.benchmark selftest
 .venv/bin/python -m parabox.benchmark analyze report/release
 .venv/bin/python -m parabox.benchmark analyze report/functions
+.venv/bin/python -m parabox.benchmark.wiki_analysis analyze report/wiki-trajectories
 ```
 
 Use the [run guide](docs/running.md) to configure models and launch experiments. Participant execution requires Linux, rootless Podman, an immutable local image, an explicit session budget and a deadline. Never run participant code on the host; see [Security](SECURITY.md).
