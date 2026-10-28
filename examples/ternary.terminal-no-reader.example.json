@@ -1,0 +1,14 @@
+{
+  "models": {
+    "gemini-pro": "examples/model.example.json"
+  },
+  "image": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "seed": 311681134383369942404476000178309190974,
+  "seats": 1,
+  "protocol": "terminal",
+  "profile": "historical-v1",
+  "transport_profile": "json-900-v1",
+  "generations": 1,
+  "replicates": 1,
+  "readers": "none"
+}
