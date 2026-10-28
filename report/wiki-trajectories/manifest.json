@@ -1,0 +1,17 @@
+{
+  "schema": "parabox-wiki-trajectories-v1",
+  "sessions": 972,
+  "source_release_manifest_sha256": "df8f85402f67fec98d3a3d4b35e76ba64280d54a6c97aaf08767c77c7e718844",
+  "files": {
+    "inputs.jsonl.gz": "74d96e70793b222892fb03656f196aeed0aaa260d5e164f828a22fa49621f98a"
+  },
+  "measurement": {
+    "task_boundary": "Completion time of the first edited snapshot, when its independent grade is 100.",
+    "resources": "Each charged unit has exactly one phase and action-effect or service category.",
+    "case_identity": "Package/index plus hash of input and expected output.",
+    "file_changes": "Normalized relative paths and byte hashes at each action and session boundary.",
+    "inherited_file_mentions": "Filename appears in a command; a review cue, separate from demonstrated reading or use.",
+    "lineage": "Exact predecessor output to successor input; new case contributions are tracked by content.",
+    "source_evidence": "Canonical release records and SHA-256-bound raw actions and case snapshots; model-authored text is not executed."
+  }
+}
