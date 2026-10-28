@@ -25,6 +25,25 @@ def participant_files(prefix, target, protocol=fixture.REPEATED):
     raise ValueError("Unknown ternary protocol")
 
 
+def materials(prefix, target, protocol=fixture.REPEATED, readers=fixture.UNSTATED):
+    files = participant_files(prefix, target, protocol)
+    if readers == fixture.NO_READER:
+        files = fixture.without_readers(files, protocol)
+    elif readers != fixture.UNSTATED:
+        raise ValueError("Unknown reader condition")
+    terminal = protocol == fixture.TERMINAL
+    return {"messages": [{"role": "system", "content": fixture.SYSTEM},
+                         {"role": "user", "content": fixture.TERMINAL_ASSIGNMENT if terminal else ASSIGNMENT}],
+            "tools": copy.deepcopy(TERMINAL_TOOLS if terminal else TOOLS),
+            "files": {name: raw.decode() for name, raw in files.items()}}
+
+
+def rules(protocol):
+    if protocol == fixture.TERMINAL:
+        return {"call_limit": base.CALL_LIMIT, "test_limit": 2, "submission_limit": 1}
+    return {"call_limit": base.CALL_LIMIT, "submission_limit": SUBMISSION_LIMIT}
+
+
 def truncated_response(value):
     if isinstance(value, dict):
         return any((key in ("finish_reason", "finishReason") and item in ("length", "MAX_TOKENS"))
@@ -66,26 +85,21 @@ def wiki_state(wiki, meta):
 
 class Actor:
     def __init__(self, directory, spec, config, target, image, wiki, deadline,
-                 protocol=fixture.REPEATED):
+                 protocol=fixture.REPEATED, *, receipts, surfaces):
         self.directory, self.spec, self.target = directory, spec, target
         self.protocol = protocol
-        self.tools = TERMINAL_TOOLS if protocol == fixture.TERMINAL else TOOLS
+        self.tools = surfaces["tools"]
         self.workspace, self.meta = directory / "workspace", directory / "meta"
         directory.mkdir(parents=True, exist_ok=False)
         self.workspace.mkdir()
-        files = participant_files(spec["prefix"], target, protocol)
-        for name, raw in files.items():
-            base.write_regular(self.workspace, name, raw)
+        for name, text in surfaces["files"].items():
+            base.write_regular(self.workspace, name, text.encode())
         (self.workspace / "shared/wiki").mkdir(parents=True)
         (self.workspace / "shared/submissions").mkdir(parents=True)
-        self.receipts = wiki.parent / "submissions"
-        self.receipts.mkdir(exist_ok=True)
-        self.messages = [{"role": "system", "content": fixture.SYSTEM},
-                         {"role": "user", "content": fixture.TERMINAL_ASSIGNMENT
-                          if protocol == fixture.TERMINAL else ASSIGNMENT}]
+        self.receipts = receipts
+        self.messages = copy.deepcopy(surfaces["messages"])
         base.save(self.meta / "prompts.json", {
-            "messages": self.messages, "tools": self.tools,
-            "files": {name: raw.decode() for name, raw in files.items()}})
+            "messages": self.messages, "tools": self.tools, "files": surfaces["files"]})
         base.save(self.meta / "spec.json", spec)
         box_prefix = "ternary-terminal-" if protocol == fixture.TERMINAL else "ternary-repeated-"
         self.box = SharedBox(box_prefix + base.sha256(str(directory.resolve()))[:16],
@@ -296,7 +310,7 @@ class Actor:
             "status": status,
             "earned_score": score, "final_feedback": self.feedback, "submitted": self.submitted,
             "evaluated_score": evaluated,
-            "end_reason": self.end_reason,
+            "end_reason": self.end_reason, "rules": rules(self.protocol),
             "used_calls": self.used, "model_turns": self.turns,
             "best_observed_full_candidate_score": max((record["feedback"].get("score", 0)
                 for record in self.snapshots if record.get("length") == 100), default=None),
@@ -311,20 +325,22 @@ class Actor:
 
 
 def run_generation(directory: Path, spec, config, target, image, wiki, order_seed, deadline,
-                   agents=4, protocol=fixture.REPEATED):
+                   agents=4, protocol=fixture.REPEATED, *, receipts=None, surfaces=None):
+    receipts = receipts or wiki.parent / "submissions"
+    surfaces = surfaces or materials(spec["prefix"], target, protocol)
     directory.mkdir(parents=True, exist_ok=False)
     meta = directory / "meta"
     actors = []
     error = None
     sequence = 0
     base.save(meta / "incoming.json", wiki_state(wiki, meta))
-    receipts = wiki.parent / "submissions"
     receipts.mkdir(exist_ok=True)
     base.save(meta / "incoming-submissions.json", wiki_state(receipts, meta))
     try:
         for seat in range(agents):
             actor = Actor(directory / f"seat-{seat}", {**spec, "seat": seat},
-                          config, target, image, wiki, deadline, protocol)
+                          config, target, image, wiki, deadline, protocol,
+                          receipts=receipts, surfaces=surfaces)
             actors.append(actor)
             actor.start()
         generator = random.Random(order_seed)

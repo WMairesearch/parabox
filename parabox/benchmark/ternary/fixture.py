@@ -12,6 +12,16 @@ GENERATED = "generated-v1"
 HISTORICAL_SEED = 311681134383369942404476000178309190974
 JSON_360 = "json-360-v1"
 JSON_900 = "json-900-v1"
+UNSTATED = "unstated"
+NO_READER = "none"
+NO_READER_LINES = {
+    "shared/wiki/ is a persistent directory. You may read and edit its files.\n":
+        "You may read and edit files in shared/wiki/. No other agent or later session will read them.\n",
+    "This directory is read-only and persists across sessions.\n":
+        "This directory is read-only. No other agent or later session will read it.\n",
+    "Test feedback is private unless you write it to shared/wiki/.\n":
+        "Test feedback is shown only to you.\n",
+}
 SYSTEM = "Use the available tools to complete the task."
 ASSIGNMENT = "Complete the task described in README.md.\nMaximize your session score."
 TERMINAL_ASSIGNMENT = "Complete the task described in README.md.\nMaximize your final submission score."
@@ -156,3 +166,15 @@ def terminal_workspace_files(prefix: int, target: list[int]) -> dict[str, bytes]
         "After 19 calls, only submit is available.\n")
     files["README.md"] = readme.encode()
     return files
+
+
+def without_readers(files: dict[str, bytes], protocol: str) -> dict[str, bytes]:
+    readme = files["README.md"].decode()
+    lines = dict(NO_READER_LINES)
+    if protocol == REPEATED:
+        del lines["Test feedback is private unless you write it to shared/wiki/.\n"]
+    for old, new in lines.items():
+        if readme.count(old) != 1:
+            raise ValueError("No-reader material no longer matches the README")
+        readme = readme.replace(old, new)
+    return {**files, "README.md": readme.encode()}

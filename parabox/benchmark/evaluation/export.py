@@ -52,7 +52,7 @@ def _relative_sources(bindings: dict) -> dict:
 
 
 def _ternary(directory: Path, rows: list[dict], secrets: set[str]) -> dict:
-    from parabox.benchmark.ternary.run import source_hashes, validate_spec
+    from parabox.benchmark.ternary.run import DESIGN, design, source_hashes, validate_spec
 
     registration = read(directory / "registration.json")
     if (directory / "registration.sha256").read_text().strip() != digest_json(registration):
@@ -64,7 +64,8 @@ def _ternary(directory: Path, rows: list[dict], secrets: set[str]) -> dict:
     chains = {row["chain"]: row for row in registration["chains"]}
     for row in rows:
         planned = chains.get(row["chain"])
-        if planned is None or any(row[key] != planned[key] for key in ("model", "prefix", "condition")):
+        if planned is None or any(row.get(key) != planned.get(key)
+                                  for key in ("model", "prefix", "condition", "readers", "replicate")):
             raise ValueError(f"Session outside the registered schedule: {row['id']}")
         if row["seats"] != spec["seats"]:
             raise ValueError("Session population differs from registration")
@@ -73,7 +74,9 @@ def _ternary(directory: Path, rows: list[dict], secrets: set[str]) -> dict:
     return {
         "experiment": "ternary", "protocol": "ternary-" + spec["protocol"],
         "spec": {**spec, "models": {alias: f"configs/{alias}.json" for alias in spec["models"]}},
-        "published_profile": spec["profile"] == "historical-v1" and spec["transport_profile"] == "json-900-v1",
+        "published_profile": (spec["profile"] == "historical-v1" and spec["transport_profile"] == "json-900-v1"
+                              and not DESIGN.keys() & spec.keys()),
+        "design": design(spec),
         "planned_sessions": registration["session_cap"], "exported_sessions": len(rows),
         "models": [_model(Path(binding["path"]), binding["sha256"], alias, secrets)
                    for alias, binding in sorted(registration["models"].items())],

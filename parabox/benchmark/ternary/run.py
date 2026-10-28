@@ -20,6 +20,7 @@ from . import episode, fixture
 
 
 START_LOCK = threading.Lock()
+DESIGN = {"generations": 6, "replicates": 1, "readers": fixture.UNSTATED}
 SOURCE_FILES = (
     "benchmark/ternary/runtime/__init__.py", "benchmark/ternary/runtime/base.py",
     "benchmark/ternary/episode.py",
@@ -36,11 +37,16 @@ def source_hashes() -> dict[str, str]:
     return {name: sha256((directory / name).read_bytes()) for name in SOURCE_FILES}
 
 
+def design(spec: dict) -> dict:
+    return {**DESIGN, **{key: spec[key] for key in DESIGN if key in spec}}
+
+
 def validate_spec(spec: dict) -> dict:
     required = {"models", "image", "seed", "seats"}
-    optional = {"protocol", "profile", "transport_profile"}
+    optional = {"protocol", "profile", "transport_profile", *DESIGN}
     if not isinstance(spec, dict) or not required <= set(spec) or set(spec) - required - optional:
-        raise ValueError("Spec requires models, image, seed, and seats; only protocol, profile, and transport_profile are optional")
+        raise ValueError("Spec requires models, image, seed, and seats; only protocol, profile, "
+                         "transport_profile, generations, replicates, and readers are optional")
     models = spec["models"]
     if not isinstance(models, dict) or not models:
         raise ValueError("At least one model configuration is required")
@@ -65,6 +71,14 @@ def validate_spec(spec: dict) -> dict:
         raise ValueError("Historical profile requires an explicit non-streaming transport profile")
     if profile == fixture.HISTORICAL and spec["seed"] != fixture.HISTORICAL_SEED:
         raise ValueError("Historical target seed differs from the registered profile")
+    chosen = design(spec)
+    if any(type(chosen[key]) is not int for key in ("generations", "replicates")) \
+            or not 1 <= chosen["generations"] <= 6 or not 1 <= chosen["replicates"] <= 100:
+        raise ValueError("Generations must be 1 to 6 and replicates 1 to 100")
+    if chosen["readers"] not in (fixture.UNSTATED, fixture.NO_READER):
+        raise ValueError("Unknown reader condition")
+    if chosen["readers"] == fixture.NO_READER and (spec["seats"] != 1 or chosen["generations"] != 1):
+        raise ValueError("The no-reader condition requires one seat and one generation")
     return {**spec, "protocol": protocol, "profile": profile,
             "transport_profile": transport_profile}
 
@@ -89,11 +103,23 @@ def order_seed(row: dict, generation: int, protocol: str, profile: str) -> int:
     return int(sha256(material)[:16], 16)
 
 
-def schedule(models: dict, seats: int) -> list[dict]:
+def schedule(models: dict, seats: int, spec: dict | None = None) -> list[dict]:
     conditions = ("method",) if seats == 1 else ("empty", "method")
-    return [{"chain": f"{model}-prefix-{prefix:02d}-{condition}", "model": model,
+    rows = [{"chain": f"{model}-prefix-{prefix:02d}-{condition}", "model": model,
              "prefix": prefix, "condition": condition}
             for prefix in fixture.PREFIXES for condition in conditions for model in models]
+    if not spec or not DESIGN.keys() & spec.keys():
+        return rows
+    chosen = design(spec)
+    suffix = "-no-reader" if chosen["readers"] == fixture.NO_READER else ""
+    return [{**row, "chain": f"{row['chain']}{suffix}-r{replicate:02d}",
+             "readers": chosen["readers"], "replicate": replicate}
+            for row in rows for replicate in range(1, chosen["replicates"] + 1)]
+
+
+def surfaces(spec: dict, target: list[int]) -> dict[str, dict]:
+    return {str(prefix): episode.materials(prefix, target, spec["protocol"], design(spec)["readers"])
+            for prefix in fixture.PREFIXES}
 
 
 def prepare(directory: Path, spec: dict) -> dict:
@@ -111,10 +137,13 @@ def prepare(directory: Path, spec: dict) -> dict:
         if "ternary_timeout_s" in config and config["ternary_timeout_s"] != timeout:
             raise ValueError(f"Model timeout conflicts with selected transport profile: {name}")
         models[name] = {"path": str(source), "sha256": sha256(source.read_bytes())}
+    chains = schedule(models, spec["seats"], spec)
+    generations = design(spec)["generations"]
     registration = {"spec": spec, "models": models, "target": target,
                     "transport": transport_contract(spec),
-                    "generations": 6, "chains": schedule(models, spec["seats"]),
-                    "session_cap": len(schedule(models, spec["seats"])) * 6 * spec["seats"],
+                    "generations": generations, "chains": chains,
+                    "session_cap": len(chains) * generations * spec["seats"],
+                    "materials": surfaces(spec, target),
                     "sources": source_hashes(), "created_at": utcnow().isoformat()}
     directory.mkdir(parents=True, exist_ok=False)
     save(directory / "registration.json", registration)
@@ -133,15 +162,19 @@ def check(directory: Path) -> dict:
         raise ValueError("Transport profile changed")
     if registration["sources"] != source_hashes():
         raise ValueError("Experiment implementation changed")
-    if registration["chains"] != schedule(registration["models"], spec["seats"]):
+    if registration["chains"] != schedule(registration["models"], spec["seats"], spec):
         raise ValueError("Schedule changed")
     if set(registration["models"]) != set(spec["models"]):
         raise ValueError("Model bindings changed")
-    if registration["generations"] != 6 or registration["session_cap"] != len(registration["chains"]) * 6 * spec["seats"]:
+    generations = design(spec)["generations"]
+    if (registration["generations"] != generations
+            or registration["session_cap"] != len(registration["chains"]) * generations * spec["seats"]):
         raise ValueError("Session count changed")
     generator = random.Random(spec["seed"])
     if registration["target"] != [generator.randrange(3) for _ in range(100)]:
         raise ValueError("Target differs from prepared seed")
+    if registration.get("materials") != surfaces(spec, registration["target"]):
+        raise ValueError("Participant materials changed")
     for binding in registration["models"].values():
         source = Path(binding["path"])
         if sha256(source.read_bytes()) != binding["sha256"]:
@@ -178,14 +211,15 @@ def claim(directory: Path, spec: dict, seats: int, cap: int) -> None:
 def run_chain(directory: Path, row: dict, registration: dict, deadline: datetime) -> str:
     chain = directory / "chains" / row["chain"]
     chain.mkdir(parents=True, exist_ok=False)
-    wiki = chain / "wiki"
+    wiki, receipts = chain / "wiki", chain / "submissions"
     wiki.mkdir()
+    receipts.mkdir()
     if row["condition"] == "method":
         (wiki / "method.txt").write_text(fixture.METHOD)
     spec = registration["spec"]
     config = read(Path(registration["models"][row["model"]]["path"]))
     config = {**config, "ternary_timeout_s": registration["transport"]["socket_timeout_seconds"]}
-    for generation in range(1, 7):
+    for generation in range(1, registration["generations"] + 1):
         if utcnow() >= deadline:
             raise TimeoutError("Deadline reached before generation start")
         assignment = {**row, "generation": generation,
@@ -195,7 +229,8 @@ def run_chain(directory: Path, row: dict, registration: dict, deadline: datetime
         result = episode.run_generation(chain / f"generation-{generation:02d}", assignment,
                                         config, registration["target"], spec["image"], wiki,
                                         seed, deadline.isoformat(), agents=spec["seats"],
-                                        protocol=spec["protocol"])
+                                        protocol=spec["protocol"], receipts=receipts,
+                                        surfaces=registration["materials"][str(row["prefix"])])
         if not result["normal"]:
             raise RuntimeError(f"Generation {generation} failed")
     return row["chain"]

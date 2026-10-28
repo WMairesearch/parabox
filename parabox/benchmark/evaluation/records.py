@@ -8,6 +8,9 @@ from collections import Counter
 from pathlib import Path
 
 
+TERNARY_DESIGN = ("readers", "replicate")
+
+
 def digest(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
@@ -89,7 +92,7 @@ def load(directory: Path) -> tuple[dict, list[dict]]:
             end = read(path)
             rows.append(session(path.parent, protocol, {"seats": spec["seats"], **{
                 key: end[key] for key in ("chain", "model", "prefix", "condition", "generation", "seat")
-            }}))
+            }, **{key: end[key] for key in TERNARY_DESIGN if key in end}}))
         manifest = {"schema": "local-run", "planned_sessions": registration["session_cap"],
                     "registration_sha256": digest((directory / "registration.json").read_bytes())}
     elif (directory / "plan.json").exists():
@@ -140,6 +143,8 @@ def load(directory: Path) -> tuple[dict, list[dict]]:
                     raise ValueError("Grading does not bind the session end")
         else:
             expected = {"generation": end["generation"], "seat": end["seat"], "prefix": int(end["prefix"])}
+            if any(row.get(key) != end.get(key) for key in TERNARY_DESIGN):
+                raise ValueError("Session design differs from terminal record")
         if any(row.get(key) != value for key, value in expected.items()):
             raise ValueError("Session assignment differs from terminal record")
         if row.get('seats') not in (1, 4) or not 0 <= row['seat'] < row['seats']:

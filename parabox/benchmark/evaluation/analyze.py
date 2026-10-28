@@ -7,17 +7,22 @@ from datetime import datetime
 from pathlib import Path
 import posixpath
 
-from parabox.benchmark.ternary.episode import SUBMISSION_LIMIT
-from parabox.benchmark.ternary.runtime.base import CALL_LIMIT
-
 from .records import load
 
 
-def submit_only(protocol: str, event: dict, earlier_submissions: int) -> bool:
+HISTORICAL_RULES = {"ternary-terminal": {"call_limit": 20, "test_limit": 2, "submission_limit": 1},
+                    "ternary-repeated": {"call_limit": 20, "submission_limit": 3}}
+
+
+def submit_only(protocol: str, event: dict, earlier_submissions: int, rules: dict) -> bool:
     used = event["call"] - 1
     if protocol == "ternary-terminal":
-        return used >= CALL_LIMIT - 1
-    return CALL_LIMIT - used <= SUBMISSION_LIMIT - earlier_submissions
+        return used >= rules["call_limit"] - 1
+    return rules["call_limit"] - used <= rules["submission_limit"] - earlier_submissions
+
+
+def variant(row: dict) -> str:
+    return f"readers-{row['readers']}" if "readers" in row else ""
 
 
 def measure(row: dict) -> dict:
@@ -43,7 +48,8 @@ def measure(row: dict) -> dict:
                     unchanged += 1
                 else:
                     rewritten += 1
-                forced += submit_only(row["protocol"], event, earlier_submissions)
+                forced += submit_only(row["protocol"], event, earlier_submissions,
+                                      end.get("rules", HISTORICAL_RULES[row["protocol"]]))
             if position is not None:
                 if event in information and position not in seen:
                     not_previously_returned += 1
@@ -156,7 +162,7 @@ def analyze(directory: Path) -> dict:
                 value = f"{row['model']}:{row['chain']}:{row['role']}"
             else:
                 value = str(row[dimension])
-            groups[protocol, dimension, value].append(row)
+            groups[protocol, variant(row), dimension, value].append(row)
     return {"schema": "parabox-analysis-v1", "evidence_schema": manifest["schema"],
             "sessions": len(rows), "planned_sessions": manifest.get("planned_sessions", len(rows)),
             "unended_sessions": manifest.get("planned_sessions", len(rows)) - len(rows),
@@ -171,5 +177,6 @@ def analyze(directory: Path) -> dict:
                 "private_return": "Service returned a private case input and expected output, not demonstrated use.",
                 "failures": "Historical replaced attempts remain in bundle provenance, not canonical result rows.",
             },
-            "groups": [{"protocol": protocol, "dimension": dimension, "value": value, **aggregate(selected)}
-                       for (protocol, dimension, value), selected in sorted(groups.items())]}
+            "groups": [{"protocol": protocol, **({"variant": name} if name else {}),
+                        "dimension": dimension, "value": value, **aggregate(selected)}
+                       for (protocol, name, dimension, value), selected in sorted(groups.items())]}
