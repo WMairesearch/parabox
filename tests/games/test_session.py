@@ -72,6 +72,10 @@ class SessionTests(unittest.TestCase):
             result = session.step({"id": "call-1", "function": {
                 "name": "write", "arguments": json.dumps({"body": raw})}})
             self.assertEqual(result.result["body"], raw)
+            self.assertIn("checkpoint", result.to_dict())
+            self.assertIsNotNone(result.checkpoint)
+            self.assertIsNone(result.checkpoint_error)
+            self.assertTrue(Path(result.checkpoint["path"]).exists())
             path = session.export(self.root / "trace.json")
         trace = json.loads(path.read_text())
         self.assertEqual(trace["metadata"]["description"]["settings"], {"limit": 3})
@@ -82,6 +86,7 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(step["next_observation"]["data"]["turn"], 1)
         self.assertEqual(step["game_time_after"], {"turn": 1})
         self.assertTrue(Path(step["checkpoint"]["path"]).exists())
+        self.assertEqual(step["checkpoint"], result.checkpoint)
 
     def test_numbered_choice_and_duplicate_action_id(self):
         game = self.game()
@@ -109,7 +114,11 @@ class SessionTests(unittest.TestCase):
         game = self.game()
         game.fail = True
         with GameSession(game, self.root / "one") as session:
-            self.assertEqual(session.step(0, action_id="lost").status, "unknown")
+            result = session.step(0, action_id="lost")
+            self.assertEqual(result.status, "unknown")
+            self.assertIn("checkpoint", result.to_dict())
+            self.assertIsNone(result.checkpoint)
+            self.assertIsNone(result.checkpoint_error)
             with self.assertRaises(UnknownOutcome):
                 session.step(0, action_id="lost")
             with self.assertRaises(UnknownOutcome):
@@ -137,9 +146,16 @@ class SessionTests(unittest.TestCase):
         with GameSession(game, self.root / "one") as session:
             session.start()
             game.snapshot_fail = True
-            self.assertEqual(session.step(0).status, "completed")
+            result = session.step(0, action_id="save-failed")
+            self.assertEqual(result.status, "completed")
+            self.assertIn("checkpoint_error", result.to_dict())
+            self.assertIsNone(result.checkpoint)
+            self.assertIn("disk full", result.checkpoint_error["message"])
+            self.assertEqual(session.step(0, action_id="save-failed").to_dict(), result.to_dict())
+            self.assertEqual(game.count, 1)
             trace = json.loads(session.export(self.root / "trace.json").read_text())
             self.assertIn("disk full", trace["steps"][0]["checkpoint_error"]["message"])
+            self.assertEqual(trace["steps"][0]["checkpoint_error"], result.checkpoint_error)
 
     def test_session_isolation_and_serialized_duplicate(self):
         one, two = self.game(), self.game()
@@ -235,6 +251,9 @@ GameSession(Runtime(), Path(sys.argv[1])).step(Action("act"), action_id="crash")
             except TypeError:
                 self.fail("checkpoint metadata must not discard a completed native action")
             self.assertEqual(result.status, "completed")
+            self.assertIn("checkpoint_error", result.to_dict())
+            self.assertIsNone(result.checkpoint)
+            self.assertEqual(result.checkpoint_error["type"], "TypeError")
             trace = json.loads(session.export(self.root / "trace.json").read_text())
             self.assertIsNone(trace["steps"][0]["checkpoint"])
             self.assertEqual(trace["steps"][0]["checkpoint_error"]["type"], "TypeError")

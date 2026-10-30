@@ -80,6 +80,8 @@ class StepResult(Record):
     result: Any = None
     error: dict | None = None
     status: str = "completed"
+    checkpoint: dict | None = None
+    checkpoint_error: dict | None = None
 
 
 class GameAdapter(Protocol):
@@ -107,4 +109,5 @@ def observation_from_dict(value: dict) -> Observation:
 
 def result_from_dict(value: dict) -> StepResult:
     return StepResult(observation=observation_from_dict(value["observation"]),
-                      result=value.get("result"), error=value.get("error"), status=value["status"])
+                      result=value.get("result"), error=value.get("error"), status=value["status"],
+                      checkpoint=value.get("checkpoint"), checkpoint_error=value.get("checkpoint_error"))

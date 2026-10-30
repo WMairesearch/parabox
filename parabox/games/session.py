@@ -231,6 +231,8 @@ class GameSession:
                 result.observation = observation_from_dict(before)
             else:
                 checkpoint, checkpoint_error = self._checkpoint(sequence)
+            result.checkpoint = checkpoint
+            result.checkpoint_error = checkpoint_error
             outcome = {"completed_at": _now(), "status": result.status,
                        "result": result.result, "error": result.error,
                        "next_observation": result.observation.to_dict() if result.status != "unknown" else None,
