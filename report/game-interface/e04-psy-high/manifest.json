@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "case": "E04",
+  "files": {
+    "README.md": "b7bed21cc8f77eb82f7d4f3593225195ea89084f036cb8302790775a8cf06381",
+    "result.json": "9f26b2f00ed9524fe4f0dbcb1ee814dcab728ca0bc6ea610e372f7513fe322d3",
+    "trace-metadata.jsonl": "7ab97044392b408590e712fdb5dfaa902ad80051a326e342eb5b3a40b973d32c",
+    "paywall.png": "1b8927f13d4ec6920780b096c53fb952190d0605013669a9af18be855dfddaf5"
+  }
+}
