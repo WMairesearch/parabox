@@ -37,6 +37,8 @@ class AdminPortTests(unittest.TestCase):
             workers = []
 
             def rcon(command):
+                if command.startswith("setting "):
+                    return ["Current value for 'gui.threaded_saves' is 'false' (min: 0, max: 1, def: 1)."]
                 source = bridge.save_dir / f"{command.split(' ', 1)[1]}.sav"
                 def delayed_save():
                     source.write_bytes(b"first half")
@@ -46,7 +48,8 @@ class AdminPortTests(unittest.TestCase):
                 worker = threading.Thread(target=delayed_save)
                 worker.start()
                 workers.append(worker)
-                return []
+                worker.join()  # The adapter now requires native synchronous saves.
+                return [f"Map successfully saved to '{command.split(' ', 1)[1]}.sav'."]
 
             bridge.rcon = rcon
             ref = bridge.checkpoint(root / "states" / "000001")
@@ -64,6 +67,8 @@ class AdminPortTests(unittest.TestCase):
             workers = []
 
             def rcon(command):
+                if command.startswith("setting "):
+                    return ["Current value for 'gui.threaded_saves' is 'false' (min: 0, max: 1, def: 1)."]
                 name = command.split(" ", 1)[1]
                 def delayed_save():
                     time.sleep(0.05)
@@ -71,7 +76,8 @@ class AdminPortTests(unittest.TestCase):
                 worker = threading.Thread(target=delayed_save)
                 worker.start()
                 workers.append(worker)
-                return []
+                worker.join()  # The adapter now requires native synchronous saves.
+                return [f"Map successfully saved to '{command.split(' ', 1)[1]}.sav'."]
 
             bridge.rcon = rcon
             ref = bridge.checkpoint(root / "states" / "000001")

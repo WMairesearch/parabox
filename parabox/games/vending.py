@@ -58,8 +58,11 @@ def _matches_schema(value: Any, schema: dict) -> bool:
     if kind == "integer":
         return isinstance(value, int) and not isinstance(value, bool)
     if kind == "number":
-        return (isinstance(value, (int, float)) and not isinstance(value, bool)
-                and math.isfinite(value))
+        try:
+            return (isinstance(value, (int, float)) and not isinstance(value, bool)
+                    and math.isfinite(value))
+        except OverflowError:
+            return False
     if kind == "object":
         nested = schema.get("additionalProperties")
         return isinstance(value, dict) and all(

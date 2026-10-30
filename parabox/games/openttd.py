@@ -69,8 +69,9 @@ class OpenTTDAdminPort:
         version = b"1\0"
         self._send(0, password.encode("utf-8") + b"\0" + name + version)
         protocol_seen = False
+        deadline = time.monotonic() + timeout
         while True:
-            kind, payload = self._receive()
+            kind, payload = self._receive(deadline)
             if kind == _SERVER_ERROR:
                 raise RuntimeError(f"OpenTTD AdminPort rejected login: {payload.hex()}")
             if kind == _SERVER_PROTOCOL:
@@ -86,6 +87,7 @@ class OpenTTDAdminPort:
                     raise RuntimeError("AdminPort welcome preceded protocol")
                 self.welcome = self._parse_welcome(payload)
                 self._send(2, struct.pack("<HH", 9, 64))
+                self.connection.settimeout(self.timeout)
                 break
 
     @classmethod
@@ -138,20 +140,25 @@ class OpenTTDAdminPort:
                 "seed": seed, "landscape": landscape, "start_date": start_date,
                 "map_width": width, "map_height": height}
 
-    def _read_exact(self, length: int) -> bytes:
+    def _read_exact(self, length: int, deadline: float | None = None) -> bytes:
         result = bytearray()
         while len(result) < length:
+            if deadline is not None:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise TimeoutError("OpenTTD AdminPort operation deadline reached")
+                self.connection.settimeout(remaining)
             chunk = self.connection.recv(length - len(result))
             if not chunk:
                 raise ConnectionError("OpenTTD AdminPort connection closed")
             result.extend(chunk)
         return bytes(result)
 
-    def _receive(self) -> tuple[int, bytes]:
-        size = struct.unpack("<H", self._read_exact(2))[0]
+    def _receive(self, deadline: float | None = None) -> tuple[int, bytes]:
+        size = struct.unpack("<H", self._read_exact(2, deadline))[0]
         if size < 3 or size > _MAX_PACKET:
             raise RuntimeError(f"invalid OpenTTD AdminPort packet size {size}")
-        body = self._read_exact(size - 2)
+        body = self._read_exact(size - 2, deadline)
         return body[0], body[1:]
 
     def _send(self, kind: int, payload: bytes = b"") -> None:
@@ -162,56 +169,61 @@ class OpenTTDAdminPort:
                    "op": op, "args": arguments, "company_id": company_id}
         encoded = json.dumps(message, ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\0"
         with self._lock:
-            self._send(6, encoded)
-            while True:
-                kind, payload = self._receive()
-                if kind == _SERVER_ERROR:
-                    raise RuntimeError(f"OpenTTD AdminPort error: {payload.hex()}")
-                if kind == _SERVER_GAMESCRIPT:
-                    reply = json.loads(payload.rstrip(b"\0"))
-                    if reply.get("protocol") == _PROTOCOL and reply.get("request_id") == message["request_id"]:
-                        return reply
+            deadline = time.monotonic() + self.timeout
+            try:
+                self._send(6, encoded)
+                while True:
+                    kind, payload = self._receive(deadline)
+                    if kind == _SERVER_ERROR:
+                        raise RuntimeError(f"OpenTTD AdminPort error: {payload.hex()}")
+                    if kind == _SERVER_GAMESCRIPT:
+                        reply = json.loads(payload.rstrip(b"\0"))
+                        if isinstance(reply, dict) and reply.get("protocol") == _PROTOCOL and reply.get("request_id") == message["request_id"]:
+                            return reply
+            finally:
+                self.connection.settimeout(self.timeout)
 
     def rcon(self, command: str) -> list[str]:
         if "\0" in command or "\n" in command or len(command.encode("utf-8")) > 490:
             raise ValueError("invalid OpenTTD rcon command")
         output = []
         with self._lock:
-            self._send(5, command.encode("utf-8") + b"\0")
-            while True:
-                kind, payload = self._receive()
-                if kind == _SERVER_ERROR:
-                    raise RuntimeError(f"OpenTTD rcon error: {payload.hex()}")
-                if kind == _SERVER_RCON:
-                    line, _ = _string(payload, 2)  # uint16 colour, then C string
-                    output.append(line)
-                if kind == _SERVER_RCON_END:
-                    return output
+            deadline = time.monotonic() + self.timeout
+            try:
+                self._send(5, command.encode("utf-8") + b"\0")
+                while True:
+                    kind, payload = self._receive(deadline)
+                    if kind == _SERVER_ERROR:
+                        raise RuntimeError(f"OpenTTD rcon error: {payload.hex()}")
+                    if kind == _SERVER_RCON:
+                        line, _ = _string(payload, 2)  # uint16 colour, then C string
+                        output.append(line)
+                    if kind == _SERVER_RCON_END:
+                        return output
+            finally:
+                self.connection.settimeout(self.timeout)
 
     def checkpoint(self, destination: Path) -> dict | None:
         if self.save_dir is None:
             return None
         destination = Path(destination).with_suffix(".sav")
         destination.parent.mkdir(parents=True, exist_ok=True)
+        # OpenTTD 15.3 otherwise returns from `save` before its writer thread
+        # finishes. A stable partial file is not a completion signal.
+        self.rcon("setting gui.threaded_saves false")
+        settings = self.rcon("setting gui.threaded_saves")
+        if not any("'gui.threaded_saves' is 'false'" in line for line in settings):
+            raise RuntimeError("OpenTTD checkpoints require synchronous native saves")
         name = f"parabox-{uuid4().hex}"
-        self.rcon(f"save {name}")
+        output = self.rcon(f"save {name}")
+        expected = f"Map successfully saved to '{name}.sav'."
+        if expected not in output:
+            raise RuntimeError("OpenTTD did not confirm a successful synchronous save")
         source = self.save_dir / f"{name}.sav"
-        deadline = time.monotonic() + self.timeout
-        last_signature = None
-        stable_since = None
-        while time.monotonic() < deadline:
-            if source.is_file():
-                stat = source.stat()
-                signature = (stat.st_size, stat.st_mtime_ns)
-                if stat.st_size > 0 and signature == last_signature:
-                    if stable_since is not None and time.monotonic() - stable_since >= 0.25:
-                        break
-                else:
-                    stable_since = time.monotonic() if stat.st_size > 0 else None
-                last_signature = signature
-            time.sleep(0.05)
-        else:
-            raise RuntimeError(f"OpenTTD did not complete expected save: {source}")
+        if not source.is_file() or source.stat().st_size == 0:
+            raise RuntimeError("OpenTTD did not produce its confirmed native save")
+        stat = source.stat()
+        last_signature = (stat.st_size, stat.st_mtime_ns)
         temporary = destination.with_name(f".{destination.name}.{uuid4().hex}.tmp")
         try:
             with source.open("rb") as inp, temporary.open("wb") as out:
@@ -231,7 +243,7 @@ class OpenTTDAdminPort:
             temporary.unlink(missing_ok=True)
         digest = hashlib.sha256(destination.read_bytes()).hexdigest()
         return {"kind": "openttd-save", "path": str(destination), "sha256": digest,
-                "bytes": destination.stat().st_size}
+                "bytes": destination.stat().st_size, "save_mode": "synchronous"}
 
     def close(self) -> None:
         if not self._closed:
@@ -372,9 +384,13 @@ class OpenTTDGame:
 
     def observe(self) -> Observation:
         reply = self.runtime.request("observe", {}, company_id=self.company_id)
-        if not reply.get("ok"):
+        if not isinstance(reply, dict) or type(reply.get("ok")) is not bool:
+            raise RuntimeError("Malformed OpenTTD observe reply: boolean ok required")
+        if not reply["ok"]:
             raise RuntimeError(f"OpenTTD observe failed: {reply.get('error')}")
-        observation = self._observation(reply.get("data") or {})
+        if not isinstance(reply.get("data"), dict):
+            raise RuntimeError("Malformed OpenTTD observe reply: object data required")
+        observation = self._observation(reply["data"])
         self._last_observation = observation
         return observation
 
@@ -386,15 +402,19 @@ class OpenTTDGame:
             self.observe()
         try:
             reply = self.runtime.request(action.name, action.arguments, company_id=self.company_id)
-        except (TimeoutError, ConnectionError, OSError) as exc:
+        except (TimeoutError, ConnectionError, OSError, RuntimeError, ValueError) as exc:
             return StepResult(self._last_observation or self._observation({}),
                               error={"type": type(exc).__name__, "message": str(exc),
+                                     "outcome_unknown": True}, status="unknown")
+        if not isinstance(reply, dict) or type(reply.get("ok")) is not bool:
+            return StepResult(self._last_observation or self._observation({}), result=reply,
+                              error={"type": "ProtocolError", "message": "boolean ok required",
                                      "outcome_unknown": True}, status="unknown")
         # The command response is sent only after the native GS command has
         # completed. A fresh observation may have a later game tick.
         try:
             observation = self.observe()
-        except (TimeoutError, ConnectionError, OSError) as exc:
+        except Exception as exc:
             return StepResult(self._last_observation or self._observation({}), result=reply,
                               error={"type": type(exc).__name__, "message": str(exc),
                                      "outcome_unknown": False, "observation_unknown": True}, status="unknown")

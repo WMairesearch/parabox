@@ -54,7 +54,12 @@ export function createOpenTTDBridge(wasmModule, { timeoutMs = 10000 } = {}) {
         if (entry) {
           clearTimeout(entry.timer);
           pending.delete(reply.request_id);
-          entry.resolve(reply);
+          if (typeof reply.ok !== "boolean") {
+            entry.reject(transportError("invalid GameScript outcome; outcome unknown",
+                                        reply.request_id, true));
+          } else {
+            entry.resolve(reply);
+          }
         }
       }
     } catch {

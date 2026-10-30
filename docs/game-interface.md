@@ -81,6 +81,8 @@ In the checked-in example's native run (seed 73, company 0), `town_action(advert
 
 A separate native route check built a road, depot, two stations and vehicle 8 (engine 116), appended two orders and started the vehicle; the game reported a running vehicle with two orders. It did not establish cargo delivery or profit.
 
+Native checkpoints set and verify `gui.threaded_saves=false` and require the native synchronous-save success acknowledgment before copying the save. File-size stability alone does not establish save completion.
+
 For OpenTTD (`continuous_clock`), bind one AdminPort connection and company to each session; `close()` closes that connection. The adapter does not pause the server during model calls: the next observation can include later ticks and other companies' actions. The caller owns the generation barrier and shared-map policy. Saves are whole-map `.sav` files, with no per-company merge across a generation boundary.
 
 Follow the [native OpenTTD setup](../integrations/openttd/README.md) to start a loopback dedicated server with the companion GameScript and an existing company. Set `OPENTTD_ADMIN_PASSWORD` in the host environment to the server's local AdminPort password. Then [the example](../examples/openttd_game.py) can record a read-only native action and `.sav` checkpoints:
