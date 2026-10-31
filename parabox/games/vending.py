@@ -252,6 +252,9 @@ class VendingBenchAdapter:
 
     def observe(self) -> Observation:
         self._check_config()
+        return self._observe()
+
+    def _observe(self) -> Observation:
         state = self.engine.s
         finished = bool(state.get("finished"))
         terminated = bool(state.get("terminated"))
@@ -275,8 +278,12 @@ class VendingBenchAdapter:
         )
 
     def step(self, action: Action) -> StepResult:
-        self._check_config()
-        before = self.observe()
+        try:
+            self._check_config()
+        except RuntimeError as exc:
+            return StepResult(self._observe(), error={"type": type(exc).__name__,
+                                                     "message": str(exc)}, status="rejected")
+        before = self._observe()
         if action.name not in self._spec_by_name:
             return StepResult(before, error={"type": "ValueError",
                                              "message": f"unknown native tool: {action.name}"},

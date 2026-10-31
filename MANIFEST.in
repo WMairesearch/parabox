@@ -3,7 +3,7 @@ include uv.lock
 recursive-include licenses *.txt
 recursive-include examples *.json
 recursive-include examples *.py
-recursive-include integrations/openttd *.nut *.md *.js *.mjs *.patch
+recursive-include integrations/openttd *.nut *.md *.js *.mjs
 include .containers/containers.conf
 prune docs
 prune report

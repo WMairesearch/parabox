@@ -229,7 +229,7 @@ class GameSession:
             if result.status == "unknown":
                 unconfirmed = _copy(result.observation.to_dict())
                 result.observation = observation_from_dict(before)
-            else:
+            elif result.status == "completed":
                 checkpoint, checkpoint_error = self._checkpoint(sequence)
             result.checkpoint = checkpoint
             result.checkpoint_error = checkpoint_error

@@ -1,6 +1,6 @@
 # Third-party provenance and licenses
 
-Original Parabox code and documentation use the root [MIT license](LICENSE) unless marked otherwise. Bundled Apache-2.0 material and the optional GPL-2.0-only OpenTTD integration patch retain their own terms. The package expression `MIT AND Apache-2.0 AND GPL-2.0-only` describes these components; it is not a choice of license for every file.
+Original Parabox code and documentation use the root [MIT license](LICENSE) unless marked otherwise. Bundled Apache-2.0 material retains that license and its notices. The package expression `MIT AND Apache-2.0` describes this combination; it is not a choice of license for every file. The optional GPL-2.0-only OpenTTD browser patch is kept in the repository only and is excluded from built packages.
 
 ## Distributed material
 
@@ -10,7 +10,7 @@ Original Parabox code and documentation use the root [MIT license](LICENSE) unle
 | Mathlib/Lean declaration and documentation index | `data/corpus/mathlib-v4.33.1.json`; v4.33.1 sources | Apache-2.0; [Mathlib license](licenses/Mathlib-Apache-2.0.txt), [Lean license](licenses/Lean-Apache-2.0.txt) and [prose-source attribution](licenses/Corpus-Attribution.txt) |
 | Model-generated text | Runtime seeds, packaged transmission and wiki-founder assets, note constants, historical documents and `report/decks/spread-of-misalignment/evidence/relay-example.json` | Provider-specific access terms; review retained excerpts and any proposed transcript export separately from the code license |
 | Bibliography and reported incidents | `report/decks/spread-of-misalignment/ref.bib` and cited publications | Attribute claims to their sources; inclusion does not confer rights to reproduce papers or imply endorsement |
-| Optional OpenTTD WASM bridge patch | `integrations/openttd/browser/`; targets [OpenTTD 15.3, revision `14ec60f248547d4d062a1160f0fc26d742319888`](https://github.com/OpenTTD/OpenTTD/tree/14ec60f248547d4d062a1160f0fc26d742319888), with upstream source context and new native integration code | GPL-2.0-only for the C++ patch; [upstream license copy](licenses/OpenTTD-GPL-2.0.txt). The external engine and WASM binaries are not bundled. Python adapters and JavaScript client code use the root MIT license. |
+| Optional OpenTTD WASM bridge patch | `integrations/openttd/browser/`; targets [OpenTTD 15.3, revision `14ec60f248547d4d062a1160f0fc26d742319888`](https://github.com/OpenTTD/OpenTTD/tree/14ec60f248547d4d062a1160f0fc26d742319888), with upstream source context and new native integration code | GPL-2.0-only for the C++ patch; [upstream license copy](integrations/openttd/browser/LICENSE-GPL-2.0.txt). The patch and license copy are repository-only and are not included in the wheel or source distribution. The external engine and WASM binaries are not bundled. Python adapters and JavaScript client code use the root MIT license. |
 
 Raw model runs remain local, and internal reviewer outputs are excluded. Generated declaration signatures in the corpus are pretty-printed; prose-bearing entries map to pinned upstream sources with retained copyright and author headers.
 

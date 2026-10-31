@@ -3,7 +3,7 @@ name = "parabox"
 version = "0.2.0"
 description = "Evaluate models' own violations, influence on peers, and contributions to shared work"
 readme = "README.md"
-license = "MIT AND Apache-2.0 AND GPL-2.0-only"
+license = "MIT AND Apache-2.0"
 license-files = ["LICENSE", "licenses/*.txt"]
 requires-python = ">=3.12"
 dependencies = ["python-dotenv>=1.0"]

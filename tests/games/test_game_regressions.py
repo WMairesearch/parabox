@@ -45,6 +45,44 @@ class GameRegressionTests(unittest.TestCase):
             self.assertEqual(session.step(Action("get_status")).status, "completed")
             self.assertEqual(engine.s["tool_calls"], 1)
 
+    def test_config_drift_is_rejected_before_native_execution_without_blocking(self):
+        adapter, engine = tiny_adapter(self.root)
+        with GameSession(adapter, self.root / "session") as session:
+            session.start()
+            adapter.config.CONFIG["horizon"]["sim_days"] = 31
+            result = session.step(Action("get_status"), action_id="drifted")
+            self.assertEqual(result.status, "rejected")
+            self.assertEqual(engine.s["tool_calls"], 0)
+            adapter.config.CONFIG["horizon"]["sim_days"] = 30
+            self.assertEqual(session.step(Action("get_status")).status, "completed")
+            self.assertEqual(engine.s["tool_calls"], 1)
+
+    def test_oversized_request_is_rejected_before_any_byte_is_sent(self):
+        client, server = socket.socketpair()
+        self.addCleanup(client.close)
+        self.addCleanup(server.close)
+        server.setblocking(False)
+        port = object.__new__(OpenTTDAdminPort)
+        port.connection = client
+        port.timeout = 0.2
+        port._lock = threading.RLock()
+
+        class Runtime(InMemoryRuntime):
+            def request(self, op, arguments, *, company_id):
+                if op == "observe":
+                    return super().request(op, arguments, company_id=company_id)
+                return port.request(op, arguments, company_id=company_id)
+
+        runtime = Runtime()
+        with GameSession(OpenTTDGame(runtime, company_id=0), self.root / "session") as session:
+            result = session.step(Action("inspect_tile", {"tile": 1, "pad": "x" * 2000}))
+            self.assertEqual(result.status, "rejected")
+            self.assertFalse(result.error["outcome_unknown"])
+            with self.assertRaises(BlockingIOError):
+                server.recv(1)
+            runtime.request = InMemoryRuntime.request.__get__(runtime)
+            self.assertEqual(session.step(Action("list_towns", {"offset": 0})).status, "completed")
+
     def checkpoint_runtime(self, *, failed=False, allow_synchronous=True):
         runtime = object.__new__(OpenTTDAdminPort)
         runtime.save_dir = self.root / "save"

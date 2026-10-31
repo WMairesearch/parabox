@@ -36,4 +36,4 @@ The browser remains caller-owned. Each session should bind its own page/game ins
 
 `git apply --check` passes on the official 15.3 source. Node tests use a fake FFI to check request/reply correlation and timeout behavior. Python tests use a fake page evaluator to check the adapter. A rebuilt WASM binary and live browser/GameScript run have **not** been verified by these checks.
 
-The C++ patch is a derivative patch to GPL-2.0-only OpenTTD source and is distributed under GPL-2.0-only; see the repository's third-party notices.
+The C++ patch is a derivative patch to GPL-2.0-only OpenTTD source and is distributed under GPL-2.0-only ([license copy](LICENSE-GPL-2.0.txt)). It is available from the repository only; Parabox packages do not include it. See the repository's third-party notices.

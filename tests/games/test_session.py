@@ -110,6 +110,20 @@ class SessionTests(unittest.TestCase):
             self.assertTrue(all(step["error"] for step in trace["steps"]))
             self.assertEqual(trace["steps"][1]["action"], {"name": "missing", "arguments": {}})
 
+    def test_rejected_actions_take_no_native_checkpoint(self):
+        game = self.game()
+        saves = []
+        original = game.checkpoint
+        game.checkpoint = lambda destination: saves.append(destination.name) or original(destination)
+        with GameSession(game, self.root / "one") as session:
+            session.start()
+            result = session.step({"name": "missing", "arguments": {}})
+            self.assertEqual(result.status, "rejected")
+            self.assertIsNone(result.checkpoint)
+            self.assertIsNone(result.checkpoint_error)
+            self.assertEqual(session.step(0).status, "completed")
+        self.assertEqual(saves, ["000000", "000002"])
+
     def test_unknown_outcome_blocks_blind_retry_and_exports_after_close(self):
         game = self.game()
         game.fail = True

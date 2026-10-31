@@ -39,10 +39,14 @@ def _string(payload: bytes, position: int) -> tuple[str, int]:
     return payload[position:end].decode("utf-8", errors="replace"), end + 1
 
 
+class RequestNotSent(ValueError):
+    """Rejected locally before any byte reached the server; safe to report as rejected."""
+
+
 def _packet(kind: int, payload: bytes = b"") -> bytes:
     size = len(payload) + 3
     if size > _MAX_PACKET:
-        raise ValueError("OpenTTD AdminPort packet exceeds COMPAT_MTU")
+        raise RequestNotSent("OpenTTD AdminPort packet exceeds COMPAT_MTU")
     return struct.pack("<HB", size, kind) + payload
 
 
@@ -168,10 +172,11 @@ class OpenTTDAdminPort:
         message = {"protocol": _PROTOCOL, "request_id": uuid4().hex,
                    "op": op, "args": arguments, "company_id": company_id}
         encoded = json.dumps(message, ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\0"
+        packet = _packet(6, encoded)
         with self._lock:
             deadline = time.monotonic() + self.timeout
             try:
-                self._send(6, encoded)
+                self.connection.sendall(packet)
                 while True:
                     kind, payload = self._receive(deadline)
                     if kind == _SERVER_ERROR:
@@ -402,6 +407,10 @@ class OpenTTDGame:
             self.observe()
         try:
             reply = self.runtime.request(action.name, action.arguments, company_id=self.company_id)
+        except RequestNotSent as exc:
+            return StepResult(self._last_observation,
+                              error={"type": type(exc).__name__, "message": str(exc),
+                                     "outcome_unknown": False}, status="rejected")
         except (TimeoutError, ConnectionError, OSError, RuntimeError, ValueError) as exc:
             return StepResult(self._last_observation or self._observation({}),
                               error={"type": type(exc).__name__, "message": str(exc),

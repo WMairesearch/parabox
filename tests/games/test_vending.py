@@ -125,8 +125,9 @@ class VendingAdapterTest(unittest.TestCase):
         adapter, engine = tiny_adapter(self.tmp_path)
         before = copy.deepcopy(engine.s)
         adapter.config.CONFIG["horizon"]["sim_days"] = 31
-        with self.assertRaisesRegex(RuntimeError, "config changed"):
-            adapter.step(Action("get_status"))
+        result = adapter.step(Action("get_status"))
+        self.assertEqual(result.status, "rejected")
+        self.assertIn("config changed", result.error["message"])
         self.assertEqual(engine.s, before)
 
     @unittest.skipUnless(os.environ.get("PARABOX_VENDING_BENCH_ROOT"),
